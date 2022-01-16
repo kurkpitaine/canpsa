@@ -1,8 +1,14 @@
-use core::{convert::TryFrom, fmt, time::Duration};
+use core::fmt;
 use time::{Date, Month, PrimitiveDateTime, Time};
 
-use crate::Frame;
 use crate::{Error, Result, YEAR_OFFSET};
+
+/// A read/write wrapper around an CAN frame buffer.
+#[derive(Debug, PartialEq, Clone)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub struct Frame<T: AsRef<[u8]>> {
+    buffer: T,
+}
 
 mod field {
     pub const YEAR: usize = 0;
@@ -10,15 +16,10 @@ mod field {
     pub const DAY: usize = 2;
     pub const HOUR: usize = 3;
     pub const MINUTE: usize = 4;
-    pub const UNKNOWN_1: usize = 5;
-    pub const UNKNOWN_2: usize = 6;
 }
 
-/// Length of a x276 CAN frame.
-pub const FRAME_LEN: usize = field::UNKNOWN_2 + 1;
-
-/// Periodicity of a x276 CAN frame.
-pub const PERIODICITY: Duration = Duration::from_millis(1000);
+/// Length of a x39b CAN frame.
+pub const FRAME_LEN: usize = field::MINUTE + 1;
 
 impl<T: AsRef<[u8]>> Frame<T> {
     /// Create a raw octet buffer with a CAN frame structure.
@@ -102,20 +103,6 @@ impl<T: AsRef<[u8]>> Frame<T> {
         let data = self.buffer.as_ref();
         data[field::MINUTE]
     }
-
-    /// Return the first unknown field.
-    #[inline]
-    pub fn unknown_1(&self) -> u8 {
-        let data = self.buffer.as_ref();
-        data[field::UNKNOWN_1]
-    }
-
-    /// Return the second unknown field.
-    #[inline]
-    pub fn unknown_2(&self) -> u8 {
-        let data = self.buffer.as_ref();
-        data[field::UNKNOWN_2]
-    }
 }
 
 impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
@@ -153,20 +140,6 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
         let data = self.buffer.as_mut();
         data[field::MINUTE] = value;
     }
-
-    /// Set the first unknown field.
-    #[inline]
-    pub fn set_unknown_1(&mut self, value: u8) {
-        let data = self.buffer.as_mut();
-        data[field::UNKNOWN_1] = value;
-    }
-
-    /// Set the second unknown field.
-    #[inline]
-    pub fn set_unknown_2(&mut self, value: u8) {
-        let data = self.buffer.as_mut();
-        data[field::UNKNOWN_2] = value;
-    }
 }
 
 impl<'a, T: AsRef<[u8]> + ?Sized> fmt::Display for Frame<&'a T> {
@@ -174,7 +147,7 @@ impl<'a, T: AsRef<[u8]> + ?Sized> fmt::Display for Frame<&'a T> {
         match Repr::parse(self) {
             Ok(repr) => write!(f, "{}", repr),
             Err(err) => {
-                write!(f, "x276 ({})", err)?;
+                write!(f, "x39b ({})", err)?;
                 Ok(())
             }
         }
@@ -187,7 +160,7 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
     }
 }
 
-/// A high-level representation of a x276 CAN frame.
+/// A high-level representation of a x39b CAN frame.
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Repr {
@@ -226,7 +199,7 @@ impl Repr {
         FRAME_LEN
     }
 
-    /// Emit a high-level representation into a x276 CAN frame.
+    /// Emit a high-level representation into a x39b CAN frame.
     pub fn emit<T: AsRef<[u8]> + AsMut<[u8]>>(&self, frame: &mut Frame<T>) {
         let can_year = self.utc_datetime.year() - YEAR_OFFSET;
         frame.set_year(can_year as u8);
@@ -234,14 +207,12 @@ impl Repr {
         frame.set_day(self.utc_datetime.day());
         frame.set_hour(self.utc_datetime.hour());
         frame.set_minute(self.utc_datetime.minute());
-        frame.set_unknown_1(0x3f); // Seems to be fixed to this value
-        frame.set_unknown_2(0xfe); // Seems to be fixed to this value
     }
 }
 
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "x276 datetime={}", self.utc_datetime)
+        write!(f, "x39b utc_datetime={}", self.utc_datetime)
     }
 }
 
@@ -252,7 +223,7 @@ mod test {
 
     use time::macros::datetime;
 
-    static REPR_FRAME_BYTES: [u8; 7] = [0x96, 0x01, 0x0a, 0x0f, 0x1d, 0x3f, 0xfe];
+    static REPR_FRAME_BYTES: [u8; 5] = [0x96, 0x01, 0x0a, 0x0f, 0x1d];
 
     fn frame_repr() -> Repr {
         Repr {
@@ -269,13 +240,11 @@ mod test {
         assert_eq!(frame.day(), 0x0a);
         assert_eq!(frame.hour(), 0x0f);
         assert_eq!(frame.minute(), 0x1d);
-        assert_eq!(frame.unknown_1(), 0x3f);
-        assert_eq!(frame.unknown_2(), 0xfe);
     }
 
     #[test]
     fn test_frame_construction() {
-        let mut bytes = [0xff; 7];
+        let mut bytes = [0xff; 5];
         let mut frame = Frame::new_unchecked(&mut bytes);
 
         frame.set_year(0x96);
@@ -283,15 +252,13 @@ mod test {
         frame.set_day(0x0a);
         frame.set_hour(0x0f);
         frame.set_minute(0x1d);
-        frame.set_unknown_1(0x3f);
-        frame.set_unknown_2(0xfe);
 
         assert_eq!(frame.into_inner(), &REPR_FRAME_BYTES);
     }
 
     #[test]
     fn test_overlong() {
-        let bytes: [u8; 8] = [0x96, 0x01, 0x0a, 0x0f, 0x1d, 0x3f, 0xfe, 0xff];
+        let bytes: [u8; 6] = [0x96, 0x01, 0x0a, 0x0f, 0x1d, 0xff];
         assert_eq!(
             Frame::new_unchecked(&bytes).check_len().unwrap_err(),
             Error::Overlong
@@ -300,7 +267,7 @@ mod test {
 
     #[test]
     fn test_underlong() {
-        let bytes: [u8; 5] = [0x96, 0x01, 0x0a, 0x0f, 0x1d];
+        let bytes: [u8; 4] = [0x96, 0x01, 0x0a, 0x0f];
         assert_eq!(Frame::new_checked(&bytes).unwrap_err(), Error::Truncated);
     }
 
@@ -313,7 +280,7 @@ mod test {
 
     #[test]
     fn test_basic_repr_emit() {
-        let mut buf = [0u8; 7];
+        let mut buf = [0u8; 5];
         let mut frame = Frame::new_unchecked(&mut buf);
         let repr = frame_repr();
         repr.emit(&mut frame);

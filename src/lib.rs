@@ -1,7 +1,8 @@
 use core::fmt;
 
-pub mod aee2004;
-pub mod aee2010;
+mod aee2004;
+mod aee2010;
+mod config;
 
 mod field {
     pub type Field = ::core::ops::Range<usize>;
@@ -47,11 +48,4 @@ impl fmt::Display for Error {
             Error::Dropped => write!(f, "dropped by socket"),
         }
     }
-}
-
-/// A read/write wrapper around an CAN frame buffer.
-#[derive(Debug, PartialEq, Clone)]
-#[cfg_attr(feature = "defmt", derive(defmt::Format))]
-pub struct Frame<T: AsRef<[u8]>> {
-    buffer: T,
 }
