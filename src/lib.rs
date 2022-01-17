@@ -1,5 +1,8 @@
 use core::fmt;
 
+#[macro_use]
+mod macros;
+
 mod aee2004;
 mod aee2010;
 mod config;
