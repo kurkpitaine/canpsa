@@ -81,6 +81,26 @@ impl fmt::Display for PressureUnit {
 }
 
 enum_with_unknown! {
+    /// Display charset.
+    pub enum DisplayCharset(u8) {
+        /// ASCII charset.
+        ASCII = 0,
+        /// UTF8 charset.
+        UTF8 = 1,
+    }
+}
+
+impl fmt::Display for DisplayCharset {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            DisplayCharset::ASCII => write!(f, "ASCII"),
+            DisplayCharset::UTF8 => write!(f, "UTF8"),
+            DisplayCharset::Unknown(unit) => write!(f, "0x{:02x}", unit),
+        }
+    }
+}
+
+enum_with_unknown! {
     /// Temperature unit.
     pub enum TemperatureUnit(u8) {
         /// Celsius temperature unit.
@@ -123,21 +143,21 @@ impl fmt::Display for DisplayMode {
 }
 
 enum_with_unknown! {
-    /// Time format.
-    pub enum TimeFormat(u8) {
-        /// Twelve hour time format.
+    /// Clock time format.
+    pub enum ClockFormat(u8) {
+        /// Twelve hour time clock format.
         H12 = 0,
-        /// Twenty-four hour time format.
+        /// Twenty-four hour time clock format.
         H24 = 1,
     }
 }
 
-impl fmt::Display for TimeFormat {
+impl fmt::Display for ClockFormat {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            TimeFormat::H12 => write!(f, "12h"),
-            TimeFormat::H24 => write!(f, "24h"),
-            TimeFormat::Unknown(mode) => write!(f, "0x{:02x}", mode),
+            ClockFormat::H12 => write!(f, "12h"),
+            ClockFormat::H24 => write!(f, "24h"),
+            ClockFormat::Unknown(time) => write!(f, "0x{:02x}", time),
         }
     }
 }
@@ -145,34 +165,44 @@ impl fmt::Display for TimeFormat {
 enum_with_unknown! {
     /// User interface language.
     pub enum Language(u8) {
-        /// French language.
+        /// French language - Available in AEE 2004 and AEE 2010.
         French = 0x00,
-        /// English language.
+        /// English language - Available in AEE 2004 and AEE 2010.
         English = 0x01,
-        /// German language.
+        /// German language - Available in AEE 2004 and AEE 2010.
         German = 0x02,
-        /// Spanish language.
+        /// Spanish language - Available in AEE 2004 and AEE 2010.
         Spanish = 0x03,
-        /// Italian language.
+        /// Italian language - Available in AEE 2004 and AEE 2010.
         Italian = 0x04,
-        /// Portuguese language.
+        /// Portuguese language - Available in AEE 2004 and AEE 2010.
         Portuguese = 0x05,
-        /// Dutch language.
+        /// Dutch language - Available in AEE 2004 and AEE 2010.
         Dutch = 0x06,
-        /// Greek language.
+        /// Greek language - Available in AEE 2004 and AEE 2010.
         Greek = 0x07,
-        /// Brazilian language.
-        Brazilian = 0x08,
-        /// Polish language.
+        /// Brazilian Portuguese language - Available in AEE 2004 and AEE 2010.
+        BrazilianPortuguese = 0x08,
+        /// Polish language - Available in AEE 2004 and AEE 2010.
         Polish = 0x09,
-        /// Traditional Chinese language.
+        /// Traditional Chinese language - Available in AEE 2004 and AEE 2010.
         TraditionalChinese = 0x0a,
-        /// Simplified Chinese language.
+        /// Simplified Chinese language - Available in AEE 2004 and AEE 2010.
         SimplifiedChinese = 0x0b,
-        /// Turkish language.
+        /// Turkish language - Available in AEE 2004 and AEE 2010.
         Turkish = 0x0c,
-        /// Russian language.
+        /// Japanese language - Maybe available in AEE 2004? Available in AEE 2010.
+        Japanese = 0x0d,
+        /// Russian language - Available in AEE 2004 and AEE 2010.
         Russian = 0x0e,
+        /// Invalid language value - Available in AEE 2004 and maybe in AEE 2010?.
+        Invalid = 0x0f,
+        /// Arabic language - Only available in AEE 2010.
+        Arabic = 0x12,
+        /// Farsi - Persian language - Only available in AEE 2010.
+        Farsi = 0x17,
+        /// Swedish language - Only available in AEE 2010.
+        Swedish = 0x1d,
     }
 }
 
@@ -187,13 +217,38 @@ impl fmt::Display for Language {
             Language::Portuguese => write!(f, "portuguese"),
             Language::Dutch => write!(f, "dutch"),
             Language::Greek => write!(f, "greek"),
-            Language::Brazilian => write!(f, "brazilian"),
+            Language::BrazilianPortuguese => write!(f, "brazilian portuguese"),
             Language::Polish => write!(f, "polish"),
             Language::TraditionalChinese => write!(f, "traditional chinese"),
             Language::SimplifiedChinese => write!(f, "simplified chinese"),
             Language::Turkish => write!(f, "turkish"),
             Language::Russian => write!(f, "russian"),
-            Language::Unknown(mode) => write!(f, "0x{:02x}", mode),
+            Language::Invalid => write!(f, "invalid value"),
+            Language::Japanese => write!(f, "japanese"),
+            Language::Arabic => write!(f, "arabic"),
+            Language::Farsi => write!(f, "farsi"),
+            Language::Swedish => write!(f, "swedish"),
+            Language::Unknown(lang) => write!(f, "0x{:02x}", lang),
+        }
+    }
+}
+
+enum_with_unknown! {
+    /// Clock display mode.
+    pub enum ClockDisplayMode(u8) {
+        /// Steady clock display mode.
+        Steady = 0,
+        /// Blinking clock display mode.
+        Blinking = 1,
+    }
+}
+
+impl fmt::Display for ClockDisplayMode {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            ClockDisplayMode::Steady => write!(f, "steady"),
+            ClockDisplayMode::Blinking => write!(f, "blinking"),
+            ClockDisplayMode::Unknown(time) => write!(f, "0x{:02x}", time),
         }
     }
 }

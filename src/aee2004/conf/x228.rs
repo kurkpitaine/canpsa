@@ -12,9 +12,9 @@ pub struct Frame<T: AsRef<[u8]>> {
 }
 
 mod field {
-    // 8-bit hour.
+    /// 5-bit clock hour, 3-bit empty.
     pub const HOUR: usize = 0;
-    // 8-bit minute.
+    /// 6-bit clock minute, 2-bit empty.
     pub const MINUTE: usize = 1;
 }
 
@@ -73,30 +73,34 @@ impl<T: AsRef<[u8]>> Frame<T> {
     #[inline]
     pub fn hour(&self) -> u8 {
         let data = self.buffer.as_ref();
-        data[field::HOUR]
+        data[field::HOUR] & 0x1f
     }
 
     /// Return the minute field.
     #[inline]
     pub fn minute(&self) -> u8 {
         let data = self.buffer.as_ref();
-        data[field::MINUTE]
+        data[field::MINUTE] & 0x3f
     }
 }
 
 impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
-    // Set the hour field.
+    /// Set the hour field.
     #[inline]
     pub fn set_hour(&mut self, value: u8) {
         let data = self.buffer.as_mut();
-        data[field::HOUR] = value;
+        let raw = data[field::HOUR] & !0x1f;
+        let raw = raw | (value & 0x1f);
+        data[field::HOUR] = raw;
     }
 
-    // Set the minute field.
+    /// Set the minute field.
     #[inline]
     pub fn set_minute(&mut self, value: u8) {
         let data = self.buffer.as_mut();
-        data[field::MINUTE] = value;
+        let raw = data[field::MINUTE] & !0x3f;
+        let raw = raw | (value & 0x3f);
+        data[field::MINUTE] = raw;
     }
 }
 
@@ -130,7 +134,7 @@ impl Repr {
         frame.check_len()?;
 
         if frame.hour() > 23 || frame.minute() > 59 {
-            Err(Error::Illegal)
+            Err(Error::Invalid)
         } else {
             Ok(Repr {
                 time: Time::from_hms(frame.hour(), frame.minute(), 0).unwrap(),

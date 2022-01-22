@@ -14,13 +14,13 @@ pub struct Frame<T: AsRef<[u8]>> {
 
 mod field {
     use crate::field::*;
-    // 20-bit seconds, 12-bit days.
+    /// 20-bit seconds, 12-bit days.
     pub const RUNNING_SEC_DAYS: Field = 0..4;
-    // 8-bit years.
+    /// 8-bit years.
     pub const RUNNING_YEARS: usize = 4;
-    // Each field is 1-bit.
+    /// Each field is 1-bit.
     pub const DISPLAY_CONFIG_FLAGS: usize = 5;
-    // 5-bit empty, 3-bit language code.
+    /// 4-bit language code, 4-bit empty.
     pub const LANGUAGE: usize = 6;
 }
 
@@ -128,6 +128,14 @@ impl<T: AsRef<[u8]>> Frame<T> {
         PressureUnit::from(raw)
     }
 
+    /// Return the display charset field.
+    #[inline]
+    pub fn display_charset(&self) -> DisplayCharset {
+        let data = self.buffer.as_ref();
+        let raw = (data[field::DISPLAY_CONFIG_FLAGS] & 0x10) >> 4;
+        DisplayCharset::from(raw)
+    }
+
     /// Return the temperature unit field.
     #[inline]
     pub fn temperature_unit(&self) -> TemperatureUnit {
@@ -144,19 +152,19 @@ impl<T: AsRef<[u8]>> Frame<T> {
         DisplayMode::from(raw)
     }
 
-    /// Return the time format field.
+    /// Return the clock format field.
     #[inline]
-    pub fn time_format(&self) -> TimeFormat {
+    pub fn clock_format(&self) -> ClockFormat {
         let data = self.buffer.as_ref();
         let raw = (data[field::DISPLAY_CONFIG_FLAGS] & 0x80) >> 7;
-        TimeFormat::from(raw)
+        ClockFormat::from(raw)
     }
 
     /// Return the language field.
     #[inline]
     pub fn language(&self) -> Language {
         let data = self.buffer.as_ref();
-        Language::from(data[field::LANGUAGE])
+        Language::from(data[field::LANGUAGE] & 0x0f)
     }
 }
 
@@ -229,7 +237,16 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
         data[field::DISPLAY_CONFIG_FLAGS] = raw;
     }
 
-    // Set the temperature unit field.
+    /// Set the display charset field.
+    #[inline]
+    pub fn set_display_charset(&mut self, value: DisplayCharset) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::DISPLAY_CONFIG_FLAGS] & !0x10;
+        let raw = raw | (u8::from(value) << 4);
+        data[field::DISPLAY_CONFIG_FLAGS] = raw;
+    }
+
+    /// Set the temperature unit field.
     #[inline]
     pub fn set_temperature_unit(&mut self, value: TemperatureUnit) {
         let data = self.buffer.as_mut();
@@ -238,7 +255,7 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
         data[field::DISPLAY_CONFIG_FLAGS] = raw;
     }
 
-    // Set the display mode field.
+    /// Set the display mode field.
     #[inline]
     pub fn set_display_mode(&mut self, value: DisplayMode) {
         let data = self.buffer.as_mut();
@@ -247,20 +264,22 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
         data[field::DISPLAY_CONFIG_FLAGS] = raw;
     }
 
-    // Set the time format field.
+    /// Set the clock format field.
     #[inline]
-    pub fn set_time_format(&mut self, value: TimeFormat) {
+    pub fn set_clock_format(&mut self, value: ClockFormat) {
         let data = self.buffer.as_mut();
         let raw = data[field::DISPLAY_CONFIG_FLAGS] & !0x80;
         let raw = raw | (u8::from(value) << 7);
         data[field::DISPLAY_CONFIG_FLAGS] = raw;
     }
 
-    // Set the language field.
+    /// Set the language field.
     #[inline]
     pub fn set_language(&mut self, value: Language) {
         let data = self.buffer.as_mut();
-        data[field::LANGUAGE] = value.into();
+        let raw = data[field::LANGUAGE] & !0x0f;
+        let raw = raw | (u8::from(value) & 0x0f);
+        data[field::LANGUAGE] = raw;
     }
 }
 
@@ -291,9 +310,10 @@ pub struct Repr {
     volume_unit: VolumeUnit,
     consumption_unit: ConsumptionUnit,
     pressure_unit: PressureUnit,
+    display_charset: DisplayCharset,
     temperature_unit: TemperatureUnit,
     display_mode: DisplayMode,
-    time_format: TimeFormat,
+    clock_format: ClockFormat,
     language: Language,
 }
 
@@ -301,21 +321,29 @@ impl Repr {
     pub fn parse<T: AsRef<[u8]> + ?Sized>(frame: &Frame<&T>) -> Result<Repr> {
         frame.check_len()?;
 
-        let running_duration = Duration::seconds(frame.running_seconds().into())
-            + Duration::days(frame.running_days().into())
-            + Duration::days(365 * i64::from(frame.running_years()));
+        if frame.running_seconds() >= 86400
+            || frame.running_days() >= 365
+            || frame.running_years() >= 100
+        {
+            Err(Error::Invalid)
+        } else {
+            let running_duration = Duration::seconds(frame.running_seconds().into())
+                + Duration::days(frame.running_days().into())
+                + Duration::days(365 * i64::from(frame.running_years()));
 
-        Ok(Repr {
-            running_duration: running_duration,
-            distance_unit: frame.distance_unit(),
-            volume_unit: frame.volume_unit(),
-            consumption_unit: frame.consumption_unit(),
-            pressure_unit: frame.pressure_unit(),
-            temperature_unit: frame.temperature_unit(),
-            display_mode: frame.display_mode(),
-            time_format: frame.time_format(),
-            language: frame.language(),
-        })
+            Ok(Repr {
+                running_duration: running_duration,
+                distance_unit: frame.distance_unit(),
+                volume_unit: frame.volume_unit(),
+                consumption_unit: frame.consumption_unit(),
+                pressure_unit: frame.pressure_unit(),
+                display_charset: frame.display_charset(),
+                temperature_unit: frame.temperature_unit(),
+                display_mode: frame.display_mode(),
+                clock_format: frame.clock_format(),
+                language: frame.language(),
+            })
+        }
     }
 
     /// Return the length of a frame that will be emitted from this high-level representation.
@@ -348,9 +376,10 @@ impl Repr {
         frame.set_volume_unit(self.volume_unit);
         frame.set_consumption_unit(self.consumption_unit);
         frame.set_pressure_unit(self.pressure_unit);
+        frame.set_display_charset(self.display_charset);
         frame.set_temperature_unit(self.temperature_unit);
         frame.set_display_mode(self.display_mode);
-        frame.set_time_format(self.time_format);
+        frame.set_clock_format(self.clock_format);
         frame.set_language(self.language);
     }
 }
@@ -366,9 +395,10 @@ impl fmt::Display for Repr {
         write!(f, "     volume unit={}", self.volume_unit)?;
         write!(f, "     consumption unit={}", self.consumption_unit)?;
         write!(f, "     pressure unit={}", self.pressure_unit)?;
+        write!(f, "     display charset={}", self.display_charset)?;
         write!(f, "     temperature unit={}", self.temperature_unit)?;
         write!(f, "     display mode={}", self.display_mode)?;
-        write!(f, "     time format={}", self.time_format)?;
+        write!(f, "     time format={}", self.clock_format)?;
         write!(f, "     language={}", self.language)
     }
 }
@@ -381,7 +411,7 @@ mod test {
     use time::Duration;
 
     static REPR_FRAME_BYTES_1: [u8; 7] = [0x00, 0xde, 0x80, 0x17, 0x00, 0x80, 0x04];
-    static REPR_FRAME_BYTES_2: [u8; 7] = [0x14, 0x28, 0xc0, 0x1f, 0x01, 0x6f, 0x01];
+    static REPR_FRAME_BYTES_2: [u8; 7] = [0x14, 0x28, 0xc0, 0x1f, 0x01, 0x7f, 0x01];
 
     fn frame_1_repr() -> Repr {
         Repr {
@@ -390,9 +420,10 @@ mod test {
             volume_unit: VolumeUnit::Liter,
             consumption_unit: ConsumptionUnit::VolumePerDistance,
             pressure_unit: PressureUnit::Bar,
+            display_charset: DisplayCharset::ASCII,
             temperature_unit: TemperatureUnit::Celsius,
             display_mode: DisplayMode::Negative,
-            time_format: TimeFormat::H24,
+            clock_format: ClockFormat::H24,
             language: Language::Italian,
         }
     }
@@ -404,9 +435,10 @@ mod test {
             volume_unit: VolumeUnit::Gallon,
             consumption_unit: ConsumptionUnit::DistancePerVolume,
             pressure_unit: PressureUnit::PSI,
+            display_charset: DisplayCharset::UTF8,
             temperature_unit: TemperatureUnit::Fahrenheit,
             display_mode: DisplayMode::Positive,
-            time_format: TimeFormat::H12,
+            clock_format: ClockFormat::H12,
             language: Language::English,
         }
     }
@@ -422,9 +454,10 @@ mod test {
         assert_eq!(frame.volume_unit(), VolumeUnit::Liter);
         assert_eq!(frame.consumption_unit(), ConsumptionUnit::VolumePerDistance);
         assert_eq!(frame.pressure_unit(), PressureUnit::Bar);
+        assert_eq!(frame.display_charset(), DisplayCharset::ASCII);
         assert_eq!(frame.temperature_unit(), TemperatureUnit::Celsius);
         assert_eq!(frame.display_mode(), DisplayMode::Negative);
-        assert_eq!(frame.time_format(), TimeFormat::H24);
+        assert_eq!(frame.clock_format(), ClockFormat::H24);
         assert_eq!(frame.language(), Language::Italian);
     }
 
@@ -439,9 +472,10 @@ mod test {
         assert_eq!(frame.volume_unit(), VolumeUnit::Gallon);
         assert_eq!(frame.consumption_unit(), ConsumptionUnit::DistancePerVolume);
         assert_eq!(frame.pressure_unit(), PressureUnit::PSI);
+        assert_eq!(frame.display_charset(), DisplayCharset::UTF8);
         assert_eq!(frame.temperature_unit(), TemperatureUnit::Fahrenheit);
         assert_eq!(frame.display_mode(), DisplayMode::Positive);
-        assert_eq!(frame.time_format(), TimeFormat::H12);
+        assert_eq!(frame.clock_format(), ClockFormat::H12);
         assert_eq!(frame.language(), Language::English);
     }
 
@@ -457,9 +491,10 @@ mod test {
         frame.set_volume_unit(VolumeUnit::Liter);
         frame.set_consumption_unit(ConsumptionUnit::VolumePerDistance);
         frame.set_pressure_unit(PressureUnit::Bar);
+        frame.set_display_charset(DisplayCharset::ASCII);
         frame.set_temperature_unit(TemperatureUnit::Celsius);
         frame.set_display_mode(DisplayMode::Negative);
-        frame.set_time_format(TimeFormat::H24);
+        frame.set_clock_format(ClockFormat::H24);
         frame.set_language(Language::Italian);
 
         assert_eq!(frame.into_inner(), &REPR_FRAME_BYTES_1);
@@ -477,9 +512,10 @@ mod test {
         frame.set_volume_unit(VolumeUnit::Gallon);
         frame.set_consumption_unit(ConsumptionUnit::DistancePerVolume);
         frame.set_pressure_unit(PressureUnit::PSI);
+        frame.set_display_charset(DisplayCharset::UTF8);
         frame.set_temperature_unit(TemperatureUnit::Fahrenheit);
         frame.set_display_mode(DisplayMode::Positive);
-        frame.set_time_format(TimeFormat::H12);
+        frame.set_clock_format(ClockFormat::H12);
         frame.set_language(Language::English);
 
         assert_eq!(frame.into_inner(), &REPR_FRAME_BYTES_2);

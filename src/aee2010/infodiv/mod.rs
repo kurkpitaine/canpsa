@@ -1,8 +1,8 @@
 pub mod x276;
-pub use x276 as DONNEES_BSI_LENTES_3;
+pub use x276 as ID_DONNEES_BSI_LENTES_3;
 
 pub mod x39b;
-pub use x39b as DMD_MAJ_DATE_HEURE;
+pub use x39b as ID_DMD_MAJ_DATE_HEURE;
 
 // When x15b is written on CAN bus, BSI should answer in BSI_INF_PROFILS.
 // length = 5

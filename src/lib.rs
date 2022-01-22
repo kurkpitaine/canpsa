@@ -14,7 +14,7 @@ mod field {
 
 /// Year value offset. Year is transmitted on a single byte, from 0 to 255.
 /// To get human year, add this constant to the CAN bus value.
-pub const YEAR_OFFSET: i32 = 1872;
+pub const YEAR_OFFSET: i32 = 2000;
 
 /// The error type for the networking stack.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -30,9 +30,9 @@ pub enum Error {
     Truncated,
     /// An incoming frame could not be parsed because its size is too long.
     Overlong,
-    /// An incoming frame was recognized but was malformed.
+    /// An incoming frame was recognized but contains invalid values.
     /// E.g. a datetime frame with impossible values.
-    Malformed,
+    Invalid,
     /// An incoming frame was recognized but contradicted internal state.
     Dropped,
 }
@@ -47,7 +47,7 @@ impl fmt::Display for Error {
             Error::Illegal => write!(f, "illegal operation"),
             Error::Truncated => write!(f, "truncated frame"),
             Error::Overlong => write!(f, "overlong frame"),
-            Error::Malformed => write!(f, "malformed frame"),
+            Error::Invalid => write!(f, "invalid frame"),
             Error::Dropped => write!(f, "dropped by socket"),
         }
     }

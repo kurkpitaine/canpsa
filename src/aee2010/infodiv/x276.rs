@@ -1,7 +1,10 @@
 use core::{fmt, time::Duration};
 use time::{Date, Month, PrimitiveDateTime, Time};
 
-use crate::{Error, Result, YEAR_OFFSET};
+use crate::{
+    config::{ClockDisplayMode, ClockFormat},
+    Error, Result, YEAR_OFFSET,
+};
 
 /// A read/write wrapper around an CAN frame buffer.
 #[derive(Debug, PartialEq, Clone)]
@@ -11,18 +14,24 @@ pub struct Frame<T: AsRef<[u8]>> {
 }
 
 mod field {
-    pub const YEAR: usize = 0;
-    pub const MONTH: usize = 1;
+    use crate::field::*;
+    /// 7-bit clock year, 1-bit clock format
+    pub const YEAR_CLK_FMT: usize = 0;
+    /// 4-bit clock month, 1-bit clock display mode, 3-bit empty
+    pub const MONTH_CLOCK_DISP_MODE: usize = 1;
+    /// 6-bit clock day, 2-bit empty
     pub const DAY: usize = 2;
+    /// 5-bit clock hour, 3-bit empty
     pub const HOUR: usize = 3;
+    /// 6-bit clock minute, 2-bit empty
     pub const MINUTE: usize = 4;
-    // pub const UNKNOWN_1: usize = 5;
-    // pub const UNKNOWN_2: usize = 6;
+    // 11-bit AdBlue autonomy.
+    //pub const FLAGS_ADBLUE_AUTONOMY: Field = 5..7;
 }
 
 /// Length of a x276 CAN frame.
-// pub const FRAME_LEN: usize = field::UNKNOWN_2 + 1;
 pub const FRAME_LEN: usize = field::MINUTE + 1;
+//pub const FRAME_LEN: usize = field::FLAGS_ADBLUE_AUTONOMY.end;
 
 /// Periodicity of a x276 CAN frame.
 pub const PERIODICITY: Duration = Duration::from_millis(1000);
@@ -75,39 +84,55 @@ impl<T: AsRef<[u8]>> Frame<T> {
         FRAME_LEN
     }
 
+    /// Return the clock format field.
+    #[inline]
+    pub fn clock_format(&self) -> ClockFormat {
+        let data = self.buffer.as_ref();
+        let raw = (data[field::YEAR_CLK_FMT] & 0x80) >> 7;
+        ClockFormat::from(raw)
+    }
+
     /// Return the year field.
     #[inline]
     pub fn year(&self) -> u8 {
         let data = self.buffer.as_ref();
-        data[field::YEAR]
+        data[field::YEAR_CLK_FMT] & 0x7f
     }
 
     /// Return the month field.
     #[inline]
     pub fn month(&self) -> u8 {
         let data = self.buffer.as_ref();
-        data[field::MONTH]
+        data[field::MONTH_CLOCK_DISP_MODE] & 0x0f
+    }
+
+    /// Return the clock display mode field.
+    #[inline]
+    pub fn clock_display_mode(&self) -> ClockDisplayMode {
+        let data = self.buffer.as_ref();
+        let raw = (data[field::MONTH_CLOCK_DISP_MODE] & 0x10) >> 4;
+        ClockDisplayMode::from(raw)
     }
 
     /// Return the day field.
     #[inline]
     pub fn day(&self) -> u8 {
         let data = self.buffer.as_ref();
-        data[field::DAY]
+        data[field::DAY] & 0x3f
     }
 
     /// Return the hour field.
     #[inline]
     pub fn hour(&self) -> u8 {
         let data = self.buffer.as_ref();
-        data[field::HOUR]
+        data[field::HOUR] & 0x1f
     }
 
     /// Return the minute field.
     #[inline]
     pub fn minute(&self) -> u8 {
         let data = self.buffer.as_ref();
-        data[field::MINUTE]
+        data[field::MINUTE] & 0x3f
     }
 
     /* /// Return the first unknown field.
@@ -126,39 +151,67 @@ impl<T: AsRef<[u8]>> Frame<T> {
 }
 
 impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
+    /// Set the clock format field.
+    #[inline]
+    pub fn set_clock_format(&mut self, value: ClockFormat) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::YEAR_CLK_FMT] & !0x80;
+        let raw = raw | (u8::from(value) << 7);
+        data[field::YEAR_CLK_FMT] = raw;
+    }
+
     /// Set the year field.
     #[inline]
     pub fn set_year(&mut self, value: u8) {
         let data = self.buffer.as_mut();
-        data[field::YEAR] = value
+        let raw = data[field::YEAR_CLK_FMT] & !0x7f;
+        let raw = raw | (value & 0x7f);
+        data[field::YEAR_CLK_FMT] = raw
     }
 
     /// Set the month field.
     #[inline]
     pub fn set_month(&mut self, value: u8) {
         let data = self.buffer.as_mut();
-        data[field::MONTH] = value;
+        let raw = data[field::MONTH_CLOCK_DISP_MODE] & !0x0f;
+        let raw = raw | value & 0x0f;
+        data[field::MONTH_CLOCK_DISP_MODE] = raw;
+    }
+
+    /// Set the clock display mode field.
+    #[inline]
+    pub fn set_clock_display_mode(&mut self, value: ClockDisplayMode) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::MONTH_CLOCK_DISP_MODE] & !0x10;
+        let raw = raw | ((u8::from(value) << 4) & 0x10);
+        data[field::MONTH_CLOCK_DISP_MODE] = raw;
     }
 
     /// Set the day field.
     #[inline]
     pub fn set_day(&mut self, value: u8) {
         let data = self.buffer.as_mut();
-        data[field::DAY] = value;
+        let raw = data[field::DAY] & !0x3f;
+        let raw = raw | value & 0x3f;
+        data[field::DAY] = raw;
     }
 
     /// Set the hour field.
     #[inline]
     pub fn set_hour(&mut self, value: u8) {
         let data = self.buffer.as_mut();
-        data[field::HOUR] = value;
+        let raw = data[field::HOUR] & !0x1f;
+        let raw = raw | value & 0x1f;
+        data[field::HOUR] = raw;
     }
 
     /// Set the minute field.
     #[inline]
     pub fn set_minute(&mut self, value: u8) {
         let data = self.buffer.as_mut();
-        data[field::MINUTE] = value;
+        let raw = data[field::MINUTE] & !0x3f;
+        let raw = raw | value & 0x3f;
+        data[field::MINUTE] = raw;
     }
 
     /* /// Set the first unknown field.
@@ -198,6 +251,8 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Repr {
+    clock_format: ClockFormat,
+    clock_disp_mode: ClockDisplayMode,
     utc_datetime: PrimitiveDateTime,
 }
 
@@ -205,6 +260,10 @@ impl Repr {
     pub fn parse<T: AsRef<[u8]> + ?Sized>(frame: &Frame<&T>) -> Result<Repr> {
         frame.check_len()?;
 
+        // month values:
+        //  - 0x00 and 0x0d are not used
+        //  - 0x0e means unavailable
+        //  - 0x0f means invalid value.
         if frame.month() < 1
             || frame.month() > 12
             || frame.day() < 1
@@ -215,6 +274,8 @@ impl Repr {
             Err(Error::Illegal)
         } else {
             Ok(Repr {
+                clock_format: frame.clock_format(),
+                clock_disp_mode: frame.clock_display_mode(),
                 utc_datetime: PrimitiveDateTime::new(
                     Date::from_calendar_date(
                         YEAR_OFFSET + (frame.year() as i32),
@@ -236,8 +297,10 @@ impl Repr {
     /// Emit a high-level representation into a x276 CAN frame.
     pub fn emit<T: AsRef<[u8]> + AsMut<[u8]>>(&self, frame: &mut Frame<T>) {
         let can_year = self.utc_datetime.year() - YEAR_OFFSET;
+        frame.set_clock_format(self.clock_format);
         frame.set_year(can_year as u8);
         frame.set_month(self.utc_datetime.month().into());
+        frame.set_clock_display_mode(self.clock_disp_mode);
         frame.set_day(self.utc_datetime.day());
         frame.set_hour(self.utc_datetime.hour());
         frame.set_minute(self.utc_datetime.minute());
@@ -255,15 +318,17 @@ impl fmt::Display for Repr {
 #[cfg(test)]
 mod test {
     use super::{Frame, Repr};
-    use crate::Error;
+    use crate::{config::{ClockDisplayMode, ClockFormat}, Error};
 
     use time::macros::datetime;
 
-    // static REPR_FRAME_BYTES: [u8; 7] = [0x96, 0x01, 0x0a, 0x0f, 0x1d, 0x3f, 0xfe];
-    static REPR_FRAME_BYTES: [u8; 5] = [0x96, 0x01, 0x0a, 0x0f, 0x1d];
+    // static REPR_FRAME_BYTES: [u8; 7] = [0x96, 0x11, 0x0a, 0x0f, 0x1d, 0x3f, 0xfe];
+    static REPR_FRAME_BYTES: [u8; 5] = [0x96, 0x11, 0x0a, 0x0f, 0x1d];
 
     fn frame_repr() -> Repr {
         Repr {
+            clock_format: ClockFormat::H24,
+            clock_disp_mode: ClockDisplayMode::Blinking,
             utc_datetime: datetime!(2022-01-10 15:29),
         }
     }
@@ -272,8 +337,10 @@ mod test {
     fn test_frame_deconstruction() {
         let frame = Frame::new_unchecked(&REPR_FRAME_BYTES);
         assert_eq!(frame.check_len(), Ok(()));
-        assert_eq!(frame.year(), 0x96);
+        assert_eq!(frame.clock_format(), ClockFormat::H24);
+        assert_eq!(frame.year(), 0x16);
         assert_eq!(frame.month(), 0x01);
+        assert_eq!(frame.clock_display_mode(), ClockDisplayMode::Blinking);
         assert_eq!(frame.day(), 0x0a);
         assert_eq!(frame.hour(), 0x0f);
         assert_eq!(frame.minute(), 0x1d);
@@ -284,11 +351,13 @@ mod test {
     #[test]
     fn test_frame_construction() {
         // let mut bytes = [0xff; 7];
-        let mut bytes = [0xff; 5];
+        let mut bytes = [0u8; 5];
         let mut frame = Frame::new_unchecked(&mut bytes);
 
-        frame.set_year(0x96);
+        frame.set_clock_format(ClockFormat::H24);
+        frame.set_year(0x16);
         frame.set_month(0x01);
+        frame.set_clock_display_mode(ClockDisplayMode::Blinking);
         frame.set_day(0x0a);
         frame.set_hour(0x0f);
         frame.set_minute(0x1d);
