@@ -1,4 +1,6 @@
 use core::{fmt, time::Duration};
+
+use byteorder::{ByteOrder, NetworkEndian};
 use time::{Date, Month, PrimitiveDateTime, Time};
 
 use crate::{
@@ -25,13 +27,13 @@ mod field {
     pub const HOUR: usize = 3;
     /// 6-bit clock minute, 2-bit empty
     pub const MINUTE: usize = 4;
-    // 11-bit AdBlue autonomy.
-    //pub const FLAGS_ADBLUE_AUTONOMY: Field = 5..7;
+    /// 5-bit flag, 11-bit AdBlue autonomy.
+    /// TODO: more research on this byte, format is weird...
+    pub const FLAGS_ADBLUE_AUTONOMY: Field = 5..7;
 }
 
 /// Length of a x276 CAN frame.
-pub const FRAME_LEN: usize = field::MINUTE + 1;
-//pub const FRAME_LEN: usize = field::FLAGS_ADBLUE_AUTONOMY.end;
+pub const FRAME_LEN: usize = field::FLAGS_ADBLUE_AUTONOMY.end;
 
 /// Periodicity of a x276 CAN frame.
 pub const PERIODICITY: Duration = Duration::from_millis(1000);
@@ -135,19 +137,13 @@ impl<T: AsRef<[u8]>> Frame<T> {
         data[field::MINUTE] & 0x3f
     }
 
-    /* /// Return the first unknown field.
+    /// Return the Adblue autonomy field.
     #[inline]
-    pub fn unknown_1(&self) -> u8 {
+    pub fn adblue_autonomy(&self) -> u16 {
         let data = self.buffer.as_ref();
-        data[field::UNKNOWN_1]
+        // NetworkEndian::read_u16(&data[field::FLAGS_ADBLUE_AUTONOMY]) >> 5
+        NetworkEndian::read_u16(&data[field::FLAGS_ADBLUE_AUTONOMY])
     }
-
-    /// Return the second unknown field.
-    #[inline]
-    pub fn unknown_2(&self) -> u8 {
-        let data = self.buffer.as_ref();
-        data[field::UNKNOWN_2]
-    } */
 }
 
 impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
@@ -214,19 +210,15 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
         data[field::MINUTE] = raw;
     }
 
-    /* /// Set the first unknown field.
+    /// Set the Adblue autonomy field.
     #[inline]
-    pub fn set_unknown_1(&mut self, value: u8) {
+    pub fn set_adblue_autonomy(&mut self, value: u16) {
         let data = self.buffer.as_mut();
-        data[field::UNKNOWN_1] = value;
+        // let raw = NetworkEndian::read_u16(&data[field::FLAGS_ADBLUE_AUTONOMY]);
+        // let raw = (raw & 0x001f) | value << 5;
+        // NetworkEndian::write_u16(&mut data[field::FLAGS_ADBLUE_AUTONOMY], raw);
+        NetworkEndian::write_u16(&mut data[field::FLAGS_ADBLUE_AUTONOMY], value);
     }
-
-    /// Set the second unknown field.
-    #[inline]
-    pub fn set_unknown_2(&mut self, value: u8) {
-        let data = self.buffer.as_mut();
-        data[field::UNKNOWN_2] = value;
-    } */
 }
 
 impl<'a, T: AsRef<[u8]> + ?Sized> fmt::Display for Frame<&'a T> {
@@ -254,6 +246,7 @@ pub struct Repr {
     clock_format: ClockFormat,
     clock_disp_mode: ClockDisplayMode,
     utc_datetime: PrimitiveDateTime,
+    adblue_autonomy: u16,
 }
 
 impl Repr {
@@ -285,6 +278,7 @@ impl Repr {
                     .unwrap(),
                     Time::from_hms(frame.hour(), frame.minute(), 0).unwrap(),
                 ),
+                adblue_autonomy: frame.adblue_autonomy(),
             })
         }
     }
@@ -304,8 +298,7 @@ impl Repr {
         frame.set_day(self.utc_datetime.day());
         frame.set_hour(self.utc_datetime.hour());
         frame.set_minute(self.utc_datetime.minute());
-        // frame.set_unknown_1(0x3f); // Seems to be fixed to this value
-        // frame.set_unknown_2(0xfe); // Seems to be fixed to this value
+        frame.set_adblue_autonomy(self.adblue_autonomy);
     }
 }
 
@@ -318,18 +311,21 @@ impl fmt::Display for Repr {
 #[cfg(test)]
 mod test {
     use super::{Frame, Repr};
-    use crate::{config::{ClockDisplayMode, ClockFormat}, Error};
+    use crate::{
+        config::{ClockDisplayMode, ClockFormat},
+        Error,
+    };
 
     use time::macros::datetime;
 
-    // static REPR_FRAME_BYTES: [u8; 7] = [0x96, 0x11, 0x0a, 0x0f, 0x1d, 0x3f, 0xfe];
-    static REPR_FRAME_BYTES: [u8; 5] = [0x96, 0x11, 0x0a, 0x0f, 0x1d];
+    static REPR_FRAME_BYTES: [u8; 7] = [0x96, 0x11, 0x0a, 0x0f, 0x1d, 0x3f, 0xfe];
 
     fn frame_repr() -> Repr {
         Repr {
             clock_format: ClockFormat::H24,
             clock_disp_mode: ClockDisplayMode::Blinking,
             utc_datetime: datetime!(2022-01-10 15:29),
+            adblue_autonomy: 16382,
         }
     }
 
@@ -344,14 +340,12 @@ mod test {
         assert_eq!(frame.day(), 0x0a);
         assert_eq!(frame.hour(), 0x0f);
         assert_eq!(frame.minute(), 0x1d);
-        // assert_eq!(frame.unknown_1(), 0x3f);
-        // assert_eq!(frame.unknown_2(), 0xfe);
+        assert_eq!(frame.adblue_autonomy(), 0x3ffe);
     }
 
     #[test]
     fn test_frame_construction() {
-        // let mut bytes = [0xff; 7];
-        let mut bytes = [0u8; 5];
+        let mut bytes = [0u8; 7];
         let mut frame = Frame::new_unchecked(&mut bytes);
 
         frame.set_clock_format(ClockFormat::H24);
@@ -361,16 +355,14 @@ mod test {
         frame.set_day(0x0a);
         frame.set_hour(0x0f);
         frame.set_minute(0x1d);
-        // frame.set_unknown_1(0x3f);
-        // frame.set_unknown_2(0xfe);
+        frame.set_adblue_autonomy(0x3ffe);
 
         assert_eq!(frame.into_inner(), &REPR_FRAME_BYTES);
     }
 
     #[test]
     fn test_overlong() {
-        // let bytes: [u8; 8] = [0x96, 0x01, 0x0a, 0x0f, 0x1d, 0x3f, 0xfe, 0xff];
-        let bytes: [u8; 6] = [0x96, 0x01, 0x0a, 0x0f, 0x1d, 0xff];
+        let bytes: [u8; 8] = [0x96, 0x11, 0x0a, 0x0f, 0x1d, 0x3f, 0xfe, 0xff];
         assert_eq!(
             Frame::new_unchecked(&bytes).check_len().unwrap_err(),
             Error::Overlong
@@ -379,8 +371,7 @@ mod test {
 
     #[test]
     fn test_underlong() {
-        // let bytes: [u8; 5] = [0x96, 0x01, 0x0a, 0x0f, 0x1d];
-        let bytes: [u8; 4] = [0x96, 0x01, 0x0a, 0x0f];
+        let bytes: [u8; 5] = [0x96, 0x11, 0x0a, 0x0f, 0x1d];
         assert_eq!(Frame::new_checked(&bytes).unwrap_err(), Error::Truncated);
     }
 
@@ -393,8 +384,7 @@ mod test {
 
     #[test]
     fn test_basic_repr_emit() {
-        // let mut buf = [0u8; 7];
-        let mut buf = [0u8; 5];
+        let mut buf = [0u8; 7];
         let mut frame = Frame::new_unchecked(&mut buf);
         let repr = frame_repr();
         repr.emit(&mut frame);

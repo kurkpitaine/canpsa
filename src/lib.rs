@@ -12,7 +12,7 @@ mod field {
     pub type Rest = ::core::ops::RangeFrom<usize>;
 }
 
-/// Year value offset. Year is transmitted on a single byte, from 0 to 255.
+/// Year value offset. Stellantis CAN time origin is January 1st 2000 0:00.
 /// To get human year, add this constant to the CAN bus value.
 pub const YEAR_OFFSET: i32 = 2000;
 
