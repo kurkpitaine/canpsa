@@ -1,6 +1,30 @@
 use core::fmt;
 
 enum_with_unknown! {
+    /// Vehicle configuration option.
+    pub enum ConfigOption(u8) {
+        /// Unavailable option, not mounted on vehicle.
+        Unavailable = 0,
+        /// Unselectable option, vehicle hardware is capable
+        /// but lacks parts to support it, ie: audio fader option with no rear speakers.
+        UnselectableOption = 1,
+        /// Selectable option, vehicle supports the option.
+        SelectableOption = 2,
+    }
+}
+
+impl fmt::Display for ConfigOption {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            ConfigOption::Unavailable => write!(f, "unavailable"),
+            ConfigOption::UnselectableOption => write!(f, "unselectable option"),
+            ConfigOption::SelectableOption => write!(f, "selectable option"),
+            ConfigOption::Unknown(unit) => write!(f, "0x{:02x}", unit),
+        }
+    }
+}
+
+enum_with_unknown! {
     /// Distance unit.
     pub enum DistanceUnit(u8) {
         /// Kilometer distance unit.
@@ -249,6 +273,81 @@ impl fmt::Display for ClockDisplayMode {
             ClockDisplayMode::Steady => write!(f, "steady"),
             ClockDisplayMode::Blinking => write!(f, "blinking"),
             ClockDisplayMode::Unknown(time) => write!(f, "0x{:02x}", time),
+        }
+    }
+}
+
+enum_with_unknown! {
+    /// Speed-dependent volume law.
+    /// LawX values are used for car radios with settable Speed-dependent law.
+    /// On standard car radios, only the [off] and [on] values are used.
+    ///
+    /// [off]: #variant.Off
+    /// [on]: #variant.On
+    pub enum SpeedDependentVolumeLaw(u8) {
+        /// Speed-dependent volume is disabled.
+        Off = 0,
+        /// Speed-dependent volume law 0.
+        Law0 = 1,
+        /// Speed-dependent volume law 1.
+        Law1 = 2,
+        /// Speed-dependent volume law 2.
+        Law2 = 3,
+        /// Speed-dependent volume law 3.
+        Law3 = 4,
+        /// Speed-dependent volume law 4.
+        Law4 = 5,
+        /// Speed-dependent volume law 5.
+        Law5 = 6,
+        /// Speed-dependent volume is enabled.
+        On = 7,
+    }
+}
+
+impl fmt::Display for SpeedDependentVolumeLaw {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            SpeedDependentVolumeLaw::Off => write!(f, "off"),
+            SpeedDependentVolumeLaw::Law0 => write!(f, "law 0"),
+            SpeedDependentVolumeLaw::Law1 => write!(f, "law 1"),
+            SpeedDependentVolumeLaw::Law2 => write!(f, "law 2"),
+            SpeedDependentVolumeLaw::Law3 => write!(f, "law 3"),
+            SpeedDependentVolumeLaw::Law4 => write!(f, "law 4"),
+            SpeedDependentVolumeLaw::Law5 => write!(f, "law 5"),
+            SpeedDependentVolumeLaw::On => write!(f, "on"),
+            SpeedDependentVolumeLaw::Unknown(time) => write!(f, "0x{:02x}", time),
+        }
+    }
+}
+
+enum_with_unknown! {
+    /// Musical ambiance setting.
+    pub enum MusicalAmbiance(u8) {
+        /// No musical ambiance.
+        None = 0,
+        /// Classic music ambiance.
+        Classic = 1,
+        /// Jazz or blues music ambiance.
+        JazzBlues = 2,
+        /// Pop or rock music ambiance.
+        PopRock = 3,
+        /// Vocal music ambiance.
+        Vocal = 4,
+        /// Techno music ambiance.
+        Techno = 5,
+    }
+}
+
+impl fmt::Display for MusicalAmbiance {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            MusicalAmbiance::None => write!(f, "none"),
+            MusicalAmbiance::Classic => write!(f, "classic"),
+            MusicalAmbiance::JazzBlues => write!(f, "jazz or blues"),
+            MusicalAmbiance::PopRock => write!(f, "pop or rock"),
+            MusicalAmbiance::Vocal => write!(f, "vocal"),
+            MusicalAmbiance::Techno => write!(f, "techno"),
+            MusicalAmbiance::Unknown(time) => write!(f, "0x{:02x}", time),
         }
     }
 }

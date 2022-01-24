@@ -4,6 +4,9 @@ pub use x276 as ID_DONNEES_BSI_LENTES_3;
 pub mod x39b;
 pub use x39b as ID_DMD_MAJ_DATE_HEURE;
 
+pub mod x1e5;
+pub use x1e5 as ID_ETAT_RADIO_GEN_AUD;
+
 // When x15b is written on CAN bus, BSI should answer in BSI_INF_PROFILS.
 // length = 5
 // pub mod x15b;

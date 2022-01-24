@@ -174,7 +174,7 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
     pub fn set_running_seconds(&mut self, value: u32) {
         let data = self.buffer.as_mut();
         let raw = NetworkEndian::read_u32(&data[field::RUNNING_SEC_DAYS]);
-        let raw = (raw & 0x0000_0fff) | value << 12;
+        let raw = (raw & 0x0000_0fff) | (value << 12);
         NetworkEndian::write_u32(&mut data[field::RUNNING_SEC_DAYS], raw);
     }
 
@@ -183,7 +183,7 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
     pub fn set_running_days(&mut self, value: u16) {
         let data = self.buffer.as_mut();
         let raw = NetworkEndian::read_u32(&data[field::RUNNING_SEC_DAYS]);
-        let raw = (raw & !0x0000_0fff) | u32::from(value) & 0x0000_0fff;
+        let raw = (raw & !0x0000_0fff) | (u32::from(value) & 0x0000_0fff);
         NetworkEndian::write_u32(&mut data[field::RUNNING_SEC_DAYS], raw);
     }
 
