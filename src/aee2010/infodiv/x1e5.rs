@@ -1,7 +1,7 @@
 use core::fmt;
 
 use crate::{
-    config::{MusicalAmbiance, SpeedDependentVolumeLaw},
+    config::{ConfigOption, MusicalAmbiance, SpeedDependentVolumeLaw},
     Error, Result,
 };
 
@@ -97,96 +97,129 @@ impl<T: AsRef<[u8]>> Frame<T> {
         FRAME_LEN
     }
 
+    /// Return the balance option activation field.
+    #[inline]
+    pub fn balance_option(&self) -> ConfigOption {
+        let data = self.buffer.as_ref();
+        let raw = data[field::BALANCE_OPT_ADJ] & 0x03;
+        ConfigOption::from(raw)
+    }
+
     /// Return the balance level field.
     #[inline]
     pub fn balance_level(&self) -> u8 {
         let data = self.buffer.as_ref();
-        data[field::BALANCE_ADJ] & 0x7f
+        (data[field::BALANCE_OPT_ADJ] & 0x7c) >> 2
     }
 
     /// Return the balance under adjustment flag.
     #[inline]
     pub fn balance_under_adjustment(&self) -> bool {
         let data = self.buffer.as_ref();
-        data[field::BALANCE_ADJ] & 0x80 != 0
+        data[field::BALANCE_OPT_ADJ] & 0x80 != 0
+    }
+
+    /// Return the fader option activation field.
+    #[inline]
+    pub fn fader_option(&self) -> ConfigOption {
+        let data = self.buffer.as_ref();
+        let raw = data[field::FADER_OPT_ADJ] & 0x03;
+        ConfigOption::from(raw)
     }
 
     /// Return the fader level field.
     #[inline]
     pub fn fader_level(&self) -> u8 {
         let data = self.buffer.as_ref();
-        data[field::FADER_ADJ] & 0x7f
+        (data[field::FADER_OPT_ADJ] & 0x7c) >> 2
     }
 
     /// Return the fader under adjustment flag.
     #[inline]
     pub fn fader_under_adjustment(&self) -> bool {
         let data = self.buffer.as_ref();
-        data[field::FADER_ADJ] & 0x80 != 0
+        data[field::FADER_OPT_ADJ] & 0x80 != 0
+    }
+
+    /// Return the bass option activation field.
+    #[inline]
+    pub fn bass_option(&self) -> ConfigOption {
+        let data = self.buffer.as_ref();
+        let raw = data[field::BASS_OPT_ADJ] & 0x03;
+        ConfigOption::from(raw)
     }
 
     /// Return the bass level field.
     #[inline]
     pub fn bass_level(&self) -> u8 {
         let data = self.buffer.as_ref();
-        data[field::BASS_ADJ] & 0x7f
+        (data[field::BASS_OPT_ADJ] & 0x7c) >> 2
     }
 
     /// Return the bass under adjustment flag.
     #[inline]
     pub fn bass_under_adjustment(&self) -> bool {
         let data = self.buffer.as_ref();
-        data[field::BASS_ADJ] & 0x80 != 0
+        data[field::BASS_OPT_ADJ] & 0x80 != 0
     }
 
-    /// Return the middle level field.
+    /// Return the treble option activation field.
     #[inline]
-    pub fn middle_level(&self) -> u8 {
+    pub fn treble_option(&self) -> ConfigOption {
         let data = self.buffer.as_ref();
-        data[field::MIDDLE_ADJ] & 0x7f
-    }
-
-    /// Return the middle under adjustment flag.
-    #[inline]
-    pub fn middle_under_adjustment(&self) -> bool {
-        let data = self.buffer.as_ref();
-        data[field::MIDDLE_ADJ] & 0x80 != 0
+        let raw = data[field::TREBLE_OPT_ADJ] & 0x03;
+        ConfigOption::from(raw)
     }
 
     /// Return the treble level field.
     #[inline]
     pub fn treble_level(&self) -> u8 {
         let data = self.buffer.as_ref();
-        data[field::TREBLE_ADJ] & 0x7f
+        (data[field::TREBLE_OPT_ADJ] & 0x7c) >> 2
     }
 
     /// Return the middle under adjustment flag.
     #[inline]
     pub fn treble_under_adjustment(&self) -> bool {
         let data = self.buffer.as_ref();
-        data[field::TREBLE_ADJ] & 0x80 != 0
+        data[field::TREBLE_OPT_ADJ] & 0x80 != 0
     }
 
-    /// Return the speed-dependent volume law field.
+    /// Return the speed dependent volume option activation field (via diagnostic session).
     #[inline]
-    pub fn speed_dependent_volume(&self) -> SpeedDependentVolumeLaw {
+    pub fn speed_dependent_volume_option(&self) -> ConfigOption {
         let data = self.buffer.as_ref();
-        let raw = data[field::SPD_VOL_ADJ_LOUD_ADJ] & 0x07;
-        SpeedDependentVolumeLaw::from(raw)
+        let raw = data[field::SPD_VOL_ADJ_LOUD_ADJ] & 0x03;
+        ConfigOption::from(raw)
+    }
+
+    /// Return whether speed-dependent volume is enabled or not.
+    #[inline]
+    pub fn speed_dependent_volume_enabled(&self) -> bool {
+        let data = self.buffer.as_ref();
+        data[field::SPD_VOL_ADJ_LOUD_ADJ] & 0x04 != 0
     }
 
     /// Return the speed-dependent volume under adjustment flag.
     #[inline]
     pub fn speed_dependent_volume_under_adjustment(&self) -> bool {
         let data = self.buffer.as_ref();
-        data[field::SPD_VOL_ADJ_LOUD_ADJ] & 0x10 != 0
+        data[field::SPD_VOL_ADJ_LOUD_ADJ] & 0x08 != 0
     }
 
     /// Return whether loudness is enabled or not.
     #[inline]
     pub fn loudness_enabled(&self) -> bool {
         let data = self.buffer.as_ref();
-        data[field::SPD_VOL_ADJ_LOUD_ADJ] & 0x40 != 0
+        data[field::SPD_VOL_ADJ_LOUD_ADJ] & 0x10 != 0
+    }
+
+    /// Return the speed dependent volume option activation field.
+    #[inline]
+    pub fn loudness_option(&self) -> ConfigOption {
+        let data = self.buffer.as_ref();
+        let raw = (data[field::SPD_VOL_ADJ_LOUD_ADJ] & 0x60) >> 5;
+        ConfigOption::from(raw)
     }
 
     /// Return the loudness under adjustment flag.
@@ -196,40 +229,70 @@ impl<T: AsRef<[u8]>> Frame<T> {
         data[field::SPD_VOL_ADJ_LOUD_ADJ] & 0x80 != 0
     }
 
-    /// Return whether loudness is enabled or not (via diagnostic session).
+    /// Return the sound repartition option activation field.
     #[inline]
-    pub fn loudness_enabled_diag(&self) -> bool {
+    pub fn sound_repartition_option(&self) -> ConfigOption {
         let data = self.buffer.as_ref();
-        data[field::FLAGS_AMBIANCE] & 0x01 != 0
-    }
-
-    /// Return whether the fader is enabled or not (via diagnostic session).
-    #[inline]
-    pub fn fader_enabled_diag(&self) -> bool {
-        let data = self.buffer.as_ref();
-        data[field::FLAGS_AMBIANCE] & 0x02 != 0
-    }
-
-    /// Return the musical ambiance field.
-    #[inline]
-    pub fn musical_ambiance(&self) -> MusicalAmbiance {
-        let data = self.buffer.as_ref();
-        let raw = (data[field::FLAGS_AMBIANCE] & 0x1c) >> 2;
-        MusicalAmbiance::from(raw)
-    }
-
-    /// Return the impossible setting with phone as audio source flag.
-    #[inline]
-    pub fn impossible_setting(&self) -> bool {
-        let data = self.buffer.as_ref();
-        data[field::FLAGS_AMBIANCE] & 0x20 != 0
+        let raw = data[field::REPARTITION_AMBIANCE] & 0x03;
+        ConfigOption::from(raw)
     }
 
     /// Return the musical ambiance under adjustment flag.
     #[inline]
     pub fn musical_ambiance_under_adjustment(&self) -> bool {
         let data = self.buffer.as_ref();
-        data[field::FLAGS_AMBIANCE] & 0x40 != 0
+        data[field::REPARTITION_AMBIANCE] & 0x04 != 0
+    }
+
+    /// Return the musical ambiance field.
+    #[inline]
+    pub fn musical_ambiance(&self) -> MusicalAmbiance {
+        let data = self.buffer.as_ref();
+        let raw = (data[field::REPARTITION_AMBIANCE] & 0x38) >> 3;
+        MusicalAmbiance::from(raw)
+    }
+
+    /// Return the musical ambiance option activation field.
+    #[inline]
+    pub fn musical_ambiance_option(&self) -> ConfigOption {
+        let data = self.buffer.as_ref();
+        let raw = (data[field::REPARTITION_AMBIANCE] & 0xc0) >> 6;
+        ConfigOption::from(raw)
+    }
+
+    /// Return the spatial sound under adjustment flag.
+    #[inline]
+    pub fn spatial_sound_under_adjustment(&self) -> bool {
+        let data = self.buffer.as_ref();
+        data[field::SPATIAL_SPECTRAL_REPARTITION] & 0x02 != 0
+    }
+
+    /// Return the spectral sound under adjustment flag.
+    #[inline]
+    pub fn spectral_sound_under_adjustment(&self) -> bool {
+        let data = self.buffer.as_ref();
+        data[field::SPATIAL_SPECTRAL_REPARTITION] & 0x04 != 0
+    }
+
+    /// Return the impossible setting with phone as audio source flag.
+    #[inline]
+    pub fn impossible_setting(&self) -> bool {
+        let data = self.buffer.as_ref();
+        data[field::SPATIAL_SPECTRAL_REPARTITION] & 0x08 != 0
+    }
+
+    /// Return the sound repartition field.
+    #[inline]
+    pub fn sound_repartition(&self) -> u8 {
+        let data = self.buffer.as_ref();
+        (data[field::SPATIAL_SPECTRAL_REPARTITION] & 0x70) >> 4
+    }
+
+    /// Return the sound repartition under adjustment flag.
+    #[inline]
+    pub fn sound_repartition_under_adjustment(&self) -> bool {
+        let data = self.buffer.as_ref();
+        data[field::SPATIAL_SPECTRAL_REPARTITION] & 0x80 != 0
     }
 }
 
