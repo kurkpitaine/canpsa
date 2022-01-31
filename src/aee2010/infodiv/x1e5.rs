@@ -1,7 +1,7 @@
 use core::fmt;
 
 use crate::{
-    config::{ConfigOption, MusicalAmbiance, SpeedDependentVolumeLaw},
+    config::{ConfigOption, MusicalAmbiance, SoundRepartition},
     Error, Result,
 };
 
@@ -283,9 +283,10 @@ impl<T: AsRef<[u8]>> Frame<T> {
 
     /// Return the sound repartition field.
     #[inline]
-    pub fn sound_repartition(&self) -> u8 {
+    pub fn sound_repartition(&self) -> SoundRepartition {
         let data = self.buffer.as_ref();
-        (data[field::SPATIAL_SPECTRAL_REPARTITION] & 0x70) >> 4
+        let raw = (data[field::SPATIAL_SPECTRAL_REPARTITION] & 0x70) >> 4;
+        SoundRepartition::from(raw)
     }
 
     /// Return the sound repartition under adjustment flag.
@@ -297,102 +298,129 @@ impl<T: AsRef<[u8]>> Frame<T> {
 }
 
 impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
+    /// Set the balance option activation field.
+    #[inline]
+    pub fn set_balance_option(&mut self, value: ConfigOption) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::BALANCE_OPT_ADJ] & !0x03;
+        let raw = raw | (u8::from(value) & 0x03);
+        data[field::BALANCE_OPT_ADJ] = raw;
+    }
+
     /// Set the balance level field.
     #[inline]
     pub fn set_balance_level(&mut self, value: u8) {
         let data = self.buffer.as_mut();
-        let raw = data[field::BALANCE_ADJ] & !0x7f;
-        let raw = raw | (value & 0x7f);
-        data[field::BALANCE_ADJ] = raw;
+        let raw = data[field::BALANCE_OPT_ADJ] & !0x7c;
+        let raw = raw | ((value & 0x1f) << 2);
+        data[field::BALANCE_OPT_ADJ] = raw;
     }
 
     /// Set the balance under adjustment flag.
     #[inline]
     pub fn set_balance_under_adjustment(&mut self, value: bool) {
         let data = self.buffer.as_mut();
-        let raw = data[field::BALANCE_ADJ];
+        let raw = data[field::BALANCE_OPT_ADJ];
         let raw = if value { raw | 0x80 } else { raw & !0x80 };
-        data[field::BALANCE_ADJ] = raw;
+        data[field::BALANCE_OPT_ADJ] = raw;
+    }
+
+    /// Set the fader option activation field.
+    #[inline]
+    pub fn set_fader_option(&mut self, value: ConfigOption) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::FADER_OPT_ADJ] & !0x03;
+        let raw = raw | (u8::from(value) & 0x03);
+        data[field::FADER_OPT_ADJ] = raw;
     }
 
     /// Set the fader level field.
     #[inline]
     pub fn set_fader_level(&mut self, value: u8) {
         let data = self.buffer.as_mut();
-        let raw = data[field::FADER_ADJ] & !0x7f;
-        let raw = raw | (value & 0x7f);
-        data[field::FADER_ADJ] = raw;
+        let raw = data[field::FADER_OPT_ADJ] & !0x7c;
+        let raw = raw | ((value & 0x1f) << 2);
+        data[field::FADER_OPT_ADJ] = raw;
     }
 
     /// Set the fader under adjustment flag.
     #[inline]
     pub fn set_fader_under_adjustment(&mut self, value: bool) {
         let data = self.buffer.as_mut();
-        let raw = data[field::FADER_ADJ];
+        let raw = data[field::FADER_OPT_ADJ];
         let raw = if value { raw | 0x80 } else { raw & !0x80 };
-        data[field::FADER_ADJ] = raw;
+        data[field::FADER_OPT_ADJ] = raw;
+    }
+
+    /// Set the bass option activation field.
+    #[inline]
+    pub fn set_bass_option(&mut self, value: ConfigOption) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::BASS_OPT_ADJ] & !0x03;
+        let raw = raw | (u8::from(value) & 0x03);
+        data[field::BASS_OPT_ADJ] = raw;
     }
 
     /// Set the bass level field.
     #[inline]
     pub fn set_bass_level(&mut self, value: u8) {
         let data = self.buffer.as_mut();
-        let raw = data[field::BASS_ADJ] & !0x7f;
-        let raw = raw | (value & 0x7f);
-        data[field::BASS_ADJ] = raw;
+        let raw = data[field::BASS_OPT_ADJ] & !0x7c;
+        let raw = raw | ((value & 0x1f) << 2);
+        data[field::BASS_OPT_ADJ] = raw;
     }
 
     /// Set the bass under adjustment flag.
     #[inline]
     pub fn set_bass_under_adjustment(&mut self, value: bool) {
         let data = self.buffer.as_mut();
-        let raw = data[field::BASS_ADJ];
+        let raw = data[field::BASS_OPT_ADJ];
         let raw = if value { raw | 0x80 } else { raw & !0x80 };
-        data[field::BASS_ADJ] = raw;
+        data[field::BASS_OPT_ADJ] = raw;
     }
 
-    /// Set the middle level field.
+    /// Set the treble option activation field.
     #[inline]
-    pub fn set_middle_level(&mut self, value: u8) {
+    pub fn set_treble_option(&mut self, value: ConfigOption) {
         let data = self.buffer.as_mut();
-        let raw = data[field::MIDDLE_ADJ] & !0x7f;
-        let raw = raw | (value & 0x7f);
-        data[field::MIDDLE_ADJ] = raw;
-    }
-
-    /// Set the bass under adjustment flag.
-    #[inline]
-    pub fn set_middle_under_adjustment(&mut self, value: bool) {
-        let data = self.buffer.as_mut();
-        let raw = data[field::MIDDLE_ADJ];
-        let raw = if value { raw | 0x80 } else { raw & !0x80 };
-        data[field::MIDDLE_ADJ] = raw;
+        let raw = data[field::TREBLE_OPT_ADJ] & !0x03;
+        let raw = raw | (u8::from(value) & 0x03);
+        data[field::TREBLE_OPT_ADJ] = raw;
     }
 
     /// Set the treble level field.
     #[inline]
     pub fn set_treble_level(&mut self, value: u8) {
         let data = self.buffer.as_mut();
-        let raw = data[field::TREBLE_ADJ] & !0x7f;
-        let raw = raw | (value & 0x7f);
-        data[field::TREBLE_ADJ] = raw;
+        let raw = data[field::TREBLE_OPT_ADJ] & !0x7c;
+        let raw = raw | ((value & 0x1f) << 2);
+        data[field::TREBLE_OPT_ADJ] = raw;
     }
 
     /// Set the treble under adjustment flag.
     #[inline]
     pub fn set_treble_under_adjustment(&mut self, value: bool) {
         let data = self.buffer.as_mut();
-        let raw = data[field::TREBLE_ADJ];
+        let raw = data[field::TREBLE_OPT_ADJ];
         let raw = if value { raw | 0x80 } else { raw & !0x80 };
-        data[field::TREBLE_ADJ] = raw;
+        data[field::TREBLE_OPT_ADJ] = raw;
     }
 
-    /// Set the speed-dependent volume level field.
+    /// Set the speed dependent volume option activation field (via diagnostic session).
     #[inline]
-    pub fn set_speed_dependent_volume(&mut self, value: SpeedDependentVolumeLaw) {
+    pub fn set_speed_dependent_volume_option(&mut self, value: ConfigOption) {
         let data = self.buffer.as_mut();
-        let raw = data[field::SPD_VOL_ADJ_LOUD_ADJ] & !0x07;
-        let raw = raw | (u8::from(value) & 0x07);
+        let raw = data[field::SPD_VOL_ADJ_LOUD_ADJ] & !0x03;
+        let raw = raw | (u8::from(value) & 0x03);
+        data[field::SPD_VOL_ADJ_LOUD_ADJ] = raw;
+    }
+
+    /// Set whether speed-dependent volume is enabled or not.
+    #[inline]
+    pub fn set_speed_dependent_volume_enabled(&mut self, value: bool) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::SPD_VOL_ADJ_LOUD_ADJ];
+        let raw = if value { raw | 0x04 } else { raw & !0x04 };
         data[field::SPD_VOL_ADJ_LOUD_ADJ] = raw;
     }
 
@@ -401,7 +429,7 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
     pub fn set_speed_dependent_volume_under_adjustment(&mut self, value: bool) {
         let data = self.buffer.as_mut();
         let raw = data[field::SPD_VOL_ADJ_LOUD_ADJ];
-        let raw = if value { raw | 0x10 } else { raw & !0x10 };
+        let raw = if value { raw | 0x08 } else { raw & !0x08 };
         data[field::SPD_VOL_ADJ_LOUD_ADJ] = raw;
     }
 
@@ -410,7 +438,16 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
     pub fn set_loudness_enabled(&mut self, value: bool) {
         let data = self.buffer.as_mut();
         let raw = data[field::SPD_VOL_ADJ_LOUD_ADJ];
-        let raw = if value { raw | 0x40 } else { raw & !0x40 };
+        let raw = if value { raw | 0x10 } else { raw & !0x10 };
+        data[field::SPD_VOL_ADJ_LOUD_ADJ] = raw;
+    }
+
+    /// Set the loudness option activation field.
+    #[inline]
+    pub fn set_loudness_option(&mut self, value: ConfigOption) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::SPD_VOL_ADJ_LOUD_ADJ] & !0x60;
+        let raw = raw | ((u8::from(value) & 0x03) << 5);
         data[field::SPD_VOL_ADJ_LOUD_ADJ] = raw;
     }
 
@@ -423,49 +460,85 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
         data[field::SPD_VOL_ADJ_LOUD_ADJ] = raw;
     }
 
-    /// Set the loudness enabled (via diagnostic session) flag.
+    /// Set the sound repartition option activation field.
     #[inline]
-    pub fn set_loudness_enabled_diag(&mut self, value: bool) {
+    pub fn set_sound_repartition_option(&mut self, value: ConfigOption) {
         let data = self.buffer.as_mut();
-        let raw = data[field::FLAGS_AMBIANCE];
-        let raw = if value { raw | 0x01 } else { raw & !0x01 };
-        data[field::FLAGS_AMBIANCE] = raw;
-    }
-
-    /// Set the fader enabled (via diagnostic session) flag.
-    #[inline]
-    pub fn set_fader_enabled_diag(&mut self, value: bool) {
-        let data = self.buffer.as_mut();
-        let raw = data[field::FLAGS_AMBIANCE];
-        let raw = if value { raw | 0x02 } else { raw & !0x02 };
-        data[field::FLAGS_AMBIANCE] = raw;
-    }
-
-    /// Set the musical ambiance field.
-    #[inline]
-    pub fn set_musical_ambiance(&mut self, value: MusicalAmbiance) {
-        let data = self.buffer.as_mut();
-        let raw = data[field::FLAGS_AMBIANCE] & !0x1c;
-        let raw = raw | ((u8::from(value) << 2) & 0x1c);
-        data[field::FLAGS_AMBIANCE] = raw;
-    }
-
-    /// Set the impossible setting with phone as audio source flag.
-    #[inline]
-    pub fn set_impossible_setting(&mut self, value: bool) {
-        let data = self.buffer.as_mut();
-        let raw = data[field::FLAGS_AMBIANCE];
-        let raw = if value { raw | 0x20 } else { raw & !0x20 };
-        data[field::FLAGS_AMBIANCE] = raw;
+        let raw = data[field::REPARTITION_AMBIANCE] & !0x03;
+        let raw = raw | ((u8::from(value) & 0x03) << 5);
+        data[field::REPARTITION_AMBIANCE] = raw;
     }
 
     /// Set the musical ambiance under adjustment flag.
     #[inline]
     pub fn set_musical_ambiance_under_adjustment(&mut self, value: bool) {
         let data = self.buffer.as_mut();
-        let raw = data[field::FLAGS_AMBIANCE];
-        let raw = if value { raw | 0x40 } else { raw & !0x40 };
-        data[field::FLAGS_AMBIANCE] = raw;
+        let raw = data[field::REPARTITION_AMBIANCE];
+        let raw = if value { raw | 0x04 } else { raw & !0x04 };
+        data[field::REPARTITION_AMBIANCE] = raw;
+    }
+
+    /// Set the musical ambiance field.
+    #[inline]
+    pub fn set_musical_ambiance(&mut self, value: MusicalAmbiance) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::REPARTITION_AMBIANCE] & !0x38;
+        let raw = raw | ((u8::from(value) & 0x07) << 3);
+        data[field::REPARTITION_AMBIANCE] = raw;
+    }
+
+    /// Set the musical ambiance option activation field.
+    #[inline]
+    pub fn set_musical_ambiance_option(&mut self, value: ConfigOption) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::REPARTITION_AMBIANCE] & !0xc0;
+        let raw = raw | ((u8::from(value) & 0x03) << 6);
+        data[field::REPARTITION_AMBIANCE] = raw;
+    }
+
+    /// Set the spatial sound under adjustment flag.
+    #[inline]
+    pub fn set_spatial_sound_under_adjustment(&mut self, value: bool) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::SPATIAL_SPECTRAL_REPARTITION];
+        let raw = if value { raw | 0x02 } else { raw & !0x02 };
+        data[field::SPATIAL_SPECTRAL_REPARTITION] = raw;
+    }
+
+    /// Set the spectral sound under adjustment flag.
+    #[inline]
+    pub fn set_spectral_sound_under_adjustment(&mut self, value: bool) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::SPATIAL_SPECTRAL_REPARTITION];
+        let raw = if value { raw | 0x04 } else { raw & !0x04 };
+        data[field::SPATIAL_SPECTRAL_REPARTITION] = raw;
+    }
+
+    /// Set the impossible setting with phone as audio source flag.
+    #[inline]
+    pub fn set_impossible_setting(&mut self, value: bool) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::SPATIAL_SPECTRAL_REPARTITION];
+        let raw = if value { raw | 0x08 } else { raw & !0x08 };
+        data[field::SPATIAL_SPECTRAL_REPARTITION] = raw;
+    }
+
+    /// Set the sound repartition field.
+    #[inline]
+    pub fn set_sound_repartition(&mut self, value: SoundRepartition) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::SPATIAL_SPECTRAL_REPARTITION] & !0x70;
+        let raw = raw | ((u8::from(value) & 0x07) << 4);
+        data[field::SPATIAL_SPECTRAL_REPARTITION] = raw;
+    }
+
+    /// Set the sound repartition under adjustment flag.
+    #[inline]
+    pub fn set_sound_repartition_under_adjustment(&mut self, value: bool) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::SPATIAL_SPECTRAL_REPARTITION];
+        let raw = if value { raw | 0x80 } else { raw & !0x80 };
+        data[field::SPATIAL_SPECTRAL_REPARTITION] = raw;
     }
 }
 
@@ -491,24 +564,32 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Repr {
+    balance_opt: ConfigOption,
     balance_level: u8,
     balance_under_adj: bool,
+    fader_opt: ConfigOption,
     fader_level: u8,
     fader_under_adj: bool,
+    bass_opt: ConfigOption,
     bass_level: u8,
     bass_under_adj: bool,
-    middle_level: u8,
-    middle_under_adj: bool,
+    treble_opt: ConfigOption,
     treble_level: u8,
     treble_under_adj: bool,
-    speed_dependent_volume: SpeedDependentVolumeLaw,
+    speed_dependent_volume_opt: ConfigOption,
+    speed_dependent_volume_enabled: bool,
     speed_dependent_volume_under_adj: bool,
+    loudness_opt: ConfigOption,
     loudness_enabled: bool,
     loudness_under_adj: bool,
-    loudness_enabled_diag: bool,
-    fader_enabled_diag: bool,
+    musical_ambiance_opt: ConfigOption,
     musical_ambiance: MusicalAmbiance,
     musical_ambiance_under_adj: bool,
+    sound_repartition_opt: ConfigOption,
+    sound_repartition: SoundRepartition,
+    sound_repartition_under_adj: bool,
+    spatial_sound_under_adj: bool,
+    spectral_sound_under_adj: bool,
     impossible_setting: bool,
 }
 
@@ -517,24 +598,32 @@ impl Repr {
         frame.check_len()?;
 
         Ok(Repr {
+            balance_opt: frame.balance_option(),
             balance_level: frame.balance_level(),
             balance_under_adj: frame.balance_under_adjustment(),
+            fader_opt: frame.fader_option(),
             fader_level: frame.fader_level(),
             fader_under_adj: frame.fader_under_adjustment(),
+            bass_opt: frame.bass_option(),
             bass_level: frame.bass_level(),
             bass_under_adj: frame.bass_under_adjustment(),
-            middle_level: frame.middle_level(),
-            middle_under_adj: frame.middle_under_adjustment(),
+            treble_opt: frame.treble_option(),
             treble_level: frame.treble_level(),
             treble_under_adj: frame.treble_under_adjustment(),
-            speed_dependent_volume: frame.speed_dependent_volume(),
+            speed_dependent_volume_opt: frame.speed_dependent_volume_option(),
+            speed_dependent_volume_enabled: frame.speed_dependent_volume_enabled(),
             speed_dependent_volume_under_adj: frame.speed_dependent_volume_under_adjustment(),
+            loudness_opt: frame.loudness_option(),
             loudness_enabled: frame.loudness_enabled(),
             loudness_under_adj: frame.loudness_under_adjustment(),
-            loudness_enabled_diag: frame.loudness_enabled_diag(),
-            fader_enabled_diag: frame.fader_enabled_diag(),
+            musical_ambiance_opt: frame.musical_ambiance_option(),
             musical_ambiance: frame.musical_ambiance(),
             musical_ambiance_under_adj: frame.musical_ambiance_under_adjustment(),
+            sound_repartition_opt: frame.sound_repartition_option(),
+            sound_repartition: frame.sound_repartition(),
+            sound_repartition_under_adj: frame.sound_repartition_under_adjustment(),
+            spatial_sound_under_adj: frame.spatial_sound_under_adjustment(),
+            spectral_sound_under_adj: frame.spectral_sound_under_adjustment(),
             impossible_setting: frame.impossible_setting(),
         })
     }
@@ -546,56 +635,72 @@ impl Repr {
 
     /// Emit a high-level representation into a x1e5 CAN frame.
     pub fn emit<T: AsRef<[u8]> + AsMut<[u8]>>(&self, frame: &mut Frame<T>) {
+        frame.set_balance_option(self.balance_opt);
         frame.set_balance_level(self.balance_level);
         frame.set_balance_under_adjustment(self.balance_under_adj);
+        frame.set_fader_option(self.fader_opt);
         frame.set_fader_level(self.fader_level);
         frame.set_fader_under_adjustment(self.fader_under_adj);
+        frame.set_bass_option(self.bass_opt);
         frame.set_bass_level(self.bass_level);
         frame.set_bass_under_adjustment(self.bass_under_adj);
-        frame.set_middle_level(self.middle_level);
-        frame.set_middle_under_adjustment(self.middle_under_adj);
+        frame.set_treble_option(self.treble_opt);
         frame.set_treble_level(self.treble_level);
         frame.set_treble_under_adjustment(self.treble_under_adj);
-        frame.set_speed_dependent_volume(self.speed_dependent_volume);
+        frame.set_speed_dependent_volume_option(self.speed_dependent_volume_opt);
+        frame.set_speed_dependent_volume_enabled(self.speed_dependent_volume_enabled);
         frame.set_speed_dependent_volume_under_adjustment(self.speed_dependent_volume_under_adj);
+        frame.set_loudness_option(self.loudness_opt);
         frame.set_loudness_enabled(self.loudness_enabled);
         frame.set_loudness_under_adjustment(self.loudness_under_adj);
-        frame.set_loudness_enabled_diag(self.loudness_enabled_diag);
-        frame.set_fader_enabled_diag(self.fader_enabled_diag);
+        frame.set_musical_ambiance_option(self.musical_ambiance_opt);
         frame.set_musical_ambiance(self.musical_ambiance);
         frame.set_musical_ambiance_under_adjustment(self.musical_ambiance_under_adj);
+        frame.set_sound_repartition_option(self.sound_repartition_opt);
+        frame.set_sound_repartition(self.sound_repartition);
+        frame.set_sound_repartition_under_adjustment(self.sound_repartition_under_adj);
+        frame.set_spatial_sound_under_adjustment(self.spatial_sound_under_adj);
+        frame.set_spectral_sound_under_adjustment(self.spectral_sound_under_adj);
         frame.set_impossible_setting(self.impossible_setting);
     }
 }
 
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "balance opt={}", self.balance_opt)?;
         write!(f, "balance level={}", self.balance_level)?;
         write!(f, "balance under adj={}", self.balance_under_adj)?;
+        write!(f, "fader opt={}", self.fader_opt)?;
         write!(f, "fader level={}", self.fader_level)?;
         write!(f, "fader under adj={}", self.fader_under_adj)?;
+        write!(f, "bass opt={}", self.bass_opt)?;
         write!(f, "bass level={}", self.bass_level)?;
         write!(f, "bass under adj={}", self.bass_under_adj)?;
-        write!(f, "middle level={}", self.middle_level)?;
-        write!(f, "middle under adj={}", self.middle_under_adj)?;
+        write!(f, "treble opt={}", self.treble_opt)?;
         write!(f, "treble level={}", self.treble_level)?;
         write!(f, "treble under adj={}", self.treble_under_adj)?;
-        write!(f, "speed dependent volume={}", self.speed_dependent_volume)?;
+        write!(f, "speed dependent volume opt={}", self.speed_dependent_volume_opt)?;
+        write!(f, "speed dependent volume enabled={}", self.speed_dependent_volume_enabled)?;
         write!(
             f,
             "speed dependent volume under adj={}",
             self.speed_dependent_volume_under_adj
         )?;
+        write!(f, "loudness opt={}", self.loudness_opt)?;
         write!(f, "loudness enabled={}", self.loudness_enabled)?;
         write!(f, "loudness under adj={}", self.loudness_under_adj)?;
-        write!(f, "loudness enabled diag={}", self.loudness_enabled_diag)?;
-        write!(f, "fader enabled diag={}", self.fader_enabled_diag)?;
+        write!(f, "musical ambiance opt={}", self.musical_ambiance_opt)?;
         write!(f, "musical ambiance={}", self.musical_ambiance)?;
         write!(
             f,
             "musical ambiance under adj={}",
             self.musical_ambiance_under_adj
         )?;
+        write!(f, "sound repartition opt={}", self.sound_repartition_opt)?;
+        write!(f, "sound repartition ={}", self.sound_repartition)?;
+        write!(f, "sound repartition under adj={}", self.sound_repartition_under_adj)?;
+        write!(f, "spatial sound under adj={}", self.spatial_sound_under_adj)?;
+        write!(f, "spectral sound under adj={}", self.spectral_sound_under_adj)?;
         write!(f, "impossible setting={}", self.impossible_setting)
     }
 }
@@ -604,7 +709,7 @@ impl fmt::Display for Repr {
 mod test {
     use super::{Frame, Repr};
     use crate::{
-        config::{MusicalAmbiance, SpeedDependentVolumeLaw},
+        config::{ConfigOption, MusicalAmbiance, SoundRepartition},
         Error,
     };
 
@@ -613,48 +718,64 @@ mod test {
 
     fn frame_1_repr() -> Repr {
         Repr {
+            balance_opt: ConfigOption::SelectableOption,
             balance_level: 63,
             balance_under_adj: false,
+            fader_opt: ConfigOption::SelectableOption,
             fader_level: 63,
             fader_under_adj: false,
+            bass_opt: ConfigOption::SelectableOption,
             bass_level: 63,
             bass_under_adj: false,
-            middle_level: 63,
-            middle_under_adj: false,
+            treble_opt: ConfigOption::SelectableOption,
             treble_level: 63,
             treble_under_adj: false,
-            speed_dependent_volume: SpeedDependentVolumeLaw::On,
+            speed_dependent_volume_opt: ConfigOption::SelectableOption,
+            speed_dependent_volume_enabled: true,
             speed_dependent_volume_under_adj: false,
+            loudness_opt: ConfigOption::SelectableOption,
             loudness_enabled: true,
             loudness_under_adj: false,
-            loudness_enabled_diag: false,
-            fader_enabled_diag: false,
+            musical_ambiance_opt: ConfigOption::SelectableOption,
             musical_ambiance: MusicalAmbiance::None,
             musical_ambiance_under_adj: false,
+            sound_repartition_opt: ConfigOption::SelectableOption,
+            sound_repartition: SoundRepartition::AllPassengers,
+            sound_repartition_under_adj: false,
+            spatial_sound_under_adj: false,
+            spectral_sound_under_adj: false,
             impossible_setting: false,
         }
     }
 
     fn frame_2_repr() -> Repr {
         Repr {
+            balance_opt: ConfigOption::SelectableOption,
             balance_level: 63,
             balance_under_adj: true,
+            fader_opt: ConfigOption::SelectableOption,
             fader_level: 63,
             fader_under_adj: true,
+            bass_opt: ConfigOption::SelectableOption,
             bass_level: 63,
             bass_under_adj: true,
-            middle_level: 63,
-            middle_under_adj: true,
+            treble_opt: ConfigOption::SelectableOption,
             treble_level: 63,
             treble_under_adj: true,
-            speed_dependent_volume: SpeedDependentVolumeLaw::On,
+            speed_dependent_volume_opt: ConfigOption::SelectableOption,
+            speed_dependent_volume_enabled: false,
             speed_dependent_volume_under_adj: true,
+            loudness_opt: ConfigOption::SelectableOption,
             loudness_enabled: true,
             loudness_under_adj: true,
-            loudness_enabled_diag: true,
-            fader_enabled_diag: true,
+            musical_ambiance_opt: ConfigOption::SelectableOption,
             musical_ambiance: MusicalAmbiance::PopRock,
             musical_ambiance_under_adj: true,
+            sound_repartition_opt: ConfigOption::SelectableOption,
+            sound_repartition: SoundRepartition::AllPassengers,
+            sound_repartition_under_adj: false,
+            spatial_sound_under_adj: true,
+            spectral_sound_under_adj: true,
             impossible_setting: true,
         }
     }
@@ -663,24 +784,32 @@ mod test {
     fn test_frame_1_deconstruction() {
         let frame = Frame::new_unchecked(&REPR_FRAME_BYTES_1);
         assert_eq!(frame.check_len(), Ok(()));
+        assert_eq!(frame.balance_option(), ConfigOption::SelectableOption);
         assert_eq!(frame.balance_level(), 63);
         assert_eq!(frame.balance_under_adjustment(), false);
+        assert_eq!(frame.fader_option(), ConfigOption::SelectableOption);
         assert_eq!(frame.fader_level(), 63);
         assert_eq!(frame.fader_under_adjustment(), false);
+        assert_eq!(frame.bass_option(), ConfigOption::SelectableOption);
         assert_eq!(frame.bass_level(), 63);
         assert_eq!(frame.bass_under_adjustment(), false);
-        assert_eq!(frame.middle_level(), 63);
-        assert_eq!(frame.middle_under_adjustment(), false);
+        assert_eq!(frame.treble_option(), ConfigOption::SelectableOption);
         assert_eq!(frame.treble_level(), 63);
         assert_eq!(frame.treble_under_adjustment(), false);
-        assert_eq!(frame.speed_dependent_volume(), SpeedDependentVolumeLaw::On);
+        assert_eq!(frame.speed_dependent_volume_option(), ConfigOption::SelectableOption);
+        assert_eq!(frame.speed_dependent_volume_enabled(), true);
         assert_eq!(frame.speed_dependent_volume_under_adjustment(), false);
+        assert_eq!(frame.loudness_option(), ConfigOption::SelectableOption);
         assert_eq!(frame.loudness_enabled(), true);
         assert_eq!(frame.loudness_under_adjustment(), false);
-        assert_eq!(frame.loudness_enabled_diag(), false);
-        assert_eq!(frame.fader_enabled_diag(), false);
+        assert_eq!(frame.musical_ambiance_option(), ConfigOption::SelectableOption);
         assert_eq!(frame.musical_ambiance(), MusicalAmbiance::None);
         assert_eq!(frame.musical_ambiance_under_adjustment(), false);
+        assert_eq!(frame.sound_repartition_option(), ConfigOption::SelectableOption);
+        assert_eq!(frame.sound_repartition(), SoundRepartition::AllPassengers);
+        assert_eq!(frame.sound_repartition_under_adjustment(), false);
+        assert_eq!(frame.spatial_sound_under_adjustment(), false);
+        assert_eq!(frame.spectral_sound_under_adjustment(), false);
         assert_eq!(frame.impossible_setting(), false);
     }
 
@@ -689,23 +818,31 @@ mod test {
         let frame = Frame::new_unchecked(&REPR_FRAME_BYTES_2);
         assert_eq!(frame.check_len(), Ok(()));
         assert_eq!(frame.balance_level(), 63);
+        assert_eq!(frame.balance_option(), ConfigOption::SelectableOption);
         assert_eq!(frame.balance_under_adjustment(), true);
+        assert_eq!(frame.fader_option(), ConfigOption::SelectableOption);
         assert_eq!(frame.fader_level(), 63);
         assert_eq!(frame.fader_under_adjustment(), true);
+        assert_eq!(frame.bass_option(), ConfigOption::SelectableOption);
         assert_eq!(frame.bass_level(), 63);
         assert_eq!(frame.bass_under_adjustment(), true);
-        assert_eq!(frame.middle_level(), 63);
-        assert_eq!(frame.middle_under_adjustment(), true);
+        assert_eq!(frame.treble_option(), ConfigOption::SelectableOption);
         assert_eq!(frame.treble_level(), 63);
         assert_eq!(frame.treble_under_adjustment(), true);
-        assert_eq!(frame.speed_dependent_volume(), SpeedDependentVolumeLaw::On);
+        assert_eq!(frame.speed_dependent_volume_option(), ConfigOption::SelectableOption);
+        assert_eq!(frame.speed_dependent_volume_enabled(), true);
         assert_eq!(frame.speed_dependent_volume_under_adjustment(), true);
+        assert_eq!(frame.loudness_option(), ConfigOption::SelectableOption);
         assert_eq!(frame.loudness_enabled(), true);
         assert_eq!(frame.loudness_under_adjustment(), true);
-        assert_eq!(frame.loudness_enabled_diag(), true);
-        assert_eq!(frame.fader_enabled_diag(), true);
+        assert_eq!(frame.musical_ambiance_option(), ConfigOption::SelectableOption);
         assert_eq!(frame.musical_ambiance(), MusicalAmbiance::PopRock);
         assert_eq!(frame.musical_ambiance_under_adjustment(), true);
+        assert_eq!(frame.sound_repartition_option(), ConfigOption::SelectableOption);
+        assert_eq!(frame.sound_repartition(), SoundRepartition::AllPassengers);
+        assert_eq!(frame.sound_repartition_under_adjustment(), false);
+        assert_eq!(frame.spatial_sound_under_adjustment(), false);
+        assert_eq!(frame.spectral_sound_under_adjustment(), false);
         assert_eq!(frame.impossible_setting(), true);
     }
 
@@ -714,24 +851,32 @@ mod test {
         let mut bytes = [0x00; 7];
         let mut frame = Frame::new_unchecked(&mut bytes);
 
+        frame.set_balance_option(ConfigOption::SelectableOption);
         frame.set_balance_level(63);
         frame.set_balance_under_adjustment(false);
+        frame.set_fader_option(ConfigOption::SelectableOption);
         frame.set_fader_level(63);
         frame.set_fader_under_adjustment(false);
+        frame.set_bass_option(ConfigOption::SelectableOption);
         frame.set_bass_level(63);
         frame.set_bass_under_adjustment(false);
-        frame.set_middle_level(63);
-        frame.set_middle_under_adjustment(false);
+        frame.set_treble_option(ConfigOption::SelectableOption);
         frame.set_treble_level(63);
         frame.set_treble_under_adjustment(false);
-        frame.set_speed_dependent_volume(SpeedDependentVolumeLaw::On);
+        frame.set_speed_dependent_volume_option(ConfigOption::SelectableOption);
+        frame.set_speed_dependent_volume_enabled(true);
         frame.set_speed_dependent_volume_under_adjustment(false);
+        frame.set_loudness_option(ConfigOption::SelectableOption);
         frame.set_loudness_enabled(true);
         frame.set_loudness_under_adjustment(false);
-        frame.set_loudness_enabled_diag(false);
-        frame.set_fader_enabled_diag(false);
+        frame.set_musical_ambiance_option(ConfigOption::SelectableOption);
         frame.set_musical_ambiance(MusicalAmbiance::None);
         frame.set_musical_ambiance_under_adjustment(false);
+        frame.set_sound_repartition_option(ConfigOption::SelectableOption);
+        frame.set_sound_repartition(SoundRepartition::AllPassengers);
+        frame.set_sound_repartition_under_adjustment(false);
+        frame.set_spatial_sound_under_adjustment(false);
+        frame.set_spectral_sound_under_adjustment(false);
         frame.set_impossible_setting(false);
 
         assert_eq!(frame.into_inner(), &REPR_FRAME_BYTES_1);
@@ -742,24 +887,32 @@ mod test {
         let mut bytes = [0x00; 7];
         let mut frame = Frame::new_unchecked(&mut bytes);
 
+        frame.set_balance_option(ConfigOption::SelectableOption);
         frame.set_balance_level(63);
         frame.set_balance_under_adjustment(true);
+        frame.set_fader_option(ConfigOption::SelectableOption);
         frame.set_fader_level(63);
         frame.set_fader_under_adjustment(true);
+        frame.set_bass_option(ConfigOption::SelectableOption);
         frame.set_bass_level(63);
         frame.set_bass_under_adjustment(true);
-        frame.set_middle_level(63);
-        frame.set_middle_under_adjustment(true);
+        frame.set_treble_option(ConfigOption::SelectableOption);
         frame.set_treble_level(63);
         frame.set_treble_under_adjustment(true);
-        frame.set_speed_dependent_volume(SpeedDependentVolumeLaw::On);
+        frame.set_speed_dependent_volume_option(ConfigOption::SelectableOption);
+        frame.set_speed_dependent_volume_enabled(true);
         frame.set_speed_dependent_volume_under_adjustment(true);
+        frame.set_loudness_option(ConfigOption::SelectableOption);
         frame.set_loudness_enabled(true);
         frame.set_loudness_under_adjustment(true);
-        frame.set_loudness_enabled_diag(true);
-        frame.set_fader_enabled_diag(true);
+        frame.set_musical_ambiance_option(ConfigOption::SelectableOption);
         frame.set_musical_ambiance(MusicalAmbiance::PopRock);
         frame.set_musical_ambiance_under_adjustment(true);
+        frame.set_sound_repartition_option(ConfigOption::SelectableOption);
+        frame.set_sound_repartition(SoundRepartition::AllPassengers);
+        frame.set_sound_repartition_under_adjustment(false);
+        frame.set_spatial_sound_under_adjustment(false);
+        frame.set_spectral_sound_under_adjustment(false);
         frame.set_impossible_setting(true);
 
         assert_eq!(frame.into_inner(), &REPR_FRAME_BYTES_2);

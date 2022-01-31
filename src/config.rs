@@ -351,3 +351,29 @@ impl fmt::Display for MusicalAmbiance {
         }
     }
 }
+
+enum_with_unknown! {
+    /// Sound repartition setting.
+    pub enum SoundRepartition(u8) {
+        /// No sound repartition.
+        Off = 0,
+        /// Driver sound repartition.
+        Driver = 1,
+        /// Surround sound repartition.
+        Surround = 2,
+        /// All passengers sound repartition.
+        AllPassengers = 7,
+    }
+}
+
+impl fmt::Display for SoundRepartition {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            SoundRepartition::Off => write!(f, "off"),
+            SoundRepartition::Driver => write!(f, "driver"),
+            SoundRepartition::Surround => write!(f, "surround"),
+            SoundRepartition::AllPassengers => write!(f, "all passengers"),
+            SoundRepartition::Unknown(time) => write!(f, "0x{:02x}", time),
+        }
+    }
+}
