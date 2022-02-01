@@ -465,7 +465,7 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
     pub fn set_sound_repartition_option(&mut self, value: ConfigOption) {
         let data = self.buffer.as_mut();
         let raw = data[field::REPARTITION_AMBIANCE] & !0x03;
-        let raw = raw | ((u8::from(value) & 0x03) << 5);
+        let raw = raw | (u8::from(value) & 0x03);
         data[field::REPARTITION_AMBIANCE] = raw;
     }
 
@@ -713,22 +713,22 @@ mod test {
         Error,
     };
 
-    static REPR_FRAME_BYTES_1: [u8; 7] = [0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x47, 0x00];
-    static REPR_FRAME_BYTES_2: [u8; 7] = [0xbf, 0xbf, 0xbf, 0xbf, 0xbf, 0xd7, 0x6f];
+    static REPR_FRAME_BYTES_1: [u8; 7] = [0x7e, 0x7e, 0x7e, 0x7e, 0x56, 0x82, 0x70];
+    static REPR_FRAME_BYTES_2: [u8; 7] = [0xfd, 0xfd, 0xfd, 0xfd, 0xb9, 0x5d, 0x9e];
 
     fn frame_1_repr() -> Repr {
         Repr {
             balance_opt: ConfigOption::SelectableOption,
-            balance_level: 63,
+            balance_level: 31,
             balance_under_adj: false,
             fader_opt: ConfigOption::SelectableOption,
-            fader_level: 63,
+            fader_level: 31,
             fader_under_adj: false,
             bass_opt: ConfigOption::SelectableOption,
-            bass_level: 63,
+            bass_level: 31,
             bass_under_adj: false,
             treble_opt: ConfigOption::SelectableOption,
-            treble_level: 63,
+            treble_level: 31,
             treble_under_adj: false,
             speed_dependent_volume_opt: ConfigOption::SelectableOption,
             speed_dependent_volume_enabled: true,
@@ -750,30 +750,30 @@ mod test {
 
     fn frame_2_repr() -> Repr {
         Repr {
-            balance_opt: ConfigOption::SelectableOption,
-            balance_level: 63,
+            balance_opt: ConfigOption::UnselectableOption,
+            balance_level: 31,
             balance_under_adj: true,
-            fader_opt: ConfigOption::SelectableOption,
-            fader_level: 63,
+            fader_opt: ConfigOption::UnselectableOption,
+            fader_level: 31,
             fader_under_adj: true,
-            bass_opt: ConfigOption::SelectableOption,
-            bass_level: 63,
+            bass_opt: ConfigOption::UnselectableOption,
+            bass_level: 31,
             bass_under_adj: true,
-            treble_opt: ConfigOption::SelectableOption,
-            treble_level: 63,
+            treble_opt: ConfigOption::UnselectableOption,
+            treble_level: 31,
             treble_under_adj: true,
-            speed_dependent_volume_opt: ConfigOption::SelectableOption,
+            speed_dependent_volume_opt: ConfigOption::UnselectableOption,
             speed_dependent_volume_enabled: false,
             speed_dependent_volume_under_adj: true,
-            loudness_opt: ConfigOption::SelectableOption,
+            loudness_opt: ConfigOption::UnselectableOption,
             loudness_enabled: true,
             loudness_under_adj: true,
-            musical_ambiance_opt: ConfigOption::SelectableOption,
+            musical_ambiance_opt: ConfigOption::UnselectableOption,
             musical_ambiance: MusicalAmbiance::PopRock,
             musical_ambiance_under_adj: true,
-            sound_repartition_opt: ConfigOption::SelectableOption,
-            sound_repartition: SoundRepartition::AllPassengers,
-            sound_repartition_under_adj: false,
+            sound_repartition_opt: ConfigOption::UnselectableOption,
+            sound_repartition: SoundRepartition::Driver,
+            sound_repartition_under_adj: true,
             spatial_sound_under_adj: true,
             spectral_sound_under_adj: true,
             impossible_setting: true,
@@ -785,16 +785,16 @@ mod test {
         let frame = Frame::new_unchecked(&REPR_FRAME_BYTES_1);
         assert_eq!(frame.check_len(), Ok(()));
         assert_eq!(frame.balance_option(), ConfigOption::SelectableOption);
-        assert_eq!(frame.balance_level(), 63);
+        assert_eq!(frame.balance_level(), 31);
         assert_eq!(frame.balance_under_adjustment(), false);
         assert_eq!(frame.fader_option(), ConfigOption::SelectableOption);
-        assert_eq!(frame.fader_level(), 63);
+        assert_eq!(frame.fader_level(), 31);
         assert_eq!(frame.fader_under_adjustment(), false);
         assert_eq!(frame.bass_option(), ConfigOption::SelectableOption);
-        assert_eq!(frame.bass_level(), 63);
+        assert_eq!(frame.bass_level(), 31);
         assert_eq!(frame.bass_under_adjustment(), false);
         assert_eq!(frame.treble_option(), ConfigOption::SelectableOption);
-        assert_eq!(frame.treble_level(), 63);
+        assert_eq!(frame.treble_level(), 31);
         assert_eq!(frame.treble_under_adjustment(), false);
         assert_eq!(frame.speed_dependent_volume_option(), ConfigOption::SelectableOption);
         assert_eq!(frame.speed_dependent_volume_enabled(), true);
@@ -817,32 +817,32 @@ mod test {
     fn test_frame_2_deconstruction() {
         let frame = Frame::new_unchecked(&REPR_FRAME_BYTES_2);
         assert_eq!(frame.check_len(), Ok(()));
-        assert_eq!(frame.balance_level(), 63);
-        assert_eq!(frame.balance_option(), ConfigOption::SelectableOption);
+        assert_eq!(frame.balance_level(), 31);
+        assert_eq!(frame.balance_option(), ConfigOption::UnselectableOption);
         assert_eq!(frame.balance_under_adjustment(), true);
-        assert_eq!(frame.fader_option(), ConfigOption::SelectableOption);
-        assert_eq!(frame.fader_level(), 63);
+        assert_eq!(frame.fader_option(), ConfigOption::UnselectableOption);
+        assert_eq!(frame.fader_level(), 31);
         assert_eq!(frame.fader_under_adjustment(), true);
-        assert_eq!(frame.bass_option(), ConfigOption::SelectableOption);
-        assert_eq!(frame.bass_level(), 63);
+        assert_eq!(frame.bass_option(), ConfigOption::UnselectableOption);
+        assert_eq!(frame.bass_level(), 31);
         assert_eq!(frame.bass_under_adjustment(), true);
-        assert_eq!(frame.treble_option(), ConfigOption::SelectableOption);
-        assert_eq!(frame.treble_level(), 63);
+        assert_eq!(frame.treble_option(), ConfigOption::UnselectableOption);
+        assert_eq!(frame.treble_level(), 31);
         assert_eq!(frame.treble_under_adjustment(), true);
-        assert_eq!(frame.speed_dependent_volume_option(), ConfigOption::SelectableOption);
-        assert_eq!(frame.speed_dependent_volume_enabled(), true);
+        assert_eq!(frame.speed_dependent_volume_option(), ConfigOption::UnselectableOption);
+        assert_eq!(frame.speed_dependent_volume_enabled(), false);
         assert_eq!(frame.speed_dependent_volume_under_adjustment(), true);
-        assert_eq!(frame.loudness_option(), ConfigOption::SelectableOption);
+        assert_eq!(frame.loudness_option(), ConfigOption::UnselectableOption);
         assert_eq!(frame.loudness_enabled(), true);
         assert_eq!(frame.loudness_under_adjustment(), true);
-        assert_eq!(frame.musical_ambiance_option(), ConfigOption::SelectableOption);
+        assert_eq!(frame.musical_ambiance_option(), ConfigOption::UnselectableOption);
         assert_eq!(frame.musical_ambiance(), MusicalAmbiance::PopRock);
         assert_eq!(frame.musical_ambiance_under_adjustment(), true);
-        assert_eq!(frame.sound_repartition_option(), ConfigOption::SelectableOption);
-        assert_eq!(frame.sound_repartition(), SoundRepartition::AllPassengers);
-        assert_eq!(frame.sound_repartition_under_adjustment(), false);
-        assert_eq!(frame.spatial_sound_under_adjustment(), false);
-        assert_eq!(frame.spectral_sound_under_adjustment(), false);
+        assert_eq!(frame.sound_repartition_option(), ConfigOption::UnselectableOption);
+        assert_eq!(frame.sound_repartition(), SoundRepartition::Driver);
+        assert_eq!(frame.sound_repartition_under_adjustment(), true);
+        assert_eq!(frame.spatial_sound_under_adjustment(), true);
+        assert_eq!(frame.spectral_sound_under_adjustment(), true);
         assert_eq!(frame.impossible_setting(), true);
     }
 
@@ -852,16 +852,16 @@ mod test {
         let mut frame = Frame::new_unchecked(&mut bytes);
 
         frame.set_balance_option(ConfigOption::SelectableOption);
-        frame.set_balance_level(63);
+        frame.set_balance_level(31);
         frame.set_balance_under_adjustment(false);
         frame.set_fader_option(ConfigOption::SelectableOption);
-        frame.set_fader_level(63);
+        frame.set_fader_level(31);
         frame.set_fader_under_adjustment(false);
         frame.set_bass_option(ConfigOption::SelectableOption);
-        frame.set_bass_level(63);
+        frame.set_bass_level(31);
         frame.set_bass_under_adjustment(false);
         frame.set_treble_option(ConfigOption::SelectableOption);
-        frame.set_treble_level(63);
+        frame.set_treble_level(31);
         frame.set_treble_under_adjustment(false);
         frame.set_speed_dependent_volume_option(ConfigOption::SelectableOption);
         frame.set_speed_dependent_volume_enabled(true);
@@ -887,32 +887,32 @@ mod test {
         let mut bytes = [0x00; 7];
         let mut frame = Frame::new_unchecked(&mut bytes);
 
-        frame.set_balance_option(ConfigOption::SelectableOption);
-        frame.set_balance_level(63);
+        frame.set_balance_option(ConfigOption::UnselectableOption);
+        frame.set_balance_level(31);
         frame.set_balance_under_adjustment(true);
-        frame.set_fader_option(ConfigOption::SelectableOption);
-        frame.set_fader_level(63);
+        frame.set_fader_option(ConfigOption::UnselectableOption);
+        frame.set_fader_level(31);
         frame.set_fader_under_adjustment(true);
-        frame.set_bass_option(ConfigOption::SelectableOption);
-        frame.set_bass_level(63);
+        frame.set_bass_option(ConfigOption::UnselectableOption);
+        frame.set_bass_level(31);
         frame.set_bass_under_adjustment(true);
-        frame.set_treble_option(ConfigOption::SelectableOption);
-        frame.set_treble_level(63);
+        frame.set_treble_option(ConfigOption::UnselectableOption);
+        frame.set_treble_level(31);
         frame.set_treble_under_adjustment(true);
-        frame.set_speed_dependent_volume_option(ConfigOption::SelectableOption);
-        frame.set_speed_dependent_volume_enabled(true);
+        frame.set_speed_dependent_volume_option(ConfigOption::UnselectableOption);
+        frame.set_speed_dependent_volume_enabled(false);
         frame.set_speed_dependent_volume_under_adjustment(true);
-        frame.set_loudness_option(ConfigOption::SelectableOption);
+        frame.set_loudness_option(ConfigOption::UnselectableOption);
         frame.set_loudness_enabled(true);
         frame.set_loudness_under_adjustment(true);
-        frame.set_musical_ambiance_option(ConfigOption::SelectableOption);
+        frame.set_musical_ambiance_option(ConfigOption::UnselectableOption);
         frame.set_musical_ambiance(MusicalAmbiance::PopRock);
         frame.set_musical_ambiance_under_adjustment(true);
-        frame.set_sound_repartition_option(ConfigOption::SelectableOption);
-        frame.set_sound_repartition(SoundRepartition::AllPassengers);
-        frame.set_sound_repartition_under_adjustment(false);
-        frame.set_spatial_sound_under_adjustment(false);
-        frame.set_spectral_sound_under_adjustment(false);
+        frame.set_sound_repartition_option(ConfigOption::UnselectableOption);
+        frame.set_sound_repartition(SoundRepartition::Driver);
+        frame.set_sound_repartition_under_adjustment(true);
+        frame.set_spatial_sound_under_adjustment(true);
+        frame.set_spectral_sound_under_adjustment(true);
         frame.set_impossible_setting(true);
 
         assert_eq!(frame.into_inner(), &REPR_FRAME_BYTES_2);
@@ -920,7 +920,7 @@ mod test {
 
     #[test]
     fn test_overlong() {
-        let bytes: [u8; 8] = [0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x47, 0x00, 0xff];
+        let bytes: [u8; 8] = [0x7e, 0x7e, 0x7e, 0x7e, 0x56, 0x82, 0x70, 0xff];
         assert_eq!(
             Frame::new_unchecked(&bytes).check_len().unwrap_err(),
             Error::Overlong
@@ -929,7 +929,7 @@ mod test {
 
     #[test]
     fn test_underlong() {
-        let bytes: [u8; 6] = [0x3f, 0x3f, 0x3f, 0x3f, 0x3f, 0x47];
+        let bytes: [u8; 6] = [0x7e, 0x7e, 0x7e, 0x7e, 0x56, 0x82];
         assert_eq!(Frame::new_checked(&bytes).unwrap_err(), Error::Truncated);
     }
 
