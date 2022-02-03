@@ -19,7 +19,7 @@ impl fmt::Display for ConfigOption {
             ConfigOption::Unavailable => write!(f, "unavailable"),
             ConfigOption::UnselectableOption => write!(f, "unselectable option"),
             ConfigOption::SelectableOption => write!(f, "selectable option"),
-            ConfigOption::Unknown(unit) => write!(f, "0x{:02x}", unit),
+            ConfigOption::Unknown(opt) => write!(f, "0x{:02x}", opt),
         }
     }
 }
@@ -272,7 +272,7 @@ impl fmt::Display for ClockDisplayMode {
         match *self {
             ClockDisplayMode::Steady => write!(f, "steady"),
             ClockDisplayMode::Blinking => write!(f, "blinking"),
-            ClockDisplayMode::Unknown(time) => write!(f, "0x{:02x}", time),
+            ClockDisplayMode::Unknown(mode) => write!(f, "0x{:02x}", mode),
         }
     }
 }
@@ -315,7 +315,7 @@ impl fmt::Display for SpeedDependentVolumeLaw {
             SpeedDependentVolumeLaw::Law4 => write!(f, "law 4"),
             SpeedDependentVolumeLaw::Law5 => write!(f, "law 5"),
             SpeedDependentVolumeLaw::On => write!(f, "on"),
-            SpeedDependentVolumeLaw::Unknown(time) => write!(f, "0x{:02x}", time),
+            SpeedDependentVolumeLaw::Unknown(law) => write!(f, "0x{:02x}", law),
         }
     }
 }
@@ -347,7 +347,7 @@ impl fmt::Display for MusicalAmbiance {
             MusicalAmbiance::PopRock => write!(f, "pop or rock"),
             MusicalAmbiance::Vocal => write!(f, "vocal"),
             MusicalAmbiance::Techno => write!(f, "techno"),
-            MusicalAmbiance::Unknown(time) => write!(f, "0x{:02x}", time),
+            MusicalAmbiance::Unknown(ambiance) => write!(f, "0x{:02x}", ambiance),
         }
     }
 }
@@ -373,7 +373,74 @@ impl fmt::Display for SoundRepartition {
             SoundRepartition::Driver => write!(f, "driver"),
             SoundRepartition::Surround => write!(f, "surround"),
             SoundRepartition::AllPassengers => write!(f, "all passengers"),
-            SoundRepartition::Unknown(time) => write!(f, "0x{:02x}", time),
+            SoundRepartition::Unknown(sound_rep) => write!(f, "0x{:02x}", sound_rep),
+        }
+    }
+}
+
+enum_with_unknown! {
+    /// Under-inflation detection system type.
+    pub enum UnderInflationDetectionSystem(u8) {
+        /// No under-inflation detection system.
+        None = 0,
+        /// Under-inflation detection direct system
+        /// with absolute pressure measurement
+        /// (first generation).
+        DirectWithAbsolutePressure = 1,
+        /// Under-inflation detection direct system
+        /// without absolute pressure measurement
+        /// (second generation).
+        DirectWithoutAbsolutePressure = 2,
+        /// Under-inflation detection indirect system type.
+        Indirect = 3,
+        /// Under-inflation detection indirect system type
+        /// manufactured by Borg Warner.
+        IndirectBorgWarner = 4,
+    }
+}
+
+impl fmt::Display for UnderInflationDetectionSystem {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            UnderInflationDetectionSystem::None => write!(f, "none"),
+            UnderInflationDetectionSystem::DirectWithAbsolutePressure => {
+                write!(f, "direct with absolute pressure")
+            }
+            UnderInflationDetectionSystem::DirectWithoutAbsolutePressure => {
+                write!(f, "direct without absolute pressure")
+            }
+            UnderInflationDetectionSystem::Indirect => write!(f, "indirect"),
+            UnderInflationDetectionSystem::IndirectBorgWarner => write!(f, "indirect Borg Warner"),
+            UnderInflationDetectionSystem::Unknown(uid) => write!(f, "0x{:02x}", uid),
+        }
+    }
+}
+
+enum_with_unknown! {
+    /// User profile number. AEE 2004 only.
+    pub enum UserProfile(u8) {
+        /// No user profile.
+        None = 0,
+        /// Profile number one.
+        Profile1 = 1,
+        /// Profile number two.
+        Profile2 = 2,
+        /// Profile number three.
+        Profile3 = 4,
+        /// Default profile.
+        Default = 7,
+    }
+}
+
+impl fmt::Display for UserProfile {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            UserProfile::None => write!(f, "none"),
+            UserProfile::Profile1 => write!(f, "profile 1"),
+            UserProfile::Profile2 => write!(f, "profile 2"),
+            UserProfile::Profile3 => write!(f, "profile 3"),
+            UserProfile::Default => write!(f, "default profile"),
+            UserProfile::Unknown(uid) => write!(f, "0x{:02x}", uid),
         }
     }
 }
