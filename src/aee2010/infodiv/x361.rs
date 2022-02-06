@@ -30,16 +30,16 @@ mod field {
     pub const OPT_1: usize = 1;
     /// 1-bit empty,
     /// 1-bit extended traffic sign recognition option presence flag,
-    /// 1-bit 'IMA' option presence flag,
+    /// 1-bit mirrors tilting in reverse option presence flag,
     /// 1-bit sound harmony option presence flag,
     /// 1-bit automatic electrical parking brake application presence option flag,
     /// 1-bit configurable button/key option presence flag,
-    /// 1-bit cruise-control option presence flag,
+    /// 1-bit cruise-control custom limits option presence flag,
     /// 1-bit Seat belt not fastened / unfastened warning lamps presence flag.
     pub const OPT_2: usize = 2;
     /// 3-bit under-inflation detection option system type,
     /// 1-bit gear efficiency indicator presence flag,
-    /// 1-bit cruise-control memorized speeds setting menu option presence flag,
+    /// 1-bit cruise-control custom limits setting menu option presence flag,
     /// 1-bit collision alert sensibility setting menu option presence flag,
     /// 1-bit automatic emergency braking option presence flag,
     /// 1-bit under-inflation detection reset menu option presence flag.
@@ -230,9 +230,9 @@ impl<T: AsRef<[u8]>> Frame<T> {
         data[field::OPT_2] & 0x02 != 0
     }
 
-    /// Return the 'IMA' option presence flag.
+    /// Return the mirrors tilting in reverse option presence flag.
     #[inline]
-    pub fn ima_presence(&self) -> bool {
+    pub fn mirror_tilt_in_reverse_presence(&self) -> bool {
         let data = self.buffer.as_ref();
         data[field::OPT_2] & 0x04 != 0
     }
@@ -258,9 +258,9 @@ impl<T: AsRef<[u8]>> Frame<T> {
         data[field::OPT_2] & 0x20 != 0
     }
 
-    /// Return the cruise-control option presence flag.
+    /// Return the cruise-control custom limits option presence flag.
     #[inline]
-    pub fn cruise_control_presence(&self) -> bool {
+    pub fn cruise_control_custom_limits_presence(&self) -> bool {
         let data = self.buffer.as_ref();
         data[field::OPT_2] & 0x40 != 0
     }
@@ -287,9 +287,9 @@ impl<T: AsRef<[u8]>> Frame<T> {
         data[field::OPT_3] & 0x08 != 0
     }
 
-    /// Return the cruise-control memorized speeds setting menu option presence flag.
+    /// Return the cruise-control custom limits setting menu option presence flag.
     #[inline]
-    pub fn cruise_control_memorized_speeds_menu_presence(&self) -> bool {
+    pub fn cruise_control_custom_limits_menu_presence(&self) -> bool {
         let data = self.buffer.as_ref();
         data[field::OPT_3] & 0x10 != 0
     }
@@ -533,9 +533,9 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
         data[field::OPT_2] = raw;
     }
 
-    /// Set the 'IMA' option presence flag.
+    /// Set the mirrors tilting in reverse option presence flag.
     #[inline]
-    pub fn set_ima_presence(&mut self, value: bool) {
+    pub fn set_mirror_tilt_in_reverse_presence(&mut self, value: bool) {
         let data = self.buffer.as_mut();
         let raw = data[field::OPT_2] & !0x04;
         let raw = if value { raw | 0x04 } else { raw & !0x04 };
@@ -569,9 +569,9 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
         data[field::OPT_2] = raw;
     }
 
-    /// Set the cruise-control option presence flag.
+    /// Set the cruise-control custom limits option presence flag.
     #[inline]
-    pub fn set_cruise_control_presence(&mut self, value: bool) {
+    pub fn set_cruise_control_custom_limits_presence(&mut self, value: bool) {
         let data = self.buffer.as_mut();
         let raw = data[field::OPT_2] & !0x40;
         let raw = if value { raw | 0x40 } else { raw & !0x40 };
@@ -605,9 +605,9 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
         data[field::OPT_3] = raw;
     }
 
-    /// Set the cruise-control memorized speeds setting menu option presence flag.
+    /// Set the cruise-control custom limits setting menu option presence flag.
     #[inline]
-    pub fn set_cruise_control_memorized_speeds_menu_presence(&mut self, value: bool) {
+    pub fn set_cruise_control_custom_limits_menu_presence(&mut self, value: bool) {
         let data = self.buffer.as_mut();
         let raw = data[field::OPT_3] & !0x10;
         let raw = if value { raw | 0x10 } else { raw & !0x10 };
@@ -762,15 +762,15 @@ pub struct Repr {
     rear_wiper_in_reverse_gear_present: bool,
     parking_sensors_inhibition_present: bool,
     extended_traffic_sign_recognition_present: bool,
-    ima_present: bool,
+    mirror_tilt_in_reverse_present: bool,
     sound_harmony_present: bool,
     automatic_electric_parking_brake_application_present: bool,
     configurable_key_present: bool,
-    cruise_control_present: bool,
+    cruise_control_custom_limits_present: bool,
     seat_belt_status_lamps_present: bool,
     under_inflation_detection: UnderInflationDetectionSystem,
     gear_efficiency_indicator_present: bool,
-    cruise_control_memorized_speeds_menu_present: bool,
+    cruise_control_custom_limits_menu_present: bool,
     collision_alert_sensibility_menu_present: bool,
     automatic_emergency_braking_present: bool,
     under_inflation_detection_reset_menu_present: bool,
@@ -808,17 +808,17 @@ impl Repr {
             parking_sensors_inhibition_present: frame.park_sensors_inhibition_presence(),
             extended_traffic_sign_recognition_present: frame
                 .extended_traffic_sign_recognition_presence(),
-            ima_present: frame.ima_presence(),
+            mirror_tilt_in_reverse_present: frame.mirror_tilt_in_reverse_presence(),
             sound_harmony_present: frame.sound_harmony_presence(),
             automatic_electric_parking_brake_application_present: frame
                 .auto_elec_parking_brake_application_presence(),
             configurable_key_present: frame.configurable_key_presence(),
-            cruise_control_present: frame.cruise_control_presence(),
+            cruise_control_custom_limits_present: frame.cruise_control_custom_limits_presence(),
             seat_belt_status_lamps_present: frame.seat_belt_status_lamps_presence(),
             under_inflation_detection: frame.under_inflation_detection(),
             gear_efficiency_indicator_present: frame.gear_efficiency_indicator_presence(),
-            cruise_control_memorized_speeds_menu_present: frame
-                .cruise_control_memorized_speeds_menu_presence(),
+            cruise_control_custom_limits_menu_present: frame
+                .cruise_control_custom_limits_menu_presence(),
             collision_alert_sensibility_menu_present: frame
                 .collision_alert_sensibility_menu_presence(),
             automatic_emergency_braking_present: frame.automatic_emergency_braking_presence(),
@@ -863,18 +863,18 @@ impl Repr {
         frame.set_extended_traffic_sign_recognition_presence(
             self.extended_traffic_sign_recognition_present,
         );
-        frame.set_ima_presence(self.ima_present);
+        frame.set_mirror_tilt_in_reverse_presence(self.mirror_tilt_in_reverse_present);
         frame.set_sound_harmony_presence(self.sound_harmony_present);
         frame.set_auto_elec_parking_brake_application_presence(
             self.automatic_electric_parking_brake_application_present,
         );
         frame.set_configurable_key_presence(self.configurable_key_present);
-        frame.set_cruise_control_presence(self.cruise_control_present);
+        frame.set_cruise_control_custom_limits_presence(self.cruise_control_custom_limits_present);
         frame.set_seat_belt_status_lamps_presence(self.seat_belt_status_lamps_present);
         frame.set_under_inflation_detection(self.under_inflation_detection);
         frame.set_gear_efficiency_indicator_presence(self.gear_efficiency_indicator_present);
-        frame.set_cruise_control_memorized_speeds_menu_presence(
-            self.cruise_control_memorized_speeds_menu_present,
+        frame.set_cruise_control_custom_limits_menu_presence(
+            self.cruise_control_custom_limits_menu_present,
         );
         frame.set_collision_alert_sensibility_menu_presence(
             self.collision_alert_sensibility_menu_present,
@@ -972,7 +972,7 @@ impl fmt::Display for Repr {
             "extended traffic sign recognition present={}",
             self.extended_traffic_sign_recognition_present
         )?;
-        write!(f, "'IMA' present={}", self.ima_present)?;
+        write!(f, "mirror tilt in reverse present={}", self.mirror_tilt_in_reverse_present)?;
         write!(f, "sound harmony present={}", self.sound_harmony_present)?;
         write!(
             f,
@@ -984,7 +984,7 @@ impl fmt::Display for Repr {
             "configurable key present={}",
             self.configurable_key_present
         )?;
-        write!(f, "cruise-control present={}", self.cruise_control_present)?;
+        write!(f, "cruise-control custom limits present={}", self.cruise_control_custom_limits_present)?;
         write!(
             f,
             "seat belt status lamps present={}",
@@ -1002,8 +1002,8 @@ impl fmt::Display for Repr {
         )?;
         write!(
             f,
-            "cruise-control memorized speeds menu present={}",
-            self.cruise_control_memorized_speeds_menu_present
+            "cruise-control custom limits menu present={}",
+            self.cruise_control_custom_limits_menu_present
         )?;
         write!(
             f,
@@ -1083,15 +1083,15 @@ mod test {
             rear_wiper_in_reverse_gear_present: true,
             parking_sensors_inhibition_present: false,
             extended_traffic_sign_recognition_present: false,
-            ima_present: true,
+            mirror_tilt_in_reverse_present: true,
             sound_harmony_present: false,
             automatic_electric_parking_brake_application_present: true,
             configurable_key_present: false,
-            cruise_control_present: true,
+            cruise_control_custom_limits_present: true,
             seat_belt_status_lamps_present: false,
             under_inflation_detection: UnderInflationDetectionSystem::Indirect,
             gear_efficiency_indicator_present: false,
-            cruise_control_memorized_speeds_menu_present: true,
+            cruise_control_custom_limits_menu_present: true,
             collision_alert_sensibility_menu_present: false,
             automatic_emergency_braking_present: true,
             under_inflation_detection_reset_menu_present: false,
@@ -1126,15 +1126,15 @@ mod test {
             rear_wiper_in_reverse_gear_present: false,
             parking_sensors_inhibition_present: true,
             extended_traffic_sign_recognition_present: true,
-            ima_present: false,
+            mirror_tilt_in_reverse_present: false,
             sound_harmony_present: true,
             automatic_electric_parking_brake_application_present: false,
             configurable_key_present: true,
-            cruise_control_present: false,
+            cruise_control_custom_limits_present: false,
             seat_belt_status_lamps_present: true,
             under_inflation_detection: UnderInflationDetectionSystem::DirectWithoutAbsolutePressure,
             gear_efficiency_indicator_present: true,
-            cruise_control_memorized_speeds_menu_present: false,
+            cruise_control_custom_limits_menu_present: false,
             collision_alert_sensibility_menu_present: true,
             automatic_emergency_braking_present: false,
             under_inflation_detection_reset_menu_present: true,
@@ -1171,18 +1171,18 @@ mod test {
         assert_eq!(frame.rear_wiper_in_reverse_gear_presence(), true);
         assert_eq!(frame.park_sensors_inhibition_presence(), false);
         assert_eq!(frame.extended_traffic_sign_recognition_presence(), false);
-        assert_eq!(frame.ima_presence(), true);
+        assert_eq!(frame.mirror_tilt_in_reverse_presence(), true);
         assert_eq!(frame.sound_harmony_presence(), false);
         assert_eq!(frame.auto_elec_parking_brake_application_presence(), true);
         assert_eq!(frame.configurable_key_presence(), false);
-        assert_eq!(frame.cruise_control_presence(), true);
+        assert_eq!(frame.cruise_control_custom_limits_presence(), true);
         assert_eq!(frame.seat_belt_status_lamps_presence(), false);
         assert_eq!(
             frame.under_inflation_detection(),
             UnderInflationDetectionSystem::Indirect
         );
         assert_eq!(frame.gear_efficiency_indicator_presence(), false);
-        assert_eq!(frame.cruise_control_memorized_speeds_menu_presence(), true);
+        assert_eq!(frame.cruise_control_custom_limits_menu_presence(), true);
         assert_eq!(frame.collision_alert_sensibility_menu_presence(), false);
         assert_eq!(frame.automatic_emergency_braking_presence(), true);
         assert_eq!(frame.under_inflation_detection_reset_menu_presence(), false);
@@ -1218,18 +1218,18 @@ mod test {
         assert_eq!(frame.rear_wiper_in_reverse_gear_presence(), false);
         assert_eq!(frame.park_sensors_inhibition_presence(), true);
         assert_eq!(frame.extended_traffic_sign_recognition_presence(), true);
-        assert_eq!(frame.ima_presence(), false);
+        assert_eq!(frame.mirror_tilt_in_reverse_presence(), false);
         assert_eq!(frame.sound_harmony_presence(), true);
         assert_eq!(frame.auto_elec_parking_brake_application_presence(), false);
         assert_eq!(frame.configurable_key_presence(), true);
-        assert_eq!(frame.cruise_control_presence(), false);
+        assert_eq!(frame.cruise_control_custom_limits_presence(), false);
         assert_eq!(frame.seat_belt_status_lamps_presence(), true);
         assert_eq!(
             frame.under_inflation_detection(),
             UnderInflationDetectionSystem::DirectWithoutAbsolutePressure
         );
         assert_eq!(frame.gear_efficiency_indicator_presence(), true);
-        assert_eq!(frame.cruise_control_memorized_speeds_menu_presence(), false);
+        assert_eq!(frame.cruise_control_custom_limits_menu_presence(), false);
         assert_eq!(frame.collision_alert_sensibility_menu_presence(), true);
         assert_eq!(frame.automatic_emergency_braking_presence(), false);
         assert_eq!(frame.under_inflation_detection_reset_menu_presence(), true);
@@ -1266,15 +1266,15 @@ mod test {
         frame.set_rear_wiper_in_reverse_gear_presence(true);
         frame.set_park_sensors_inhibition_presence(false);
         frame.set_extended_traffic_sign_recognition_presence(false);
-        frame.set_ima_presence(true);
+        frame.set_mirror_tilt_in_reverse_presence(true);
         frame.set_sound_harmony_presence(false);
         frame.set_auto_elec_parking_brake_application_presence(true);
         frame.set_configurable_key_presence(false);
-        frame.set_cruise_control_presence(true);
+        frame.set_cruise_control_custom_limits_presence(true);
         frame.set_seat_belt_status_lamps_presence(false);
         frame.set_under_inflation_detection(UnderInflationDetectionSystem::Indirect);
         frame.set_gear_efficiency_indicator_presence(false);
-        frame.set_cruise_control_memorized_speeds_menu_presence(true);
+        frame.set_cruise_control_custom_limits_menu_presence(true);
         frame.set_collision_alert_sensibility_menu_presence(false);
         frame.set_automatic_emergency_braking_presence(true);
         frame.set_under_inflation_detection_reset_menu_presence(false);
@@ -1313,17 +1313,17 @@ mod test {
         frame.set_rear_wiper_in_reverse_gear_presence(false);
         frame.set_park_sensors_inhibition_presence(true);
         frame.set_extended_traffic_sign_recognition_presence(true);
-        frame.set_ima_presence(false);
+        frame.set_mirror_tilt_in_reverse_presence(false);
         frame.set_sound_harmony_presence(true);
         frame.set_auto_elec_parking_brake_application_presence(false);
         frame.set_configurable_key_presence(true);
-        frame.set_cruise_control_presence(false);
+        frame.set_cruise_control_custom_limits_presence(false);
         frame.set_seat_belt_status_lamps_presence(true);
         frame.set_under_inflation_detection(
             UnderInflationDetectionSystem::DirectWithoutAbsolutePressure,
         );
         frame.set_gear_efficiency_indicator_presence(true);
-        frame.set_cruise_control_memorized_speeds_menu_presence(false);
+        frame.set_cruise_control_custom_limits_menu_presence(false);
         frame.set_collision_alert_sensibility_menu_presence(true);
         frame.set_automatic_emergency_braking_presence(false);
         frame.set_under_inflation_detection_reset_menu_presence(true);
