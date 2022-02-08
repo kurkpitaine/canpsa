@@ -6,6 +6,7 @@ mod macros;
 mod aee2004;
 mod aee2010;
 mod config;
+mod mfd;
 
 mod field {
     pub type Field = ::core::ops::Range<usize>;

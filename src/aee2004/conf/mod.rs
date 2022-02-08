@@ -1,3 +1,6 @@
+pub mod x167;
+pub use x167 as DEMANDES_EMF;
+
 pub mod x1e5;
 pub use x1e5 as ETAT_RADIO_GEN_AUD;
 
