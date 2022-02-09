@@ -7,6 +7,9 @@ pub use x1e5 as ETAT_RADIO_GEN_AUD;
 pub mod x228;
 pub use x228 as CDE_HEURE;
 
+pub mod x260;
+pub use x260 as BSI_INF_PROFILS;
+
 pub mod x361;
 pub use x361 as BSI_INF_CFG;
 

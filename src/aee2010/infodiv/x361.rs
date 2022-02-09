@@ -35,7 +35,7 @@ mod field {
     /// 1-bit automatic electrical parking brake application presence option flag,
     /// 1-bit configurable button/key option presence flag,
     /// 1-bit cruise-control custom limits option presence flag,
-    /// 1-bit Seat belt not fastened / unfastened warning lamps presence flag.
+    /// 1-bit seat belt not fastened / unfastened warning lamps presence flag.
     pub const OPT_2: usize = 2;
     /// 3-bit under-inflation detection option system type,
     /// 1-bit gear efficiency indicator presence flag,

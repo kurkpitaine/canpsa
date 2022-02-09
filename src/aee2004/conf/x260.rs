@@ -14,49 +14,52 @@ pub struct Frame<T: AsRef<[u8]>> {
 
 mod field {
     /// 3-bit profile number,
-    /// 1-bit profile change allowed flag,
+    /// 1-bit parameters validity flag,
     /// 4-bit empty.
     pub const PROFILE: usize = 0;
-    /// 1-bit boot permanent locking option presence flag,
-    /// 1-bit partial window opening option presence flag,
-    /// 1-bit welcome function option presence flag,
-    /// 1-bit 'securoscope' option presence flag,
-    /// 1-bit configurable button/key option presence flag,
-    /// 3-bit empty.
+    /// 1-bit automatic electrical parking brake application enable flag,
+    /// 1-bit welcome function enable flag,
+    /// 1-bit partial window opening enable flag,
+    /// 1-bit 'COE' locking enable flag,
+    /// 1-bit automatic door locking when leaving enable flag,
+    /// 1-bit boot permanent locking enable flag,
+    /// 1-bit automatic door locking when driving enable flag,
+    /// 1-bit selective unlocking enable flag.
     pub const OPT_1: usize = 1;
-    /// 1-bit automatic headlamps option presence flag,
-    /// 1-bit gear efficiency indicator presence flag,
-    /// 1-bit automatic electrical parking brake application presence option flag,
-    /// 1-bit welcome lighting option presence flag,
-    /// 1-bit follow-me-home option presence flag,
-    /// 1-bit locking mode on 'COE' option presence flag,
-    /// 1-bit automatic door locking when leaving option presence flag,
-    /// 1-bit selective unlocking option presence flag.
-    pub const OPT_2: usize = 2;
-    /// 5-bit empty,
-    /// 1-bit rear wiper in reverse gear option presence flag.
-    /// 1-bit daytime running lamps option presence flag,
+    /// 4-bit follow-me-home lighting duration field,
+    /// 1-bit automatic headlamps enable flag,
+    /// 1-bit follow-me-home enable field,
+    /// 1-bit motorway lighting enable flag,
     /// 1-bit adaptive lamps option presence flag.
+    pub const OPT_2: usize = 2;
+    /// 4-bit ceiling light out delay field,
+    /// 2-bit empty
+    /// 1-bit daytime running lamps enable flag,
+    /// 1-bit mood lighting enable flag,
     pub const OPT_3: usize = 3;
-    /// 1-bit blind spot monitoring inhibition option presence flag,
-    /// 1-bit blind spot monitoring option presence flag,
-    /// 1-bit mood lighting option presence flag,
-    /// 1-bit motorway lighting option presence flag,
-    /// 1-bit multi-function display presence flag,
-    /// 1-bit parking sensors inhibition option presence flag,
-    /// 1-bit parking sensors audible assistance option presence flag,
-    /// 1-bit parking sensors visual assistance option presence flag.
+    /// 1-bit low fuel level alert enable flag,
+    /// 1-bit key left in car alert enable flag,
+    /// 1-bit lighting left on alert enable flag,
+    /// 1-bit 'ALT_GEN' (maybe ALerT GENerator?) flag,
+    /// 1-bit ESP in regulation sound alert enable flag,
+    /// 3-bit empty.
     pub const OPT_4: usize = 4;
-    /// 1-bit empty,
-    /// 1-bit automatic emergency braking option presence flag,
-    /// 1-bit under-inflation detection reset menu option presence activation,
-    /// 1-bit seat belt not fastened / unfastened warning lamps presence flag,
-    /// 3-bit under-inflation detection option system type,
-    /// 1-bit blind spot audible assistance inhibition option presence flag.
+    /// 3-bit empty,
+    /// 1-bit automatic mirrors folding enable flag,
+    /// 1-bit rear wiper in reverse gear enable flag,
+    /// 1-bit mirrors tilting in reverse enable flag,
+    /// 2-bit parking sensors status field.
     pub const OPT_5: usize = 5;
+    /// 5-bit empty,
+    /// 2-bit blind spot monitoring status field,
+    /// 1-bit 'SECU' (maybe child lock feature?) flag.
+    pub const OPT_6: usize = 6;
+    /// 5-bit empty,
+    /// 3-bit configurable button/key mode field.
+    pub const OPT_7: usize = 7;
 }
 
-/// Length of a x361 CAN frame.
+/// Length of a x260 CAN frame.
 pub const FRAME_LEN: usize = field::OPT_5 + 1;
 
 impl<T: AsRef<[u8]>> Frame<T> {
@@ -613,7 +616,7 @@ impl<'a, T: AsRef<[u8]> + ?Sized> fmt::Display for Frame<&'a T> {
         match Repr::parse(self) {
             Ok(repr) => write!(f, "{}", repr),
             Err(err) => {
-                write!(f, "x361 ({})", err)?;
+                write!(f, "x260 ({})", err)?;
                 Ok(())
             }
         }
@@ -626,7 +629,7 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
     }
 }
 
-/// A high-level representation of a x361 CAN frame.
+/// A high-level representation of a x260 CAN frame.
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Repr {
@@ -713,7 +716,7 @@ impl Repr {
         FRAME_LEN
     }
 
-    /// Emit a high-level representation into a x361 CAN frame.
+    /// Emit a high-level representation into a x260 CAN frame.
     pub fn emit<T: AsRef<[u8]> + AsMut<[u8]>>(&self, frame: &mut Frame<T>) {
         frame.set_profile_number(self.profile_number);
         frame.set_profile_change_allowed(self.profile_change_allowed);
