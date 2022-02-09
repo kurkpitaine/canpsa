@@ -3,7 +3,7 @@ use core::fmt;
 use byteorder::{ByteOrder, NetworkEndian};
 
 use crate::{
-    mfd::{TripComputerPage, UserAction2004},
+    mfd::{Menu, Popup, TripComputerPage, UserAction2010},
     Error, Result,
 };
 
@@ -32,20 +32,19 @@ mod field {
     /// 16-bit total trip distance.
     pub const TOTAL_TRIP_DISTANCE: Field = 2..4;
     /// 15-bit interactive message.
-    /// 1-bit empty
-    pub const INTERACTIVE_MSG: Field = 4..6;
-    /// 1-bit stop and start push button state,
-    /// 1-bit lane centering push button state,
-    /// 1-bit parking sensors push button state,
-    /// 1-bit empty
-    /// 4-bit user action on MFD.
-    pub const PUSHS_ACTION: usize = 6;
-    /// 8-bit value set by user.
-    pub const VALUE: usize = 7;
+    /// 1-bit MFD stop check request.
+    pub const INTERACTIVE_MSG_STOP_CHK: Field = 4..6;
+    /// 8-bit popup id to display acknowledge.
+    pub const POPUP_ID: usize = 6;
+    /// 2-bit empty,
+    /// 3-bit user selected menu,
+    /// 1-bit wifi parameters reception acknowledge.
+    /// 2-bit user action on MFD.
+    pub const MENU_ACTION: usize = 7;
 }
 
 /// Length of a x167 CAN frame.
-pub const FRAME_LEN: usize = field::VALUE + 1;
+pub const FRAME_LEN: usize = field::MENU_ACTION + 1;
 
 impl<T: AsRef<[u8]>> Frame<T> {
     /// Create a raw octet buffer with a CAN frame structure.
@@ -185,43 +184,45 @@ impl<T: AsRef<[u8]>> Frame<T> {
     #[inline]
     pub fn interactive_message(&self) -> u16 {
         let data = self.buffer.as_ref();
-        NetworkEndian::read_u16(&data[field::INTERACTIVE_MSG]) & 0x7fff
+        NetworkEndian::read_u16(&data[field::INTERACTIVE_MSG_STOP_CHK]) & 0x7fff
     }
 
-    /// Return the stop and start push button state flag.
+    /// Return the MFD stop check request field.
     #[inline]
-    pub fn stop_and_start_button_state(&self) -> bool {
+    pub fn stop_check_request(&self) -> bool {
         let data = self.buffer.as_ref();
-        data[field::PUSHS_ACTION] & 0x01 != 0
+        let raw = NetworkEndian::read_u16(&data[field::INTERACTIVE_MSG_STOP_CHK]);
+        raw & !0x7fff != 0
     }
 
-    /// Return the lane centering push button state flag.
+    /// Return the popup id to display acknowledge field.
     #[inline]
-    pub fn lane_centering_button_state(&self) -> bool {
+    pub fn popup_id_ack(&self) -> Popup {
         let data = self.buffer.as_ref();
-        data[field::PUSHS_ACTION] & 0x02 != 0
+        Popup::from(data[field::POPUP_ID])
     }
 
-    /// Return the parking sensors push button state flag.
+    /// Return the user selected menu field.
     #[inline]
-    pub fn parking_sensors_button_state(&self) -> bool {
+    pub fn selected_menu(&self) -> Menu {
         let data = self.buffer.as_ref();
-        data[field::PUSHS_ACTION] & 0x04 != 0
+        let raw = (data[field::MENU_ACTION] & 0x1c) >> 2;
+        Menu::from(raw)
+    }
+
+    /// Return the wifi parameters reception acknowledge flag.
+    #[inline]
+    pub fn wifi_parameters_ack(&self) -> bool {
+        let data = self.buffer.as_ref();
+        data[field::MENU_ACTION] & 0x20 != 0
     }
 
     /// Return the user action on MFD field.
     #[inline]
-    pub fn user_action_on_mfd(&self) -> UserAction2004 {
+    pub fn user_action_on_mfd(&self) -> UserAction2010 {
         let data = self.buffer.as_ref();
-        let raw = data[field::PUSHS_ACTION] >> 4;
-        UserAction2004::from(raw)
-    }
-
-    /// Return the value set by user field.
-    #[inline]
-    pub fn user_value(&self) -> u8 {
-        let data = self.buffer.as_ref();
-        data[field::VALUE]
+        let raw = data[field::MENU_ACTION] >> 6;
+        UserAction2010::from(raw)
     }
 }
 
@@ -337,50 +338,52 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
     #[inline]
     pub fn set_interactive_message(&mut self, value: u16) {
         let data = self.buffer.as_mut();
-        NetworkEndian::write_u16(&mut data[field::INTERACTIVE_MSG], value & 0x7fff);
+        let raw = NetworkEndian::read_u16(&data[field::INTERACTIVE_MSG_STOP_CHK]);
+        let raw = raw | (value & 0x7fff);
+        NetworkEndian::write_u16(&mut data[field::INTERACTIVE_MSG_STOP_CHK], raw);
     }
 
-    /// Set the stop and start push button state flag.
+    /// Set the MFD stop check request field.
     #[inline]
-    pub fn set_stop_and_start_button_state(&mut self, value: bool) {
+    pub fn set_stop_check_request(&mut self, value: bool) {
         let data = self.buffer.as_mut();
-        let raw = data[field::PUSHS_ACTION];
-        let raw = if value { raw | 0x01 } else { raw & !0x01 };
-        data[field::PUSHS_ACTION] = raw;
+        let raw = NetworkEndian::read_u16(&data[field::INTERACTIVE_MSG_STOP_CHK]);
+        let raw = if value { raw | 0x8000 } else { raw & !0x8000 };
+        NetworkEndian::write_u16(&mut data[field::INTERACTIVE_MSG_STOP_CHK], raw);
     }
 
-    /// Set the lane centering push button state flag.
+    /// Set the popup id to display acknowledge field.
     #[inline]
-    pub fn set_lane_centering_button_state(&mut self, value: bool) {
+    pub fn set_popup_id_ack(&mut self, value: Popup) {
         let data = self.buffer.as_mut();
-        let raw = data[field::PUSHS_ACTION];
-        let raw = if value { raw | 0x02 } else { raw & !0x02 };
-        data[field::PUSHS_ACTION] = raw;
+        data[field::POPUP_ID] = u8::from(value);
     }
 
-    /// Set the parking sensors push button state flag.
+    /// Set the user selected menu field.
     #[inline]
-    pub fn set_parking_sensors_button_state(&mut self, value: bool) {
+    pub fn set_selected_menu(&mut self, value: Menu) {
         let data = self.buffer.as_mut();
-        let raw = data[field::PUSHS_ACTION];
-        let raw = if value { raw | 0x04 } else { raw & !0x04 };
-        data[field::PUSHS_ACTION] = raw;
+        let raw = data[field::MENU_ACTION] & !0x1c;
+        let raw = raw | ((u8::from(value) << 2) & 0x1c);
+        data[field::MENU_ACTION] = raw;
+    }
+
+    /// Set the wifi parameters reception acknowledge flag.
+    #[inline]
+    pub fn set_wifi_parameters_ack(&mut self, value: bool) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::MENU_ACTION];
+        let raw = if value { raw | 0x20 } else { raw & !0x20 };
+        data[field::MENU_ACTION] = raw;
     }
 
     /// Set the user action on MFD field.
     #[inline]
-    pub fn set_user_action_on_mfd(&mut self, value: UserAction2004) {
+    pub fn set_user_action_on_mfd(&mut self, value: UserAction2010) {
         let data = self.buffer.as_mut();
-        let raw = data[field::PUSHS_ACTION] & !0x80;
-        let raw = raw | ((u8::from(value) & 0x80) << 4);
-        data[field::PUSHS_ACTION] = raw;
-    }
-
-    /// Set the value set by user field.
-    #[inline]
-    pub fn set_user_value(&mut self, value: u8) {
-        let data = self.buffer.as_mut();
-        data[field::VALUE] = value;
+        let raw = data[field::MENU_ACTION];
+        let raw = raw | (u8::from(value) << 6);
+        data[field::MENU_ACTION] = raw;
     }
 }
 
@@ -419,11 +422,11 @@ pub struct Repr {
     pre_conditioning_request: bool,
     total_trip_distance: u16,
     interactive_message: u16,
-    stop_and_start_button_state: bool,
-    lane_centering_button_state: bool,
-    parking_sensors_button_state: bool,
-    user_action_on_mfd: UserAction2004,
-    user_value: u8,
+    stop_check_request: bool,
+    popup_id_acknowledge: Popup,
+    selected_menu: Menu,
+    wifi_parameters_acknowledge: bool,
+    user_action_on_mfd: UserAction2010,
 }
 
 impl Repr {
@@ -446,11 +449,11 @@ impl Repr {
             pre_conditioning_request: frame.pre_conditioning_request(),
             total_trip_distance: frame.total_trip_distance() * 2,
             interactive_message: frame.interactive_message(),
-            stop_and_start_button_state: frame.stop_and_start_button_state(),
-            lane_centering_button_state: frame.lane_centering_button_state(),
-            parking_sensors_button_state: frame.parking_sensors_button_state(),
+            stop_check_request: frame.stop_check_request(),
+            popup_id_acknowledge: frame.popup_id_ack(),
+            selected_menu: frame.selected_menu(),
+            wifi_parameters_acknowledge: frame.wifi_parameters_ack(),
             user_action_on_mfd: frame.user_action_on_mfd(),
-            user_value: frame.user_value(),
         })
     }
 
@@ -480,11 +483,11 @@ impl Repr {
         frame.set_pre_conditioning_request(self.pre_conditioning_request);
         frame.set_total_trip_distance(self.total_trip_distance / 2);
         frame.set_interactive_message(self.interactive_message);
-        frame.set_stop_and_start_button_state(self.stop_and_start_button_state);
-        frame.set_lane_centering_button_state(self.lane_centering_button_state);
-        frame.set_parking_sensors_button_state(self.parking_sensors_button_state);
+        frame.set_stop_check_request(self.stop_check_request);
+        frame.set_popup_id_ack(self.popup_id_acknowledge);
+        frame.set_selected_menu(self.selected_menu);
+        frame.set_wifi_parameters_ack(self.wifi_parameters_acknowledge);
         frame.set_user_action_on_mfd(self.user_action_on_mfd);
-        frame.set_user_value(self.user_value);
     }
 }
 
@@ -527,23 +530,15 @@ impl fmt::Display for Repr {
         )?;
         write!(f, "total trip distance={}", self.total_trip_distance)?;
         write!(f, "interactive message={}", self.interactive_message)?;
+        write!(f, "stop check request={}", self.stop_check_request)?;
+        write!(f, "popup id acknowledge={}", self.popup_id_acknowledge)?;
+        write!(f, "selected menu={}", self.selected_menu)?;
         write!(
             f,
-            "stop and start button state={}",
-            self.stop_and_start_button_state
+            "wifi parameters acknowledge={}",
+            self.wifi_parameters_acknowledge
         )?;
-        write!(
-            f,
-            "lane centering button state={}",
-            self.lane_centering_button_state
-        )?;
-        write!(
-            f,
-            "parking sensors button state={}",
-            self.parking_sensors_button_state
-        )?;
-        write!(f, "user_action on mfd={}", self.user_action_on_mfd)?;
-        write!(f, "user value={}", self.user_value)
+        write!(f, "user_action on mfd={}", self.user_action_on_mfd)
     }
 }
 
@@ -551,12 +546,12 @@ impl fmt::Display for Repr {
 mod test {
     use super::{Frame, Repr};
     use crate::{
-        mfd::{TripComputerPage, UserAction2004},
+        mfd::{Menu, Popup, TripComputerPage, UserAction2010},
         Error,
     };
 
     static REPR_FRAME_BYTES_1: [u8; 8] = [0x08, 0x00, 0x00, 0x00, 0x7f, 0xff, 0x00, 0x00];
-    static REPR_FRAME_BYTES_2: [u8; 8] = [0x08, 0x10, 0x00, 0x00, 0x7f, 0xff, 0x01, 0x00];
+    static REPR_FRAME_BYTES_2: [u8; 8] = [0x08, 0x10, 0x00, 0x00, 0xff, 0xff, 0x05, 0xa8];
 
     fn frame_1_repr() -> Repr {
         Repr {
@@ -573,11 +568,11 @@ mod test {
             pre_conditioning_request: false,
             total_trip_distance: 0,
             interactive_message: 32767,
-            stop_and_start_button_state: false,
-            lane_centering_button_state: false,
-            parking_sensors_button_state: false,
-            user_action_on_mfd: UserAction2004::NoAction,
-            user_value: 0,
+            stop_check_request: false,
+            popup_id_acknowledge: Popup::NoDisplay,
+            selected_menu: Menu::WifiSettings,
+            wifi_parameters_acknowledge: false,
+            user_action_on_mfd: UserAction2010::NoAction,
         }
     }
 
@@ -596,11 +591,11 @@ mod test {
             pre_conditioning_request: false,
             total_trip_distance: 0,
             interactive_message: 32767,
-            stop_and_start_button_state: true,
-            lane_centering_button_state: false,
-            parking_sensors_button_state: false,
-            user_action_on_mfd: UserAction2004::NoAction,
-            user_value: 0,
+            stop_check_request: true,
+            popup_id_acknowledge: Popup::ConnectedEmergencyCall,
+            selected_menu: Menu::PrivacySettings,
+            wifi_parameters_acknowledge: true,
+            user_action_on_mfd: UserAction2010::Yes,
         }
     }
 
@@ -621,11 +616,11 @@ mod test {
         assert_eq!(frame.pre_conditioning_request(), false);
         assert_eq!(frame.total_trip_distance(), 0);
         assert_eq!(frame.interactive_message(), 32767);
-        assert_eq!(frame.stop_and_start_button_state(), false);
-        assert_eq!(frame.lane_centering_button_state(), false);
-        assert_eq!(frame.parking_sensors_button_state(), false);
-        assert_eq!(frame.user_action_on_mfd(), UserAction2004::NoAction);
-        assert_eq!(frame.user_value(), 0);
+        assert_eq!(frame.stop_check_request(), false);
+        assert_eq!(frame.popup_id_ack(), Popup::NoDisplay);
+        assert_eq!(frame.selected_menu(), Menu::WifiSettings);
+        assert_eq!(frame.wifi_parameters_ack(), false);
+        assert_eq!(frame.user_action_on_mfd(), UserAction2010::NoAction);
     }
 
     #[test]
@@ -645,11 +640,11 @@ mod test {
         assert_eq!(frame.pre_conditioning_request(), false);
         assert_eq!(frame.total_trip_distance(), 0);
         assert_eq!(frame.interactive_message(), 32767);
-        assert_eq!(frame.stop_and_start_button_state(), true);
-        assert_eq!(frame.lane_centering_button_state(), false);
-        assert_eq!(frame.parking_sensors_button_state(), false);
-        assert_eq!(frame.user_action_on_mfd(), UserAction2004::NoAction);
-        assert_eq!(frame.user_value(), 0);
+        assert_eq!(frame.stop_check_request(), true);
+        assert_eq!(frame.popup_id_ack(), Popup::ConnectedEmergencyCall);
+        assert_eq!(frame.selected_menu(), Menu::PrivacySettings);
+        assert_eq!(frame.wifi_parameters_ack(), true);
+        assert_eq!(frame.user_action_on_mfd(), UserAction2010::Yes);
     }
 
     #[test]
@@ -670,11 +665,11 @@ mod test {
         frame.set_pre_conditioning_request(false);
         frame.set_total_trip_distance(0);
         frame.set_interactive_message(32767);
-        frame.set_stop_and_start_button_state(false);
-        frame.set_lane_centering_button_state(false);
-        frame.set_parking_sensors_button_state(false);
-        frame.set_user_action_on_mfd(UserAction2004::NoAction);
-        frame.set_user_value(0);
+        frame.set_stop_check_request(false);
+        frame.set_popup_id_ack(Popup::NoDisplay);
+        frame.set_selected_menu(Menu::WifiSettings);
+        frame.set_wifi_parameters_ack(false);
+        frame.set_user_action_on_mfd(UserAction2010::NoAction);
 
         assert_eq!(frame.into_inner(), &REPR_FRAME_BYTES_1);
     }
@@ -697,11 +692,11 @@ mod test {
         frame.set_pre_conditioning_request(false);
         frame.set_total_trip_distance(0);
         frame.set_interactive_message(32767);
-        frame.set_stop_and_start_button_state(true);
-        frame.set_lane_centering_button_state(false);
-        frame.set_parking_sensors_button_state(false);
-        frame.set_user_action_on_mfd(UserAction2004::NoAction);
-        frame.set_user_value(0);
+        frame.set_stop_check_request(true);
+        frame.set_popup_id_ack(Popup::ConnectedEmergencyCall);
+        frame.set_selected_menu(Menu::PrivacySettings);
+        frame.set_wifi_parameters_ack(true);
+        frame.set_user_action_on_mfd(UserAction2010::Yes);
 
         assert_eq!(frame.into_inner(), &REPR_FRAME_BYTES_2);
     }
