@@ -30,7 +30,7 @@ mod field {
     /// 1-bit automatic headlamps enable flag,
     /// 1-bit follow-me-home enable field,
     /// 1-bit motorway lighting enable flag,
-    /// 1-bit adaptive lamps option presence flag.
+    /// 1-bit adaptive lamps enable flag.
     pub const OPT_2: usize = 2;
     /// 4-bit ceiling light out delay field,
     /// 2-bit empty
@@ -47,15 +47,15 @@ mod field {
     /// 3-bit empty,
     /// 1-bit automatic mirrors folding enable flag,
     /// 1-bit rear wiper in reverse gear enable flag,
-    /// 1-bit mirrors tilting in reverse enable flag,
+    /// 1-bit mirrors tilting in reverse gear enable flag,
     /// 2-bit parking sensors status field.
     pub const OPT_5: usize = 5;
     /// 5-bit empty,
     /// 2-bit blind spot monitoring status field,
     /// 1-bit 'SECU' (maybe child lock feature?) flag.
     pub const OPT_6: usize = 6;
-    /// 5-bit empty,
-    /// 3-bit configurable button/key mode field.
+    /// 4-bit empty,
+    /// 4-bit configurable button/key mode field.
     pub const OPT_7: usize = 7;
 }
 
@@ -118,215 +118,207 @@ impl<T: AsRef<[u8]>> Frame<T> {
         UserProfile::from(raw)
     }
 
-    /// Return the profile change allowed flag.
+    /// Return the parameters validity flag.
     #[inline]
-    pub fn profile_change_allowed(&self) -> bool {
+    pub fn parameters_validity(&self) -> bool {
         let data = self.buffer.as_ref();
         data[field::PROFILE] & 0x08 != 0
     }
 
-    /// Return the boot permanent locking option presence flag.
+    /// Return the automatic electrical parking brake application enable flag.
     #[inline]
-    pub fn boot_permanent_locking_presence(&self) -> bool {
+    pub fn auto_elec_parking_brake_application_enable(&self) -> bool {
         let data = self.buffer.as_ref();
         data[field::OPT_1] & 0x01 != 0
     }
 
-    /// Return the partial window opening option presence flag.
+    /// Return the welcome function enable flag.
     #[inline]
-    pub fn partial_window_opening_presence(&self) -> bool {
+    pub fn welcome_function_enable(&self) -> bool {
         let data = self.buffer.as_ref();
         data[field::OPT_1] & 0x02 != 0
     }
 
-    /// Return the welcome function option presence flag.
+    /// Return the partial window opening enable flag.
     #[inline]
-    pub fn welcome_function_presence(&self) -> bool {
+    pub fn partial_window_opening_enable(&self) -> bool {
         let data = self.buffer.as_ref();
         data[field::OPT_1] & 0x04 != 0
     }
 
-    /// Return the 'securoscope' option presence flag.
+    /// Return the locking mode on 'COE' enable flag.
     #[inline]
-    pub fn securoscope_presence(&self) -> bool {
+    pub fn locking_mode_on_coe_enable(&self) -> bool {
         let data = self.buffer.as_ref();
         data[field::OPT_1] & 0x08 != 0
     }
 
-    /// Return the configurable button/key option presence flag.
+    /// Return the automatic door locking when leaving enable flag.
     #[inline]
-    pub fn configurable_key_presence(&self) -> bool {
+    pub fn auto_door_locking_when_leaving_enable(&self) -> bool {
         let data = self.buffer.as_ref();
         data[field::OPT_1] & 0x10 != 0
     }
 
-    /// Return the automatic headlamps option presence flag.
+    /// Return the boot permanent locking enable flag.
     #[inline]
-    pub fn automatic_headlamps_presence(&self) -> bool {
+    pub fn boot_permanent_locking_enable(&self) -> bool {
         let data = self.buffer.as_ref();
-        data[field::OPT_2] & 0x01 != 0
+        data[field::OPT_1] & 0x20 != 0
     }
 
-    /// Return the gear efficiency indicator option presence flag.
+    /// Return the automatic door locking when driving enable flag.
     #[inline]
-    pub fn gear_efficiency_indicator_presence(&self) -> bool {
+    pub fn auto_door_locking_when_driving_enable(&self) -> bool {
         let data = self.buffer.as_ref();
-        data[field::OPT_2] & 0x02 != 0
+        data[field::OPT_1] & 0x40 != 0
     }
 
-    /// Return the automatic electrical parking brake application option presence flag.
+    /// Return the selective unlocking enable flag.
     #[inline]
-    pub fn auto_elec_parking_brake_application_presence(&self) -> bool {
+    pub fn selective_unlocking_enable(&self) -> bool {
         let data = self.buffer.as_ref();
-        data[field::OPT_2] & 0x04 != 0
+        data[field::OPT_1] & 0x80 != 0
     }
 
-    /// Return the welcome lighting option presence flag.
+    /// Return the follow-me-home lighting duration field.
     #[inline]
-    pub fn welcome_lighting_presence(&self) -> bool {
+    pub fn follow_me_home_lighting_duration(&self) -> u8 {
         let data = self.buffer.as_ref();
-        data[field::OPT_2] & 0x08 != 0
+        data[field::OPT_2] & 0x0f
     }
 
-    /// Return the follow-me-home option presence flag.
+    /// Return the automatic headlamps enable flag.
     #[inline]
-    pub fn follow_me_home_presence(&self) -> bool {
+    pub fn automatic_headlamps_enable(&self) -> bool {
         let data = self.buffer.as_ref();
         data[field::OPT_2] & 0x10 != 0
     }
 
-    /// Return the locking mode on 'COE' option presence flag.
+    /// Return the follow-me-home enable flag.
     #[inline]
-    pub fn locking_mode_on_coe_presence(&self) -> bool {
+    pub fn follow_me_home_enable(&self) -> bool {
         let data = self.buffer.as_ref();
         data[field::OPT_2] & 0x20 != 0
     }
 
-    /// Return the automatic door locking when leaving option presence flag.
+    /// Return the motorway lighting enable flag.
     #[inline]
-    pub fn auto_door_locking_when_leaving_presence(&self) -> bool {
+    pub fn motorway_lighting_enable(&self) -> bool {
         let data = self.buffer.as_ref();
         data[field::OPT_2] & 0x40 != 0
     }
 
-    /// Return the selective unlocking option presence flag.
+    /// Return the adaptive lamps enable flag.
     #[inline]
-    pub fn selective_unlocking_presence(&self) -> bool {
+    pub fn adaptive_lamps_enable(&self) -> bool {
         let data = self.buffer.as_ref();
         data[field::OPT_2] & 0x80 != 0
     }
 
-    /// Return the rear wiper in reverse gear option presence flag.
+    /// Return the ceiling light out delay field.
     #[inline]
-    pub fn rear_wiper_in_reverse_gear_presence(&self) -> bool {
+    pub fn ceiling_light_out_delay(&self) -> u8 {
         let data = self.buffer.as_ref();
-        data[field::OPT_3] & 0x20 != 0
+        data[field::OPT_3] & 0x0f
     }
 
-    /// Return the daytime running lamps option presence flag.
+    /// Return the daytime running lamps enable flag.
     #[inline]
-    pub fn daytime_running_lamps_presence(&self) -> bool {
+    pub fn daytime_running_lamps_enable(&self) -> bool {
         let data = self.buffer.as_ref();
         data[field::OPT_3] & 0x40 != 0
     }
 
-    /// Return the adaptive lamps option presence flag.
+    /// Return the mood lighting enable flag.
     #[inline]
-    pub fn adaptive_lamps_presence(&self) -> bool {
+    pub fn mood_lighting_enable(&self) -> bool {
         let data = self.buffer.as_ref();
         data[field::OPT_3] & 0x80 != 0
     }
 
-    /// Return the blind spot monitoring inhibition option presence flag.
+    /// Return the low fuel level alert enable flag.
     #[inline]
-    pub fn blind_spot_monitoring_inhibition_presence(&self) -> bool {
+    pub fn low_fuel_level_alert_enable(&self) -> bool {
         let data = self.buffer.as_ref();
         data[field::OPT_4] & 0x01 != 0
     }
 
-    /// Return the blind spot monitoring option presence flag.
+    /// Return the key left in car alert enable flag.
     #[inline]
-    pub fn blind_spot_monitoring_presence(&self) -> bool {
+    pub fn key_left_in_car_alert_enable(&self) -> bool {
         let data = self.buffer.as_ref();
         data[field::OPT_4] & 0x02 != 0
     }
 
-    /// Return the mood lighting option presence flag.
+    /// Return the lighting left on alert enable flag.
     #[inline]
-    pub fn mood_lighting_presence(&self) -> bool {
+    pub fn lighting_left_on_alert_enable(&self) -> bool {
         let data = self.buffer.as_ref();
         data[field::OPT_4] & 0x04 != 0
     }
 
-    /// Return the motorway lighting option presence flag.
+    /// Return the 'ALT_GEN' (maybe ALerT GENerator?) enable flag.
     #[inline]
-    pub fn motorway_lighting_presence(&self) -> bool {
+    pub fn alt_gen_enable(&self) -> bool {
         let data = self.buffer.as_ref();
         data[field::OPT_4] & 0x08 != 0
     }
 
-    /// Return the multi-function display presence flag.
+    /// Return the ESP in regulation sound alert enable flag.
     #[inline]
-    pub fn multi_function_display_presence(&self) -> bool {
+    pub fn esp_in_regulation_alert_enable(&self) -> bool {
         let data = self.buffer.as_ref();
         data[field::OPT_4] & 0x10 != 0
     }
 
-    /// Return the parking sensors inhibition option presence flag.
+    /// Return the automatic mirrors folding enable flag.
     #[inline]
-    pub fn park_sensors_inhibition_presence(&self) -> bool {
-        let data = self.buffer.as_ref();
-        data[field::OPT_4] & 0x20 != 0
-    }
-
-    /// Return the parking audible assistance option presence flag.
-    #[inline]
-    pub fn park_sensors_audible_assistance_presence(&self) -> bool {
-        let data = self.buffer.as_ref();
-        data[field::OPT_4] & 0x40 != 0
-    }
-
-    /// Return the parking visual assistance option presence flag.
-    #[inline]
-    pub fn park_sensors_visual_assistance_presence(&self) -> bool {
-        let data = self.buffer.as_ref();
-        data[field::OPT_4] & 0x80 != 0
-    }
-
-    /// Return the automatic emergency braking option presence flag.
-    #[inline]
-    pub fn automatic_emergency_braking_presence(&self) -> bool {
-        let data = self.buffer.as_ref();
-        data[field::OPT_5] & 0x02 != 0
-    }
-
-    /// Return the under-inflation detection reset menu option presence flag.
-    #[inline]
-    pub fn under_inflation_detection_reset_menu_presence(&self) -> bool {
-        let data = self.buffer.as_ref();
-        data[field::OPT_5] & 0x04 != 0
-    }
-
-    /// Return the seat belt not fastened / unfastened warning lamps presence flag.
-    #[inline]
-    pub fn seat_belt_status_lamps_presence(&self) -> bool {
+    pub fn auto_mirrors_folding_enable(&self) -> bool {
         let data = self.buffer.as_ref();
         data[field::OPT_5] & 0x08 != 0
     }
 
-    /// Return the under-inflation detection option system type field.
+    /// Return the rear wiper in reverse gear enable flag.
     #[inline]
-    pub fn under_inflation_detection(&self) -> UnderInflationDetectionSystem {
+    pub fn rear_wiper_in_reverse_gear_enable(&self) -> bool {
         let data = self.buffer.as_ref();
-        let raw = (data[field::OPT_5] & 0x70) >> 4;
-        UnderInflationDetectionSystem::from(raw)
+        data[field::OPT_5] & 0x10 != 0
     }
 
-    /// Return the blind spot audible assistance inhibition option presence flag.
+    /// Return the mirrors tilting in reverse gear enable flag.
     #[inline]
-    pub fn blind_spot_audible_assistance_presence(&self) -> bool {
+    pub fn mirrors_tilting_in_reverse_gear_enable(&self) -> bool {
         let data = self.buffer.as_ref();
-        data[field::OPT_5] & 0x80 != 0
+        data[field::OPT_5] & 0x20 != 0
+    }
+
+    /// Return the parking sensors status field.
+    #[inline]
+    pub fn park_sensors_status(&self) -> u8 {
+        let data = self.buffer.as_ref();
+        data[field::OPT_5] & 0xc0 >> 6
+    }
+
+    /// Return the blind spot monitoring status field.
+    #[inline]
+    pub fn blind_spot_monitoring_status(&self) -> u8 {
+        let data = self.buffer.as_ref();
+        data[field::OPT_6] & 0x60 >> 5
+    }
+
+    /// Return the 'SECU' (maybe child lock feature?) enable flag.
+    #[inline]
+    pub fn secu_enable(&self) -> bool {
+        let data = self.buffer.as_ref();
+        data[field::OPT_6] & 0x80 != 0
+    }
+
+    /// Return the configurable button/key mode flag.
+    #[inline]
+    pub fn configurable_key_mode(&self) -> u8 {
+        let data = self.buffer.as_ref();
+        data[field::OPT_7] & 0xf0 >> 4
     }
 }
 
@@ -340,274 +332,265 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
         data[field::PROFILE] = raw;
     }
 
-    /// Set the profile change allowed flag.
+    /// Set the parameters validity flag.
     #[inline]
-    pub fn set_profile_change_allowed(&mut self, value: bool) {
+    pub fn set_parameters_validity(&mut self, value: bool) {
         let data = self.buffer.as_mut();
         let raw = data[field::PROFILE];
         let raw = if value { raw | 0x08 } else { raw & !0x08 };
         data[field::PROFILE] = raw;
     }
 
-    /// Set the boot permanent locking option presence flag.
+    /// Set the automatic electrical parking brake application enable flag.
     #[inline]
-    pub fn set_boot_permanent_locking_presence(&mut self, value: bool) {
+    pub fn set_auto_elec_parking_brake_application_enable(&mut self, value: bool) {
         let data = self.buffer.as_mut();
         let raw = data[field::OPT_1] & !0x01;
         let raw = if value { raw | 0x01 } else { raw & !0x01 };
         data[field::OPT_1] = raw;
     }
 
-    /// Set the partial window opening option presence flag.
+    /// Set the welcome function enable flag.
     #[inline]
-    pub fn set_partial_window_opening_presence(&mut self, value: bool) {
+    pub fn set_welcome_function_enable(&mut self, value: bool) {
         let data = self.buffer.as_mut();
         let raw = data[field::OPT_1] & !0x02;
         let raw = if value { raw | 0x02 } else { raw & !0x02 };
         data[field::OPT_1] = raw;
     }
 
-    /// Set the welcome function option presence flag.
+    /// Set the partial window opening enable flag.
     #[inline]
-    pub fn set_welcome_function_presence(&mut self, value: bool) {
+    pub fn set_partial_window_opening_enable(&mut self, value: bool) {
         let data = self.buffer.as_mut();
         let raw = data[field::OPT_1] & !0x04;
         let raw = if value { raw | 0x04 } else { raw & !0x04 };
         data[field::OPT_1] = raw;
     }
 
-    /// Set the 'securoscope' option presence flag.
+    /// Set the locking mode on 'COE' enable flag.
     #[inline]
-    pub fn set_securoscope_presence(&mut self, value: bool) {
+    pub fn set_locking_mode_on_coe_enable(&mut self, value: bool) {
         let data = self.buffer.as_mut();
         let raw = data[field::OPT_1] & !0x08;
         let raw = if value { raw | 0x08 } else { raw & !0x08 };
         data[field::OPT_1] = raw;
     }
 
-    /// Set the configurable button/key option presence flag.
+    /// Set the automatic door locking when leaving enable flag.
     #[inline]
-    pub fn set_configurable_key_presence(&mut self, value: bool) {
+    pub fn set_auto_door_locking_when_leaving_enable(&mut self, value: bool) {
         let data = self.buffer.as_mut();
         let raw = data[field::OPT_1] & !0x10;
         let raw = if value { raw | 0x10 } else { raw & !0x10 };
         data[field::OPT_1] = raw;
     }
 
-    /// Set the automatic headlamps option presence flag.
+    /// Set the boot permanent locking enable flag.
     #[inline]
-    pub fn set_automatic_headlamps_presence(&mut self, value: bool) {
+    pub fn set_boot_permanent_locking_enable(&mut self, value: bool) {
         let data = self.buffer.as_mut();
-        let raw = data[field::OPT_2] & !0x01;
-        let raw = if value { raw | 0x01 } else { raw & !0x01 };
+        let raw = data[field::OPT_1] & !0x20;
+        let raw = if value { raw | 0x20 } else { raw & !0x20 };
+        data[field::OPT_1] = raw;
+    }
+
+    /// Set the automatic door locking when driving enable flag.
+    #[inline]
+    pub fn set_auto_door_locking_when_driving_enable(&mut self, value: bool) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::OPT_1] & !0x40;
+        let raw = if value { raw | 0x40 } else { raw & !0x40 };
+        data[field::OPT_1] = raw;
+    }
+
+    /// Set the selective unlocking enable flag.
+    #[inline]
+    pub fn set_selective_unlocking_enable(&mut self, value: bool) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::OPT_1] & !0x80;
+        let raw = if value { raw | 0x80 } else { raw & !0x80 };
+        data[field::OPT_1] = raw;
+    }
+
+    /// Set the follow-me-home lighting duration field.
+    #[inline]
+    pub fn set_follow_me_home_lighting_duration(&mut self, value: u8) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::OPT_2] & !0x0f;
+        let raw = raw | (value & 0x0f);
         data[field::OPT_2] = raw;
     }
 
-    /// Set the gear efficiency indicator option presence flag.
+    /// Set the automatic headlamps enable flag.
     #[inline]
-    pub fn set_gear_efficiency_indicator_presence(&mut self, value: bool) {
-        let data = self.buffer.as_mut();
-        let raw = data[field::OPT_2] & !0x02;
-        let raw = if value { raw | 0x02 } else { raw & !0x02 };
-        data[field::OPT_2] = raw;
-    }
-
-    /// Set the automatic electrical parking brake application option presence flag.
-    #[inline]
-    pub fn set_auto_elec_parking_brake_application_presence(&mut self, value: bool) {
-        let data = self.buffer.as_mut();
-        let raw = data[field::OPT_2] & !0x04;
-        let raw = if value { raw | 0x04 } else { raw & !0x04 };
-        data[field::OPT_2] = raw;
-    }
-
-    /// Set the welcome lighting option presence flag.
-    #[inline]
-    pub fn set_welcome_lighting_presence(&mut self, value: bool) {
-        let data = self.buffer.as_mut();
-        let raw = data[field::OPT_2] & !0x08;
-        let raw = if value { raw | 0x08 } else { raw & !0x08 };
-        data[field::OPT_2] = raw;
-    }
-
-    /// Set the follow-me-home option presence flag.
-    #[inline]
-    pub fn set_follow_me_home_presence(&mut self, value: bool) {
+    pub fn set_automatic_headlamps_enable(&mut self, value: bool) {
         let data = self.buffer.as_mut();
         let raw = data[field::OPT_2] & !0x10;
         let raw = if value { raw | 0x10 } else { raw & !0x10 };
         data[field::OPT_2] = raw;
     }
 
-    /// Set the locking mode on 'COE' option presence flag.
+    /// Set the follow-me-home enable flag.
     #[inline]
-    pub fn set_locking_mode_on_coe_presence(&mut self, value: bool) {
+    pub fn set_follow_me_home_enable(&mut self, value: bool) {
         let data = self.buffer.as_mut();
         let raw = data[field::OPT_2] & !0x20;
         let raw = if value { raw | 0x20 } else { raw & !0x20 };
         data[field::OPT_2] = raw;
     }
 
-    /// Set the automatic door locking when leaving option presence flag.
+    /// Set the motorway lighting enable flag.
     #[inline]
-    pub fn set_auto_door_locking_when_leaving_presence(&mut self, value: bool) {
+    pub fn set_motorway_lighting_enable(&mut self, value: bool) {
         let data = self.buffer.as_mut();
         let raw = data[field::OPT_2] & !0x40;
         let raw = if value { raw | 0x40 } else { raw & !0x40 };
         data[field::OPT_2] = raw;
     }
 
-    /// Set the selective unlocking option presence flag.
+    /// Set the adaptive lamps enable flag.
     #[inline]
-    pub fn set_selective_unlocking_presence(&mut self, value: bool) {
+    pub fn set_adaptive_lamps_enable(&mut self, value: bool) {
         let data = self.buffer.as_mut();
         let raw = data[field::OPT_2] & !0x80;
         let raw = if value { raw | 0x80 } else { raw & !0x80 };
         data[field::OPT_2] = raw;
     }
 
-    /// Set the rear wiper in reverse gear option presence flag.
+    /// Set the ceiling light out delay field.
     #[inline]
-    pub fn set_rear_wiper_in_reverse_gear_presence(&mut self, value: bool) {
+    pub fn set_ceiling_light_out_delay(&mut self, value: u8) {
         let data = self.buffer.as_mut();
-        let raw = data[field::OPT_3] & !0x20;
-        let raw = if value { raw | 0x20 } else { raw & !0x20 };
+        let raw = data[field::OPT_3] & !0x0f;
+        let raw = raw | (value & 0x0f);
         data[field::OPT_3] = raw;
     }
 
-    /// Set the daytime running lamps option presence flag.
+    /// Set the daytime running lamps enable flag.
     #[inline]
-    pub fn set_daytime_running_lamps_presence(&mut self, value: bool) {
+    pub fn set_daytime_running_lamps_enable(&mut self, value: bool) {
         let data = self.buffer.as_mut();
         let raw = data[field::OPT_3] & !0x40;
         let raw = if value { raw | 0x40 } else { raw & !0x40 };
         data[field::OPT_3] = raw;
     }
 
-    /// Set the adaptive lamps option presence flag.
+    /// Set the mood lighting enable flag.
     #[inline]
-    pub fn set_adaptive_lamps_presence(&mut self, value: bool) {
+    pub fn set_mood_lighting_enable(&mut self, value: bool) {
         let data = self.buffer.as_mut();
         let raw = data[field::OPT_3] & !0x80;
         let raw = if value { raw | 0x80 } else { raw & !0x80 };
         data[field::OPT_3] = raw;
     }
 
-    /// Set the blind spot monitoring inhibition option presence flag.
+    /// Set the low fuel level alert enable flag.
     #[inline]
-    pub fn set_blind_spot_monitoring_inhibition_presence(&mut self, value: bool) {
+    pub fn set_low_fuel_level_alert_enable(&mut self, value: bool) {
         let data = self.buffer.as_mut();
         let raw = data[field::OPT_4] & !0x01;
         let raw = if value { raw | 0x01 } else { raw & !0x01 };
         data[field::OPT_4] = raw;
     }
 
-    /// Set the blind spot monitoring option presence flag.
+    /// Set the key left in car alert enable flag.
     #[inline]
-    pub fn set_blind_spot_monitoring_presence(&mut self, value: bool) {
+    pub fn set_key_left_in_car_alert_enable(&mut self, value: bool) {
         let data = self.buffer.as_mut();
         let raw = data[field::OPT_4] & !0x02;
         let raw = if value { raw | 0x02 } else { raw & !0x02 };
         data[field::OPT_4] = raw;
     }
 
-    /// Set the mood lighting option presence flag.
+    /// Set the lighting left on alert enable flag.
     #[inline]
-    pub fn set_mood_lighting_presence(&mut self, value: bool) {
+    pub fn set_lighting_left_on_alert_enable(&mut self, value: bool) {
         let data = self.buffer.as_mut();
         let raw = data[field::OPT_4] & !0x04;
         let raw = if value { raw | 0x04 } else { raw & !0x04 };
         data[field::OPT_4] = raw;
     }
 
-    /// Set the motorway lighting option presence flag.
+    /// Set the 'ALT_GEN' (maybe ALerT GENerator?) enable flag.
     #[inline]
-    pub fn set_motorway_lighting_presence(&mut self, value: bool) {
+    pub fn set_alt_gen_enable(&mut self, value: bool) {
         let data = self.buffer.as_mut();
         let raw = data[field::OPT_4] & !0x08;
         let raw = if value { raw | 0x08 } else { raw & !0x08 };
         data[field::OPT_4] = raw;
     }
 
-    /// Set the multi-function display presence flag.
+    /// Set the ESP in regulation sound alert enable flag.
     #[inline]
-    pub fn set_multi_function_display_presence(&mut self, value: bool) {
+    pub fn set_esp_in_regulation_alert_enable(&mut self, value: bool) {
         let data = self.buffer.as_mut();
         let raw = data[field::OPT_4] & !0x10;
         let raw = if value { raw | 0x10 } else { raw & !0x10 };
         data[field::OPT_4] = raw;
     }
 
-    /// Set the parking sensors inhibition option presence flag.
+    /// Set the automatic mirrors folding enable flag.
     #[inline]
-    pub fn set_park_sensors_inhibition_presence(&mut self, value: bool) {
-        let data = self.buffer.as_mut();
-        let raw = data[field::OPT_4] & !0x20;
-        let raw = if value { raw | 0x20 } else { raw & !0x20 };
-        data[field::OPT_4] = raw;
-    }
-
-    /// Set the parking audible assistance option presence flag.
-    #[inline]
-    pub fn set_park_sensors_audible_assistance_presence(&mut self, value: bool) {
-        let data = self.buffer.as_mut();
-        let raw = data[field::OPT_4] & !0x40;
-        let raw = if value { raw | 0x40 } else { raw & !0x40 };
-        data[field::OPT_4] = raw;
-    }
-
-    /// Set the parking visual assistance option presence flag.
-    #[inline]
-    pub fn set_park_sensors_visual_assistance_presence(&mut self, value: bool) {
-        let data = self.buffer.as_mut();
-        let raw = data[field::OPT_4] & !0x80;
-        let raw = if value { raw | 0x80 } else { raw & !0x80 };
-        data[field::OPT_4] = raw;
-    }
-
-    /// Set the automatic emergency braking option presence flag.
-    #[inline]
-    pub fn set_automatic_emergency_braking_presence(&mut self, value: bool) {
-        let data = self.buffer.as_mut();
-        let raw = data[field::OPT_5] & !0x02;
-        let raw = if value { raw | 0x02 } else { raw & !0x02 };
-        data[field::OPT_5] = raw;
-    }
-
-    /// Set the under-inflation detection reset menu option presence flag.
-    #[inline]
-    pub fn set_under_inflation_detection_reset_menu_presence(&mut self, value: bool) {
-        let data = self.buffer.as_mut();
-        let raw = data[field::OPT_5] & !0x04;
-        let raw = if value { raw | 0x04 } else { raw & !0x04 };
-        data[field::OPT_5] = raw;
-    }
-
-    /// Set the seat belt not fastened / unfastened warning lamps presence flag.
-    #[inline]
-    pub fn set_seat_belt_status_lamps_presence(&mut self, value: bool) {
+    pub fn set_auto_mirrors_folding_enable(&mut self, value: bool) {
         let data = self.buffer.as_mut();
         let raw = data[field::OPT_5] & !0x08;
         let raw = if value { raw | 0x08 } else { raw & !0x08 };
         data[field::OPT_5] = raw;
     }
 
-    /// Set the under-inflation detection option system type field.
+    /// Set the rear wiper in reverse gear enable flag.
     #[inline]
-    pub fn set_under_inflation_detection(&mut self, value: UnderInflationDetectionSystem) {
+    pub fn set_rear_wiper_in_reverse_gear_enable(&mut self, value: bool) {
         let data = self.buffer.as_mut();
-        let raw = data[field::OPT_5] & !0x70;
-        let raw = raw | ((u8::from(value) << 4) & 0x70);
+        let raw = data[field::OPT_5] & !0x10;
+        let raw = if value { raw | 0x10 } else { raw & !0x10 };
         data[field::OPT_5] = raw;
     }
 
-    /// Set the blind spot audible assistance inhibition option presence flag.
+    /// Set the mirrors tilting in reverse gear enable flag.
     #[inline]
-    pub fn set_blind_spot_audible_assistance_presence(&mut self, value: bool) {
+    pub fn set_mirrors_tilting_in_reverse_gear_enable(&mut self, value: bool) {
         let data = self.buffer.as_mut();
-        let raw = data[field::OPT_5] & !0x80;
-        let raw = if value { raw | 0x80 } else { raw & !0x80 };
+        let raw = data[field::OPT_5] & !0x20;
+        let raw = if value { raw | 0x20 } else { raw & !0x20 };
         data[field::OPT_5] = raw;
+    }
+
+    /// Set the parking sensors status field.
+    #[inline]
+    pub fn set_park_sensors_status(&mut self, value: u8) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::OPT_5] & !0xc0;
+        let raw = raw | ((value << 6) & 0xc0);
+        data[field::OPT_5] = raw;
+    }
+
+    /// Set the blind spot monitoring status field.
+    #[inline]
+    pub fn set_blind_spot_monitoring_status(&mut self, value: u8) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::OPT_6] & !0x60;
+        let raw = raw | ((value << 5) & 0x60);
+        data[field::OPT_6] = raw;
+    }
+
+    /// Set the 'SECU' (maybe child lock feature?) enable flag.
+    #[inline]
+    pub fn set_secu_enable(&mut self, value: bool) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::OPT_6] & !0x80;
+        let raw = if value { raw | 0x80 } else { raw & !0x80 };
+        data[field::OPT_6] = raw;
+    }
+
+    /// Set the configurable button/key enable flag.
+    #[inline]
+    pub fn set_configurable_key_mode(&mut self, value: u8) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::OPT_7] & !0xf0;
+        let raw = raw | ((value << 4) & 0xf0);
+        data[field::OPT_7] = raw;
     }
 }
 
@@ -658,8 +641,8 @@ pub struct Repr {
     multi_function_display_present: bool,
     parking_sensors_inhibition_present: bool,
     parking_sensors_audible_assistance_present: bool,
-    parking_sensors_visual_assistance_presence: bool,
-    automatic_emergency_braking_presence: bool,
+    parking_sensors_visual_assistance_enable: bool,
+    automatic_emergency_braking_enable: bool,
     under_inflation_detection_reset_menu_present: bool,
     seat_belt_status_lamps_present: bool,
     under_inflation_detection: UnderInflationDetectionSystem,
@@ -673,41 +656,41 @@ impl Repr {
         Ok(Repr {
             profile_number: frame.profile_number(),
             profile_change_allowed: frame.profile_change_allowed(),
-            boot_permanent_locking_present: frame.boot_permanent_locking_presence(),
-            partial_window_opening_present: frame.partial_window_opening_presence(),
-            welcome_function_present: frame.welcome_function_presence(),
-            securoscope_present: frame.securoscope_presence(),
-            configurable_key_present: frame.configurable_key_presence(),
-            automatic_headlamps_present: frame.automatic_headlamps_presence(),
-            gear_efficiency_indicator_present: frame.gear_efficiency_indicator_presence(),
+            boot_permanent_locking_present: frame.boot_permanent_locking_enable(),
+            partial_window_opening_present: frame.partial_window_opening_enable(),
+            welcome_function_present: frame.welcome_function_enable(),
+            securoscope_present: frame.securoscope_enable(),
+            configurable_key_present: frame.configurable_key_enable(),
+            automatic_headlamps_present: frame.automatic_headlamps_enable(),
+            gear_efficiency_indicator_present: frame.gear_efficiency_indicator_enable(),
             automatic_electric_parking_brake_application_present: frame
-                .auto_elec_parking_brake_application_presence(),
-            welcome_lighting_present: frame.welcome_lighting_presence(),
-            follow_me_home_present: frame.follow_me_home_presence(),
-            locking_mode_on_coe_present: frame.locking_mode_on_coe_presence(),
+                .auto_elec_parking_brake_application_enable(),
+            welcome_lighting_present: frame.welcome_lighting_enable(),
+            follow_me_home_present: frame.follow_me_home_enable(),
+            locking_mode_on_coe_present: frame.locking_mode_on_coe_enable(),
             automatic_door_locking_when_leaving_present: frame
-                .auto_door_locking_when_leaving_presence(),
-            selective_unlocking_present: frame.selective_unlocking_presence(),
-            rear_wiper_in_reverse_gear_present: frame.rear_wiper_in_reverse_gear_presence(),
-            daytime_running_lamps_present: frame.daytime_running_lamps_presence(),
-            adaptive_lamps_present: frame.adaptive_lamps_presence(),
+                .auto_door_locking_when_leaving_enable(),
+            selective_unlocking_present: frame.selective_unlocking_enable(),
+            rear_wiper_in_reverse_gear_present: frame.rear_wiper_in_reverse_gear_enable(),
+            daytime_running_lamps_present: frame.daytime_running_lamps_enable(),
+            adaptive_lamps_present: frame.adaptive_lamps_enable(),
             blind_spot_monitoring_inhibition_present: frame
-                .blind_spot_monitoring_inhibition_presence(),
-            blind_spot_monitoring_present: frame.blind_spot_monitoring_presence(),
-            mood_lighting_present: frame.mood_lighting_presence(),
-            motorway_lighting_present: frame.motorway_lighting_presence(),
-            multi_function_display_present: frame.multi_function_display_presence(),
-            parking_sensors_inhibition_present: frame.park_sensors_inhibition_presence(),
+                .blind_spot_monitoring_inhibition_enable(),
+            blind_spot_monitoring_present: frame.blind_spot_monitoring_enable(),
+            mood_lighting_present: frame.mood_lighting_enable(),
+            motorway_lighting_present: frame.motorway_lighting_enable(),
+            multi_function_display_present: frame.multi_function_display_enable(),
+            parking_sensors_inhibition_present: frame.park_sensors_inhibition_enable(),
             parking_sensors_audible_assistance_present: frame
-                .park_sensors_audible_assistance_presence(),
-            parking_sensors_visual_assistance_presence: frame
-                .park_sensors_visual_assistance_presence(),
-            automatic_emergency_braking_presence: frame.automatic_emergency_braking_presence(),
+                .park_sensors_audible_assistance_enable(),
+            parking_sensors_visual_assistance_enable: frame
+                .park_sensors_visual_assistance_enable(),
+            automatic_emergency_braking_enable: frame.automatic_emergency_braking_enable(),
             under_inflation_detection_reset_menu_present: frame
-                .under_inflation_detection_reset_menu_presence(),
-            seat_belt_status_lamps_present: frame.seat_belt_status_lamps_presence(),
+                .under_inflation_detection_reset_menu_enable(),
+            seat_belt_status_lamps_present: frame.seat_belt_status_lamps_enable(),
             under_inflation_detection: frame.under_inflation_detection(),
-            blind_spot_audible_assistance_present: frame.blind_spot_audible_assistance_presence(),
+            blind_spot_audible_assistance_present: frame.blind_spot_audible_assistance_enable(),
         })
     }
 
@@ -720,48 +703,48 @@ impl Repr {
     pub fn emit<T: AsRef<[u8]> + AsMut<[u8]>>(&self, frame: &mut Frame<T>) {
         frame.set_profile_number(self.profile_number);
         frame.set_profile_change_allowed(self.profile_change_allowed);
-        frame.set_boot_permanent_locking_presence(self.boot_permanent_locking_present);
-        frame.set_partial_window_opening_presence(self.partial_window_opening_present);
-        frame.set_welcome_function_presence(self.welcome_function_present);
-        frame.set_securoscope_presence(self.securoscope_present);
-        frame.set_configurable_key_presence(self.configurable_key_present);
-        frame.set_automatic_headlamps_presence(self.automatic_headlamps_present);
-        frame.set_gear_efficiency_indicator_presence(self.gear_efficiency_indicator_present);
-        frame.set_auto_elec_parking_brake_application_presence(
+        frame.set_boot_permanent_locking_enable(self.boot_permanent_locking_present);
+        frame.set_partial_window_opening_enable(self.partial_window_opening_present);
+        frame.set_welcome_function_enable(self.welcome_function_present);
+        frame.set_securoscope_enable(self.securoscope_present);
+        frame.set_configurable_key_enable(self.configurable_key_present);
+        frame.set_automatic_headlamps_enable(self.automatic_headlamps_present);
+        frame.set_gear_efficiency_indicator_enable(self.gear_efficiency_indicator_present);
+        frame.set_auto_elec_parking_brake_application_enable(
             self.automatic_electric_parking_brake_application_present,
         );
-        frame.set_welcome_lighting_presence(self.welcome_lighting_present);
-        frame.set_follow_me_home_presence(self.follow_me_home_present);
-        frame.set_locking_mode_on_coe_presence(self.locking_mode_on_coe_present);
-        frame.set_auto_door_locking_when_leaving_presence(
+        frame.set_welcome_lighting_enable(self.welcome_lighting_present);
+        frame.set_follow_me_home_enable(self.follow_me_home_present);
+        frame.set_locking_mode_on_coe_enable(self.locking_mode_on_coe_present);
+        frame.set_auto_door_locking_when_leaving_enable(
             self.automatic_door_locking_when_leaving_present,
         );
-        frame.set_selective_unlocking_presence(self.selective_unlocking_present);
-        frame.set_rear_wiper_in_reverse_gear_presence(self.rear_wiper_in_reverse_gear_present);
-        frame.set_daytime_running_lamps_presence(self.daytime_running_lamps_present);
-        frame.set_adaptive_lamps_presence(self.adaptive_lamps_present);
-        frame.set_blind_spot_monitoring_inhibition_presence(
+        frame.set_selective_unlocking_enable(self.selective_unlocking_present);
+        frame.set_rear_wiper_in_reverse_gear_enable(self.rear_wiper_in_reverse_gear_present);
+        frame.set_daytime_running_lamps_enable(self.daytime_running_lamps_present);
+        frame.set_adaptive_lamps_enable(self.adaptive_lamps_present);
+        frame.set_blind_spot_monitoring_inhibition_enable(
             self.blind_spot_monitoring_inhibition_present,
         );
-        frame.set_blind_spot_monitoring_presence(self.blind_spot_monitoring_present);
-        frame.set_mood_lighting_presence(self.mood_lighting_present);
-        frame.set_motorway_lighting_presence(self.motorway_lighting_present);
-        frame.set_multi_function_display_presence(self.multi_function_display_present);
-        frame.set_park_sensors_inhibition_presence(self.parking_sensors_inhibition_present);
-        frame.set_park_sensors_audible_assistance_presence(
+        frame.set_blind_spot_monitoring_enable(self.blind_spot_monitoring_present);
+        frame.set_mood_lighting_enable(self.mood_lighting_present);
+        frame.set_motorway_lighting_enable(self.motorway_lighting_present);
+        frame.set_multi_function_display_enable(self.multi_function_display_present);
+        frame.set_park_sensors_inhibition_enable(self.parking_sensors_inhibition_present);
+        frame.set_park_sensors_audible_assistance_enable(
             self.parking_sensors_audible_assistance_present,
         );
-        frame.set_park_sensors_visual_assistance_presence(
-            self.parking_sensors_visual_assistance_presence,
+        frame.set_park_sensors_visual_assistance_enable(
+            self.parking_sensors_visual_assistance_enable,
         );
-        frame.set_automatic_emergency_braking_presence(self.automatic_emergency_braking_presence);
-        frame.set_under_inflation_detection_reset_menu_presence(
+        frame.set_automatic_emergency_braking_enable(self.automatic_emergency_braking_enable);
+        frame.set_under_inflation_detection_reset_menu_enable(
             self.under_inflation_detection_reset_menu_present,
         );
-        frame.set_seat_belt_status_lamps_presence(self.seat_belt_status_lamps_present);
+        frame.set_seat_belt_status_lamps_enable(self.seat_belt_status_lamps_present);
         frame.set_under_inflation_detection(self.under_inflation_detection);
         frame
-            .set_blind_spot_audible_assistance_presence(self.blind_spot_audible_assistance_present);
+            .set_blind_spot_audible_assistance_enable(self.blind_spot_audible_assistance_present);
     }
 }
 
@@ -870,13 +853,13 @@ impl fmt::Display for Repr {
         )?;
         write!(
             f,
-            "parking sensors visual assistance presence={}",
-            self.parking_sensors_visual_assistance_presence
+            "parking sensors visual assistance enable={}",
+            self.parking_sensors_visual_assistance_enable
         )?;
         write!(
             f,
-            "automatic emergency braking presence={}",
-            self.automatic_emergency_braking_presence
+            "automatic emergency braking enable={}",
+            self.automatic_emergency_braking_enable
         )?;
         write!(
             f,
@@ -939,8 +922,8 @@ mod test {
             multi_function_display_present: true,
             parking_sensors_inhibition_present: true,
             parking_sensors_audible_assistance_present: false,
-            parking_sensors_visual_assistance_presence: false,
-            automatic_emergency_braking_presence: false,
+            parking_sensors_visual_assistance_enable: false,
+            automatic_emergency_braking_enable: false,
             under_inflation_detection_reset_menu_present: true,
             seat_belt_status_lamps_present: false,
             under_inflation_detection: UnderInflationDetectionSystem::Indirect,
@@ -975,8 +958,8 @@ mod test {
             multi_function_display_present: true,
             parking_sensors_inhibition_present: false,
             parking_sensors_audible_assistance_present: false,
-            parking_sensors_visual_assistance_presence: false,
-            automatic_emergency_braking_presence: false,
+            parking_sensors_visual_assistance_enable: false,
+            automatic_emergency_braking_enable: false,
             under_inflation_detection_reset_menu_present: false,
             seat_belt_status_lamps_present: false,
             under_inflation_detection: UnderInflationDetectionSystem::DirectWithoutAbsolutePressure,
@@ -990,38 +973,38 @@ mod test {
         assert_eq!(frame.check_len(), Ok(()));
         assert_eq!(frame.profile_number(), UserProfile::Profile1);
         assert_eq!(frame.profile_change_allowed(), false);
-        assert_eq!(frame.boot_permanent_locking_presence(), false);
-        assert_eq!(frame.partial_window_opening_presence(), false);
-        assert_eq!(frame.welcome_function_presence(), false);
-        assert_eq!(frame.securoscope_presence(), false);
-        assert_eq!(frame.configurable_key_presence(), false);
-        assert_eq!(frame.automatic_headlamps_presence(), false);
-        assert_eq!(frame.gear_efficiency_indicator_presence(), true);
-        assert_eq!(frame.auto_elec_parking_brake_application_presence(), false);
-        assert_eq!(frame.welcome_lighting_presence(), false);
-        assert_eq!(frame.follow_me_home_presence(), true);
-        assert_eq!(frame.locking_mode_on_coe_presence(), false);
-        assert_eq!(frame.auto_door_locking_when_leaving_presence(), false);
-        assert_eq!(frame.selective_unlocking_presence(), false);
-        assert_eq!(frame.rear_wiper_in_reverse_gear_presence(), true);
-        assert_eq!(frame.daytime_running_lamps_presence(), true);
-        assert_eq!(frame.adaptive_lamps_presence(), true);
-        assert_eq!(frame.blind_spot_monitoring_inhibition_presence(), false);
-        assert_eq!(frame.blind_spot_monitoring_presence(), false);
-        assert_eq!(frame.mood_lighting_presence(), false);
-        assert_eq!(frame.motorway_lighting_presence(), false);
-        assert_eq!(frame.multi_function_display_presence(), true);
-        assert_eq!(frame.park_sensors_inhibition_presence(), true);
-        assert_eq!(frame.park_sensors_audible_assistance_presence(), false);
-        assert_eq!(frame.park_sensors_visual_assistance_presence(), false);
-        assert_eq!(frame.automatic_emergency_braking_presence(), false);
-        assert_eq!(frame.under_inflation_detection_reset_menu_presence(), true);
-        assert_eq!(frame.seat_belt_status_lamps_presence(), false);
+        assert_eq!(frame.boot_permanent_locking_enable(), false);
+        assert_eq!(frame.partial_window_opening_enable(), false);
+        assert_eq!(frame.welcome_function_enable(), false);
+        assert_eq!(frame.securoscope_enable(), false);
+        assert_eq!(frame.configurable_key_enable(), false);
+        assert_eq!(frame.automatic_headlamps_enable(), false);
+        assert_eq!(frame.gear_efficiency_indicator_enable(), true);
+        assert_eq!(frame.auto_elec_parking_brake_application_enable(), false);
+        assert_eq!(frame.welcome_lighting_enable(), false);
+        assert_eq!(frame.follow_me_home_enable(), true);
+        assert_eq!(frame.locking_mode_on_coe_enable(), false);
+        assert_eq!(frame.auto_door_locking_when_leaving_enable(), false);
+        assert_eq!(frame.selective_unlocking_enable(), false);
+        assert_eq!(frame.rear_wiper_in_reverse_gear_enable(), true);
+        assert_eq!(frame.daytime_running_lamps_enable(), true);
+        assert_eq!(frame.adaptive_lamps_enable(), true);
+        assert_eq!(frame.blind_spot_monitoring_inhibition_enable(), false);
+        assert_eq!(frame.blind_spot_monitoring_enable(), false);
+        assert_eq!(frame.mood_lighting_enable(), false);
+        assert_eq!(frame.motorway_lighting_enable(), false);
+        assert_eq!(frame.multi_function_display_enable(), true);
+        assert_eq!(frame.park_sensors_inhibition_enable(), true);
+        assert_eq!(frame.park_sensors_audible_assistance_enable(), false);
+        assert_eq!(frame.park_sensors_visual_assistance_enable(), false);
+        assert_eq!(frame.automatic_emergency_braking_enable(), false);
+        assert_eq!(frame.under_inflation_detection_reset_menu_enable(), true);
+        assert_eq!(frame.seat_belt_status_lamps_enable(), false);
         assert_eq!(
             frame.under_inflation_detection(),
             UnderInflationDetectionSystem::Indirect
         );
-        assert_eq!(frame.blind_spot_audible_assistance_presence(), false);
+        assert_eq!(frame.blind_spot_audible_assistance_enable(), false);
     }
 
     #[test]
@@ -1030,38 +1013,38 @@ mod test {
         assert_eq!(frame.check_len(), Ok(()));
         assert_eq!(frame.profile_number(), UserProfile::Profile1);
         assert_eq!(frame.profile_change_allowed(), false);
-        assert_eq!(frame.boot_permanent_locking_presence(), false);
-        assert_eq!(frame.partial_window_opening_presence(), false);
-        assert_eq!(frame.welcome_function_presence(), false);
-        assert_eq!(frame.securoscope_presence(), false);
-        assert_eq!(frame.configurable_key_presence(), true);
-        assert_eq!(frame.automatic_headlamps_presence(), false);
-        assert_eq!(frame.gear_efficiency_indicator_presence(), false);
-        assert_eq!(frame.auto_elec_parking_brake_application_presence(), false);
-        assert_eq!(frame.welcome_lighting_presence(), false);
-        assert_eq!(frame.follow_me_home_presence(), true);
-        assert_eq!(frame.locking_mode_on_coe_presence(), false);
-        assert_eq!(frame.auto_door_locking_when_leaving_presence(), false);
-        assert_eq!(frame.selective_unlocking_presence(), false);
-        assert_eq!(frame.rear_wiper_in_reverse_gear_presence(), true);
-        assert_eq!(frame.daytime_running_lamps_presence(), false);
-        assert_eq!(frame.adaptive_lamps_presence(), true);
-        assert_eq!(frame.blind_spot_monitoring_inhibition_presence(), false);
-        assert_eq!(frame.blind_spot_monitoring_presence(), false);
-        assert_eq!(frame.mood_lighting_presence(), false);
-        assert_eq!(frame.motorway_lighting_presence(), false);
-        assert_eq!(frame.multi_function_display_presence(), true);
-        assert_eq!(frame.park_sensors_inhibition_presence(), false);
-        assert_eq!(frame.park_sensors_audible_assistance_presence(), false);
-        assert_eq!(frame.park_sensors_visual_assistance_presence(), false);
-        assert_eq!(frame.automatic_emergency_braking_presence(), false);
-        assert_eq!(frame.under_inflation_detection_reset_menu_presence(), false);
-        assert_eq!(frame.seat_belt_status_lamps_presence(), false);
+        assert_eq!(frame.boot_permanent_locking_enable(), false);
+        assert_eq!(frame.partial_window_opening_enable(), false);
+        assert_eq!(frame.welcome_function_enable(), false);
+        assert_eq!(frame.securoscope_enable(), false);
+        assert_eq!(frame.configurable_key_enable(), true);
+        assert_eq!(frame.automatic_headlamps_enable(), false);
+        assert_eq!(frame.gear_efficiency_indicator_enable(), false);
+        assert_eq!(frame.auto_elec_parking_brake_application_enable(), false);
+        assert_eq!(frame.welcome_lighting_enable(), false);
+        assert_eq!(frame.follow_me_home_enable(), true);
+        assert_eq!(frame.locking_mode_on_coe_enable(), false);
+        assert_eq!(frame.auto_door_locking_when_leaving_enable(), false);
+        assert_eq!(frame.selective_unlocking_enable(), false);
+        assert_eq!(frame.rear_wiper_in_reverse_gear_enable(), true);
+        assert_eq!(frame.daytime_running_lamps_enable(), false);
+        assert_eq!(frame.adaptive_lamps_enable(), true);
+        assert_eq!(frame.blind_spot_monitoring_inhibition_enable(), false);
+        assert_eq!(frame.blind_spot_monitoring_enable(), false);
+        assert_eq!(frame.mood_lighting_enable(), false);
+        assert_eq!(frame.motorway_lighting_enable(), false);
+        assert_eq!(frame.multi_function_display_enable(), true);
+        assert_eq!(frame.park_sensors_inhibition_enable(), false);
+        assert_eq!(frame.park_sensors_audible_assistance_enable(), false);
+        assert_eq!(frame.park_sensors_visual_assistance_enable(), false);
+        assert_eq!(frame.automatic_emergency_braking_enable(), false);
+        assert_eq!(frame.under_inflation_detection_reset_menu_enable(), false);
+        assert_eq!(frame.seat_belt_status_lamps_enable(), false);
         assert_eq!(
             frame.under_inflation_detection(),
             UnderInflationDetectionSystem::DirectWithoutAbsolutePressure
         );
-        assert_eq!(frame.blind_spot_audible_assistance_presence(), false);
+        assert_eq!(frame.blind_spot_audible_assistance_enable(), false);
     }
 
     #[test]
@@ -1071,35 +1054,35 @@ mod test {
 
         frame.set_profile_number(UserProfile::Profile1);
         frame.set_profile_change_allowed(false);
-        frame.set_boot_permanent_locking_presence(false);
-        frame.set_partial_window_opening_presence(false);
-        frame.set_welcome_function_presence(false);
-        frame.set_securoscope_presence(false);
-        frame.set_configurable_key_presence(false);
-        frame.set_automatic_headlamps_presence(false);
-        frame.set_gear_efficiency_indicator_presence(true);
-        frame.set_auto_elec_parking_brake_application_presence(false);
-        frame.set_welcome_lighting_presence(false);
-        frame.set_follow_me_home_presence(true);
-        frame.set_locking_mode_on_coe_presence(false);
-        frame.set_auto_door_locking_when_leaving_presence(false);
-        frame.set_selective_unlocking_presence(false);
-        frame.set_rear_wiper_in_reverse_gear_presence(true);
-        frame.set_daytime_running_lamps_presence(true);
-        frame.set_adaptive_lamps_presence(true);
-        frame.set_blind_spot_monitoring_inhibition_presence(false);
-        frame.set_blind_spot_monitoring_presence(false);
-        frame.set_mood_lighting_presence(false);
-        frame.set_motorway_lighting_presence(false);
-        frame.set_multi_function_display_presence(true);
-        frame.set_park_sensors_inhibition_presence(true);
-        frame.set_park_sensors_audible_assistance_presence(false);
-        frame.set_park_sensors_visual_assistance_presence(false);
-        frame.set_automatic_emergency_braking_presence(false);
-        frame.set_under_inflation_detection_reset_menu_presence(true);
-        frame.set_seat_belt_status_lamps_presence(false);
+        frame.set_boot_permanent_locking_enable(false);
+        frame.set_partial_window_opening_enable(false);
+        frame.set_welcome_function_enable(false);
+        frame.set_securoscope_enable(false);
+        frame.set_configurable_key_enable(false);
+        frame.set_automatic_headlamps_enable(false);
+        frame.set_gear_efficiency_indicator_enable(true);
+        frame.set_auto_elec_parking_brake_application_enable(false);
+        frame.set_welcome_lighting_enable(false);
+        frame.set_follow_me_home_enable(true);
+        frame.set_locking_mode_on_coe_enable(false);
+        frame.set_auto_door_locking_when_leaving_enable(false);
+        frame.set_selective_unlocking_enable(false);
+        frame.set_rear_wiper_in_reverse_gear_enable(true);
+        frame.set_daytime_running_lamps_enable(true);
+        frame.set_adaptive_lamps_enable(true);
+        frame.set_blind_spot_monitoring_inhibition_enable(false);
+        frame.set_blind_spot_monitoring_enable(false);
+        frame.set_mood_lighting_enable(false);
+        frame.set_motorway_lighting_enable(false);
+        frame.set_multi_function_display_enable(true);
+        frame.set_park_sensors_inhibition_enable(true);
+        frame.set_park_sensors_audible_assistance_enable(false);
+        frame.set_park_sensors_visual_assistance_enable(false);
+        frame.set_automatic_emergency_braking_enable(false);
+        frame.set_under_inflation_detection_reset_menu_enable(true);
+        frame.set_seat_belt_status_lamps_enable(false);
         frame.set_under_inflation_detection(UnderInflationDetectionSystem::Indirect);
-        frame.set_blind_spot_audible_assistance_presence(false);
+        frame.set_blind_spot_audible_assistance_enable(false);
 
         assert_eq!(frame.into_inner(), &REPR_FRAME_BYTES_1);
     }
@@ -1111,35 +1094,35 @@ mod test {
 
         frame.set_profile_number(UserProfile::Profile1);
         frame.set_profile_change_allowed(false);
-        frame.set_boot_permanent_locking_presence(false);
-        frame.set_partial_window_opening_presence(false);
-        frame.set_welcome_function_presence(false);
-        frame.set_securoscope_presence(false);
-        frame.set_configurable_key_presence(true);
-        frame.set_automatic_headlamps_presence(false);
-        frame.set_gear_efficiency_indicator_presence(false);
-        frame.set_auto_elec_parking_brake_application_presence(false);
-        frame.set_welcome_lighting_presence(false);
-        frame.set_follow_me_home_presence(true);
-        frame.set_locking_mode_on_coe_presence(false);
-        frame.set_auto_door_locking_when_leaving_presence(false);
-        frame.set_selective_unlocking_presence(false);
-        frame.set_rear_wiper_in_reverse_gear_presence(true);
-        frame.set_daytime_running_lamps_presence(false);
-        frame.set_adaptive_lamps_presence(true);
-        frame.set_blind_spot_monitoring_inhibition_presence(false);
-        frame.set_blind_spot_monitoring_presence(false);
-        frame.set_mood_lighting_presence(false);
-        frame.set_motorway_lighting_presence(false);
-        frame.set_multi_function_display_presence(true);
-        frame.set_park_sensors_inhibition_presence(false);
-        frame.set_park_sensors_audible_assistance_presence(false);
-        frame.set_park_sensors_visual_assistance_presence(false);
-        frame.set_automatic_emergency_braking_presence(false);
-        frame.set_under_inflation_detection_reset_menu_presence(false);
-        frame.set_seat_belt_status_lamps_presence(false);
+        frame.set_boot_permanent_locking_enable(false);
+        frame.set_partial_window_opening_enable(false);
+        frame.set_welcome_function_enable(false);
+        frame.set_securoscope_enable(false);
+        frame.set_configurable_key_enable(true);
+        frame.set_automatic_headlamps_enable(false);
+        frame.set_gear_efficiency_indicator_enable(false);
+        frame.set_auto_elec_parking_brake_application_enable(false);
+        frame.set_welcome_lighting_enable(false);
+        frame.set_follow_me_home_enable(true);
+        frame.set_locking_mode_on_coe_enable(false);
+        frame.set_auto_door_locking_when_leaving_enable(false);
+        frame.set_selective_unlocking_enable(false);
+        frame.set_rear_wiper_in_reverse_gear_enable(true);
+        frame.set_daytime_running_lamps_enable(false);
+        frame.set_adaptive_lamps_enable(true);
+        frame.set_blind_spot_monitoring_inhibition_enable(false);
+        frame.set_blind_spot_monitoring_enable(false);
+        frame.set_mood_lighting_enable(false);
+        frame.set_motorway_lighting_enable(false);
+        frame.set_multi_function_display_enable(true);
+        frame.set_park_sensors_inhibition_enable(false);
+        frame.set_park_sensors_audible_assistance_enable(false);
+        frame.set_park_sensors_visual_assistance_enable(false);
+        frame.set_automatic_emergency_braking_enable(false);
+        frame.set_under_inflation_detection_reset_menu_enable(false);
+        frame.set_seat_belt_status_lamps_enable(false);
         frame.set_under_inflation_detection(UnderInflationDetectionSystem::DirectWithoutAbsolutePressure);
-        frame.set_blind_spot_audible_assistance_presence(false);
+        frame.set_blind_spot_audible_assistance_enable(false);
 
         assert_eq!(frame.into_inner(), &REPR_FRAME_BYTES_2);
     }
