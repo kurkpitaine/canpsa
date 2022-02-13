@@ -10,49 +10,58 @@ pub struct Frame<T: AsRef<[u8]>> {
 }
 
 mod field {
-    /// 3-bit profile number,
+    /// 1-bit consumption unit field,
+    /// 1-bit distance unit field,
+    /// 5-bit display language field,
+    /// 1-bit units and language parameters validity flag.
+    pub const OPT_0: usize = 0;
+    /// 2-bit sound harmony field,
     /// 1-bit parameters validity flag,
-    /// 4-bit empty.
-    pub const PROFILE: usize = 0;
-    /// 1-bit automatic electrical parking brake application enable flag,
-    /// 1-bit welcome function enable flag,
-    /// 1-bit partial window opening enable flag,
-    /// 1-bit 'COE' locking enable flag,
-    /// 1-bit automatic door locking when leaving enable flag,
-    /// 1-bit boot permanent locking enable flag,
-    /// 1-bit automatic door locking when driving enable flag,
-    /// 1-bit selective unlocking enable flag.
+    /// 3-bit mood lighting level field,
+    /// 1-bit temperature unit field,
+    /// 1-bit volume unit field.
     pub const OPT_1: usize = 1;
-    /// 4-bit follow-me-home lighting duration field,
-    /// 1-bit automatic headlamps enable flag,
-    /// 1-bit follow-me-home enable field,
-    /// 1-bit motorway lighting enable flag,
-    /// 1-bit adaptive lamps enable flag.
-    pub const OPT_2: usize = 2;
-    /// 4-bit ceiling light out delay field,
-    /// 2-bit empty,
-    /// 1-bit daytime running lamps enable flag,
     /// 1-bit mood lighting enable flag,
+    /// 1-bit daytime running lamps enable flag,
+    /// 1-bit adaptive lamps enable flag,
+    /// 1-bit welcome function enable flag,
+    /// 1-bit boot selective unlocking enable flag,
+    /// 1-bit selective unlocking enable flag.
+    /// 1-bit key selective unlocking enable flag,
+    /// 1-bit automatic electrical parking brake application enable flag.
+    pub const OPT_2: usize = 2;
+    /// 1-bit automatic headlamps enable flag,
+    /// 2-bit welcome lighting duration field,
+    /// 1-bit welcome lighting enable flag,
+    /// 1-bit motorway lighting enable flag,
+    /// 2-bit follow-me-home lighting duration field,
+    /// 1-bit follow-me-home enable field.
     pub const OPT_3: usize = 3;
-    /// 1-bit low fuel level alert enable flag,
-    /// 1-bit key left in car alert enable flag,
-    /// 1-bit lighting left on alert enable flag,
-    /// 1-bit 'ALT_GEN' (maybe ALerT GENerator?) flag,
-    /// 1-bit ESP in regulation sound alert enable flag,
-    /// 3-bit empty.
-    pub const OPT_4: usize = 4;
-    /// 3-bit empty,
-    /// 1-bit automatic mirrors folding enable flag,
+    /// 4-bit configurable button/key mode field,
+    /// 1-bit motorized tailgate enable flag,
     /// 1-bit rear wiper in reverse gear enable flag,
+    /// 1-bit blind spot monitoring enable field,
+    /// 1-bit parking sensors enable field.
+    pub const OPT_4: usize = 4;
+    /// 2-bit empty,
     /// 1-bit mirrors tilting in reverse gear enable flag,
-    /// 2-bit parking sensors status field.
+    /// 1-bit indirect under inflation detection reset status flag,
+    /// 1-bit automatic emergency braking enable flag,
+    /// 2-bit collision alert sensibility level field,
+    /// 1-bit collision alert enable field.
     pub const OPT_5: usize = 5;
-    /// 5-bit empty,
-    /// 2-bit blind spot monitoring status field,
-    /// 1-bit 'SECU' (maybe child lock feature?) flag.
+    /// 1-bit hands-free tailgate enable flag,
+    /// 1-bit speed limit recognition enable flag,
+    /// 1-bit radiator grill lamps option presence flag (maybe anti-fog lights?),
+    /// 1-bit automatic main beam enable flag,
+    /// 1-bit driver alert assist enable flag,
+    /// 1-bit hands-free tailgate automatic locking enable flag,
+    /// 1-bit extended traffic sign recognition enable flag,
+    /// 1-bit 'ECS/SEE' enable flag.
     pub const OPT_6: usize = 6;
-    /// 4-bit empty,
-    /// 4-bit configurable button/key mode field.
+    /// 2-bit empty,
+    /// 1-bit 'IRV' enable flag (maybe InfraRed Vision?),
+    /// 5-bit empty.
     pub const OPT_7: usize = 7;
 }
 

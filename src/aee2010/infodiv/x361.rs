@@ -48,14 +48,14 @@ mod field {
     /// 1-bit empty,
     /// 1-bit hands-free tailgate option presence flag,
     /// 1-bit speed limit recognition option presence flag,
-    /// 1-bit radiator grill lamps option presence flag (maybe anti-fog lights),
+    /// 1-bit radiator grill lamps option presence flag (maybe anti-fog lights?),
     /// 1-bit 'CFC' option presence flag,
     /// 2-bit empty.
     pub const OPT_4: usize = 4;
-    /// 1-bit 'IRV' option presence flag (maybe InfraRed Vision),
+    /// 1-bit 'IRV' option presence flag (maybe InfraRed Vision?),
     /// 4-bit empty,
     /// 1-bit automatic main beam option presence flag,
-    /// 1-bit 'ECS' option presence flag,
+    /// 1-bit 'ECS/SEE' option presence flag,
     /// 1-bit driver alert assist option presence flag.
     pub const OPT_5: usize = 5;
 }
