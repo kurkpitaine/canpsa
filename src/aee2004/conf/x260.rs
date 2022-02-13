@@ -1,9 +1,6 @@
 use core::fmt;
 
-use crate::{
-    config::{UnderInflationDetectionSystem, UserProfile},
-    Error, Result,
-};
+use crate::{config::UserProfile, Error, Result};
 
 /// A read/write wrapper around an CAN frame buffer.
 #[derive(Debug, PartialEq, Clone)]
@@ -60,7 +57,7 @@ mod field {
 }
 
 /// Length of a x260 CAN frame.
-pub const FRAME_LEN: usize = field::OPT_5 + 1;
+pub const FRAME_LEN: usize = field::OPT_7 + 1;
 
 impl<T: AsRef<[u8]>> Frame<T> {
     /// Create a raw octet buffer with a CAN frame structure.
@@ -297,14 +294,14 @@ impl<T: AsRef<[u8]>> Frame<T> {
     #[inline]
     pub fn park_sensors_status(&self) -> u8 {
         let data = self.buffer.as_ref();
-        data[field::OPT_5] & 0xc0 >> 6
+        (data[field::OPT_5] & 0xc0) >> 6
     }
 
     /// Return the blind spot monitoring status field.
     #[inline]
     pub fn blind_spot_monitoring_status(&self) -> u8 {
         let data = self.buffer.as_ref();
-        data[field::OPT_6] & 0x60 >> 5
+        (data[field::OPT_6] & 0x60) >> 5
     }
 
     /// Return the 'SECU' (maybe child lock feature?) enable flag.
@@ -318,7 +315,7 @@ impl<T: AsRef<[u8]>> Frame<T> {
     #[inline]
     pub fn configurable_key_mode(&self) -> u8 {
         let data = self.buffer.as_ref();
-        data[field::OPT_7] & 0xf0 >> 4
+        (data[field::OPT_7] & 0xf0) >> 4
     }
 }
 
@@ -617,36 +614,35 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Repr {
     profile_number: UserProfile,
-    profile_change_allowed: bool,
-    boot_permanent_locking_present: bool,
-    partial_window_opening_present: bool,
-    welcome_function_present: bool,
-    securoscope_present: bool,
-    configurable_key_present: bool,
-    automatic_headlamps_present: bool,
-    gear_efficiency_indicator_present: bool,
-    automatic_electric_parking_brake_application_present: bool,
-    welcome_lighting_present: bool,
-    follow_me_home_present: bool,
-    locking_mode_on_coe_present: bool,
-    automatic_door_locking_when_leaving_present: bool,
-    selective_unlocking_present: bool,
-    rear_wiper_in_reverse_gear_present: bool,
-    daytime_running_lamps_present: bool,
-    adaptive_lamps_present: bool,
-    blind_spot_monitoring_inhibition_present: bool,
-    blind_spot_monitoring_present: bool,
-    mood_lighting_present: bool,
-    motorway_lighting_present: bool,
-    multi_function_display_present: bool,
-    parking_sensors_inhibition_present: bool,
-    parking_sensors_audible_assistance_present: bool,
-    parking_sensors_visual_assistance_enable: bool,
-    automatic_emergency_braking_enable: bool,
-    under_inflation_detection_reset_menu_present: bool,
-    seat_belt_status_lamps_present: bool,
-    under_inflation_detection: UnderInflationDetectionSystem,
-    blind_spot_audible_assistance_present: bool,
+    parameters_validity: bool,
+    auto_elec_parking_brake_application_enabled: bool,
+    welcome_function_enabled: bool,
+    partial_window_opening_enabled: bool,
+    locking_mode_on_coe_enabled: bool,
+    auto_door_locking_when_leaving_enabled: bool,
+    boot_permanent_locking_enabled: bool,
+    auto_door_locking_when_driving_enabled: bool,
+    selective_unlocking_enabled: bool,
+    follow_me_home_lighting_duration: u8,
+    automatic_headlamps_enabled: bool,
+    follow_me_home_enabled: bool,
+    motorway_lighting_enabled: bool,
+    adaptive_lamps_enabled: bool,
+    ceiling_light_out_delay: u8,
+    daytime_running_lamps_enabled: bool,
+    mood_lighting_enabled: bool,
+    low_fuel_level_alert_enabled: bool,
+    key_left_in_car_alert_enabled: bool,
+    lighting_left_on_alert_enabled: bool,
+    alt_gen_enabled: bool,
+    esp_in_regulation_alert_enabled: bool,
+    auto_mirrors_folding_enabled: bool,
+    rear_wiper_in_reverse_gear_enabled: bool,
+    mirrors_tilting_in_reverse_gear_enabled: bool,
+    park_sensors_status: u8,
+    blind_spot_monitoring_status: u8,
+    secu_enabled: bool,
+    configurable_key_mode: u8,
 }
 
 impl Repr {
@@ -655,42 +651,36 @@ impl Repr {
 
         Ok(Repr {
             profile_number: frame.profile_number(),
-            profile_change_allowed: frame.profile_change_allowed(),
-            boot_permanent_locking_present: frame.boot_permanent_locking_enable(),
-            partial_window_opening_present: frame.partial_window_opening_enable(),
-            welcome_function_present: frame.welcome_function_enable(),
-            securoscope_present: frame.securoscope_enable(),
-            configurable_key_present: frame.configurable_key_enable(),
-            automatic_headlamps_present: frame.automatic_headlamps_enable(),
-            gear_efficiency_indicator_present: frame.gear_efficiency_indicator_enable(),
-            automatic_electric_parking_brake_application_present: frame
+            parameters_validity: frame.parameters_validity(),
+            auto_elec_parking_brake_application_enabled: frame
                 .auto_elec_parking_brake_application_enable(),
-            welcome_lighting_present: frame.welcome_lighting_enable(),
-            follow_me_home_present: frame.follow_me_home_enable(),
-            locking_mode_on_coe_present: frame.locking_mode_on_coe_enable(),
-            automatic_door_locking_when_leaving_present: frame
-                .auto_door_locking_when_leaving_enable(),
-            selective_unlocking_present: frame.selective_unlocking_enable(),
-            rear_wiper_in_reverse_gear_present: frame.rear_wiper_in_reverse_gear_enable(),
-            daytime_running_lamps_present: frame.daytime_running_lamps_enable(),
-            adaptive_lamps_present: frame.adaptive_lamps_enable(),
-            blind_spot_monitoring_inhibition_present: frame
-                .blind_spot_monitoring_inhibition_enable(),
-            blind_spot_monitoring_present: frame.blind_spot_monitoring_enable(),
-            mood_lighting_present: frame.mood_lighting_enable(),
-            motorway_lighting_present: frame.motorway_lighting_enable(),
-            multi_function_display_present: frame.multi_function_display_enable(),
-            parking_sensors_inhibition_present: frame.park_sensors_inhibition_enable(),
-            parking_sensors_audible_assistance_present: frame
-                .park_sensors_audible_assistance_enable(),
-            parking_sensors_visual_assistance_enable: frame
-                .park_sensors_visual_assistance_enable(),
-            automatic_emergency_braking_enable: frame.automatic_emergency_braking_enable(),
-            under_inflation_detection_reset_menu_present: frame
-                .under_inflation_detection_reset_menu_enable(),
-            seat_belt_status_lamps_present: frame.seat_belt_status_lamps_enable(),
-            under_inflation_detection: frame.under_inflation_detection(),
-            blind_spot_audible_assistance_present: frame.blind_spot_audible_assistance_enable(),
+            welcome_function_enabled: frame.welcome_function_enable(),
+            partial_window_opening_enabled: frame.partial_window_opening_enable(),
+            locking_mode_on_coe_enabled: frame.locking_mode_on_coe_enable(),
+            auto_door_locking_when_leaving_enabled: frame.auto_door_locking_when_leaving_enable(),
+            boot_permanent_locking_enabled: frame.boot_permanent_locking_enable(),
+            auto_door_locking_when_driving_enabled: frame.auto_door_locking_when_driving_enable(),
+            selective_unlocking_enabled: frame.selective_unlocking_enable(),
+            follow_me_home_lighting_duration: frame.follow_me_home_lighting_duration(),
+            automatic_headlamps_enabled: frame.automatic_headlamps_enable(),
+            follow_me_home_enabled: frame.follow_me_home_enable(),
+            motorway_lighting_enabled: frame.motorway_lighting_enable(),
+            adaptive_lamps_enabled: frame.adaptive_lamps_enable(),
+            ceiling_light_out_delay: frame.ceiling_light_out_delay(),
+            daytime_running_lamps_enabled: frame.daytime_running_lamps_enable(),
+            mood_lighting_enabled: frame.mood_lighting_enable(),
+            low_fuel_level_alert_enabled: frame.low_fuel_level_alert_enable(),
+            key_left_in_car_alert_enabled: frame.key_left_in_car_alert_enable(),
+            lighting_left_on_alert_enabled: frame.lighting_left_on_alert_enable(),
+            alt_gen_enabled: frame.alt_gen_enable(),
+            esp_in_regulation_alert_enabled: frame.esp_in_regulation_alert_enable(),
+            auto_mirrors_folding_enabled: frame.auto_mirrors_folding_enable(),
+            rear_wiper_in_reverse_gear_enabled: frame.rear_wiper_in_reverse_gear_enable(),
+            mirrors_tilting_in_reverse_gear_enabled: frame.mirrors_tilting_in_reverse_gear_enable(),
+            park_sensors_status: frame.park_sensors_status(),
+            blind_spot_monitoring_status: frame.blind_spot_monitoring_status(),
+            secu_enabled: frame.secu_enable(),
+            configurable_key_mode: frame.configurable_key_mode(),
         })
     }
 
@@ -702,268 +692,236 @@ impl Repr {
     /// Emit a high-level representation into a x260 CAN frame.
     pub fn emit<T: AsRef<[u8]> + AsMut<[u8]>>(&self, frame: &mut Frame<T>) {
         frame.set_profile_number(self.profile_number);
-        frame.set_profile_change_allowed(self.profile_change_allowed);
-        frame.set_boot_permanent_locking_enable(self.boot_permanent_locking_present);
-        frame.set_partial_window_opening_enable(self.partial_window_opening_present);
-        frame.set_welcome_function_enable(self.welcome_function_present);
-        frame.set_securoscope_enable(self.securoscope_present);
-        frame.set_configurable_key_enable(self.configurable_key_present);
-        frame.set_automatic_headlamps_enable(self.automatic_headlamps_present);
-        frame.set_gear_efficiency_indicator_enable(self.gear_efficiency_indicator_present);
+        frame.set_parameters_validity(self.parameters_validity);
         frame.set_auto_elec_parking_brake_application_enable(
-            self.automatic_electric_parking_brake_application_present,
+            self.auto_elec_parking_brake_application_enabled,
         );
-        frame.set_welcome_lighting_enable(self.welcome_lighting_present);
-        frame.set_follow_me_home_enable(self.follow_me_home_present);
-        frame.set_locking_mode_on_coe_enable(self.locking_mode_on_coe_present);
-        frame.set_auto_door_locking_when_leaving_enable(
-            self.automatic_door_locking_when_leaving_present,
-        );
-        frame.set_selective_unlocking_enable(self.selective_unlocking_present);
-        frame.set_rear_wiper_in_reverse_gear_enable(self.rear_wiper_in_reverse_gear_present);
-        frame.set_daytime_running_lamps_enable(self.daytime_running_lamps_present);
-        frame.set_adaptive_lamps_enable(self.adaptive_lamps_present);
-        frame.set_blind_spot_monitoring_inhibition_enable(
-            self.blind_spot_monitoring_inhibition_present,
-        );
-        frame.set_blind_spot_monitoring_enable(self.blind_spot_monitoring_present);
-        frame.set_mood_lighting_enable(self.mood_lighting_present);
-        frame.set_motorway_lighting_enable(self.motorway_lighting_present);
-        frame.set_multi_function_display_enable(self.multi_function_display_present);
-        frame.set_park_sensors_inhibition_enable(self.parking_sensors_inhibition_present);
-        frame.set_park_sensors_audible_assistance_enable(
-            self.parking_sensors_audible_assistance_present,
-        );
-        frame.set_park_sensors_visual_assistance_enable(
-            self.parking_sensors_visual_assistance_enable,
-        );
-        frame.set_automatic_emergency_braking_enable(self.automatic_emergency_braking_enable);
-        frame.set_under_inflation_detection_reset_menu_enable(
-            self.under_inflation_detection_reset_menu_present,
-        );
-        frame.set_seat_belt_status_lamps_enable(self.seat_belt_status_lamps_present);
-        frame.set_under_inflation_detection(self.under_inflation_detection);
+        frame.set_welcome_function_enable(self.welcome_function_enabled);
+        frame.set_partial_window_opening_enable(self.partial_window_opening_enabled);
+        frame.set_locking_mode_on_coe_enable(self.locking_mode_on_coe_enabled);
         frame
-            .set_blind_spot_audible_assistance_enable(self.blind_spot_audible_assistance_present);
+            .set_auto_door_locking_when_leaving_enable(self.auto_door_locking_when_leaving_enabled);
+        frame.set_boot_permanent_locking_enable(self.boot_permanent_locking_enabled);
+        frame
+            .set_auto_door_locking_when_driving_enable(self.auto_door_locking_when_driving_enabled);
+        frame.set_selective_unlocking_enable(self.selective_unlocking_enabled);
+        frame.set_follow_me_home_lighting_duration(self.follow_me_home_lighting_duration);
+        frame.set_automatic_headlamps_enable(self.automatic_headlamps_enabled);
+        frame.set_follow_me_home_enable(self.follow_me_home_enabled);
+        frame.set_motorway_lighting_enable(self.motorway_lighting_enabled);
+        frame.set_adaptive_lamps_enable(self.adaptive_lamps_enabled);
+        frame.set_ceiling_light_out_delay(self.ceiling_light_out_delay);
+        frame.set_daytime_running_lamps_enable(self.daytime_running_lamps_enabled);
+        frame.set_low_fuel_level_alert_enable(self.low_fuel_level_alert_enabled);
+        frame.set_key_left_in_car_alert_enable(self.key_left_in_car_alert_enabled);
+        frame.set_lighting_left_on_alert_enable(self.lighting_left_on_alert_enabled);
+        frame.set_alt_gen_enable(self.alt_gen_enabled);
+        frame.set_esp_in_regulation_alert_enable(self.esp_in_regulation_alert_enabled);
+        frame.set_auto_mirrors_folding_enable(self.auto_mirrors_folding_enabled);
+        frame.set_rear_wiper_in_reverse_gear_enable(self.rear_wiper_in_reverse_gear_enabled);
+        frame.set_mirrors_tilting_in_reverse_gear_enable(
+            self.mirrors_tilting_in_reverse_gear_enabled,
+        );
+        frame.set_park_sensors_status(self.park_sensors_status);
+        frame.set_blind_spot_monitoring_status(self.blind_spot_monitoring_status);
+        frame.set_secu_enable(self.secu_enabled);
+        frame.set_configurable_key_mode(self.configurable_key_mode);
     }
 }
 
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "profile number={}", self.profile_number)?;
-        write!(f, "profile change allowed={}", self.profile_change_allowed)?;
+        write!(f, "x260 profile_number={}", self.profile_number)?;
+        write!(f, " parameters_validity={}", self.parameters_validity)?;
         write!(
             f,
-            "boot permanent locking present={}",
-            self.boot_permanent_locking_present
+            " auto_elec_parking_brake_application_enabled={}",
+            self.auto_elec_parking_brake_application_enabled
         )?;
         write!(
             f,
-            "partial window opening present={}",
-            self.partial_window_opening_present
+            " welcome_function_enabled={}",
+            self.welcome_function_enabled
         )?;
         write!(
             f,
-            "welcome function present={}",
-            self.welcome_function_present
-        )?;
-        write!(f, "securoscope present={}", self.securoscope_present)?;
-        write!(
-            f,
-            "configurable key present={}",
-            self.configurable_key_present
+            " partial_window_opening_enabled={}",
+            self.partial_window_opening_enabled
         )?;
         write!(
             f,
-            "automatic headlamps present={}",
-            self.automatic_headlamps_present
+            " locking_mode_on_coe_enabled={}",
+            self.locking_mode_on_coe_enabled
         )?;
         write!(
             f,
-            "gear efficiency indicator present={}",
-            self.gear_efficiency_indicator_present
+            " auto_door_locking_when_leaving_enabled={}",
+            self.auto_door_locking_when_leaving_enabled
         )?;
         write!(
             f,
-            "automatic electric parking brake application present={}",
-            self.automatic_electric_parking_brake_application_present
+            " boot_permanent_locking_enabled={}",
+            self.boot_permanent_locking_enabled
         )?;
         write!(
             f,
-            "welcome lighting present={}",
-            self.welcome_lighting_present
-        )?;
-        write!(f, "follow-me-home present={}", self.follow_me_home_present)?;
-        write!(
-            f,
-            "locking mode on coe present={}",
-            self.locking_mode_on_coe_present
+            " auto_door_locking_when_driving_enabled={}",
+            self.auto_door_locking_when_driving_enabled
         )?;
         write!(
             f,
-            "automatic door locking when leaving present={}",
-            self.automatic_door_locking_when_leaving_present
+            " selective_unlocking_enabled={}",
+            self.selective_unlocking_enabled
         )?;
         write!(
             f,
-            "selective unlocking present={}",
-            self.selective_unlocking_present
+            " follow_me_home_lighting_duration={}",
+            self.follow_me_home_lighting_duration
         )?;
         write!(
             f,
-            "rear wiper in reverse gear present={}",
-            self.rear_wiper_in_reverse_gear_present
+            " automatic_headlamps_enabled={}",
+            self.automatic_headlamps_enabled
+        )?;
+        write!(f, " follow_me_home_enabled={}", self.follow_me_home_enabled)?;
+        write!(
+            f,
+            " motorway_lighting_enabled={}",
+            self.motorway_lighting_enabled
+        )?;
+        write!(f, " adaptive_lamps_enabled={}", self.adaptive_lamps_enabled)?;
+        write!(
+            f,
+            " ceiling_light_out_delay={}",
+            self.ceiling_light_out_delay
         )?;
         write!(
             f,
-            "daytime running lamps present={}",
-            self.daytime_running_lamps_present
-        )?;
-        write!(f, "adaptive lamps present={}", self.adaptive_lamps_present)?;
-        write!(
-            f,
-            "blind spot monitoring inhibition present={}",
-            self.blind_spot_monitoring_inhibition_present
+            " daytime_running_lamps_enabled={}",
+            self.daytime_running_lamps_enabled
         )?;
         write!(
             f,
-            "blind spot monitoring present={}",
-            self.blind_spot_monitoring_present
-        )?;
-        write!(f, "mood lighting present={}", self.mood_lighting_present)?;
-        write!(
-            f,
-            "motorway lighting present={}",
-            self.motorway_lighting_present
+            " low_fuel_level_alert_enabled={}",
+            self.low_fuel_level_alert_enabled
         )?;
         write!(
             f,
-            "multi function display present={}",
-            self.multi_function_display_present
+            " key_left_in_car_alert_enabled={}",
+            self.key_left_in_car_alert_enabled
         )?;
         write!(
             f,
-            "parking sensors inhibition present={}",
-            self.parking_sensors_inhibition_present
+            " lighting_left_on_alert_enabled={}",
+            self.lighting_left_on_alert_enabled
+        )?;
+        write!(f, " alt_gen_enabled={}", self.alt_gen_enabled)?;
+        write!(
+            f,
+            " esp_in_regulation_alert_enabled={}",
+            self.esp_in_regulation_alert_enabled
         )?;
         write!(
             f,
-            "parking sensors audible assistance present={}",
-            self.parking_sensors_audible_assistance_present
+            " auto_mirrors_folding_enabled={}",
+            self.auto_mirrors_folding_enabled
         )?;
         write!(
             f,
-            "parking sensors visual assistance enable={}",
-            self.parking_sensors_visual_assistance_enable
+            " rear_wiper_in_reverse_gear_enabled={}",
+            self.rear_wiper_in_reverse_gear_enabled
         )?;
         write!(
             f,
-            "automatic emergency braking enable={}",
-            self.automatic_emergency_braking_enable
+            " mirrors_tilting_in_reverse_gear_enabled={}",
+            self.mirrors_tilting_in_reverse_gear_enabled
         )?;
+        write!(f, " park_sensors_status={}", self.park_sensors_status)?;
         write!(
             f,
-            "under inflation detection reset menu present={}",
-            self.under_inflation_detection_reset_menu_present
+            " blind_spot_monitoring_status={}",
+            self.blind_spot_monitoring_status
         )?;
-        write!(
-            f,
-            "seat belt status lamps present={}",
-            self.seat_belt_status_lamps_present
-        )?;
-        write!(
-            f,
-            "under inflation detection={}",
-            self.under_inflation_detection
-        )?;
-        write!(
-            f,
-            "blind spot audible assistance present={}",
-            self.blind_spot_audible_assistance_present
-        )
+        write!(f, " secu_enabled={}", self.secu_enabled)?;
+        write!(f, " configurable_key_mode={}", self.configurable_key_mode)
     }
 }
 
 #[cfg(test)]
 mod test {
     use super::{Frame, Repr};
-    use crate::{
-        config::{UnderInflationDetectionSystem, UserProfile},
-        Error,
-    };
+    use crate::{config::UserProfile, Error};
 
-    static REPR_FRAME_BYTES_1: [u8; 6] = [0x01, 0x00, 0x12, 0xe0, 0x30, 0x34];
-    static REPR_FRAME_BYTES_2: [u8; 6] = [0x01, 0x10, 0x10, 0xa0, 0x10, 0x20];
+    static REPR_FRAME_BYTES_1: [u8; 8] = [0x01, 0x03, 0xb2, 0x00, 0x00, 0xd0, 0x00, 0x20];
+    static REPR_FRAME_BYTES_2: [u8; 8] = [0x02, 0x03, 0x92, 0x40, 0x00, 0xd0, 0x00, 0x10];
 
     fn frame_1_repr() -> Repr {
         Repr {
             profile_number: UserProfile::Profile1,
-            profile_change_allowed: false,
-            boot_permanent_locking_present: false,
-            partial_window_opening_present: false,
-            welcome_function_present: false,
-            securoscope_present: false,
-            configurable_key_present: false,
-            automatic_headlamps_present: false,
-            gear_efficiency_indicator_present: true,
-            automatic_electric_parking_brake_application_present: false,
-            welcome_lighting_present: false,
-            follow_me_home_present: true,
-            locking_mode_on_coe_present: false,
-            automatic_door_locking_when_leaving_present: false,
-            selective_unlocking_present: false,
-            rear_wiper_in_reverse_gear_present: true,
-            daytime_running_lamps_present: true,
-            adaptive_lamps_present: true,
-            blind_spot_monitoring_inhibition_present: false,
-            blind_spot_monitoring_present: false,
-            mood_lighting_present: false,
-            motorway_lighting_present: false,
-            multi_function_display_present: true,
-            parking_sensors_inhibition_present: true,
-            parking_sensors_audible_assistance_present: false,
-            parking_sensors_visual_assistance_enable: false,
-            automatic_emergency_braking_enable: false,
-            under_inflation_detection_reset_menu_present: true,
-            seat_belt_status_lamps_present: false,
-            under_inflation_detection: UnderInflationDetectionSystem::Indirect,
-            blind_spot_audible_assistance_present: false,
+            parameters_validity: false,
+            auto_elec_parking_brake_application_enabled: true,
+            welcome_function_enabled: true,
+            partial_window_opening_enabled: false,
+            locking_mode_on_coe_enabled: false,
+            auto_door_locking_when_leaving_enabled: false,
+            boot_permanent_locking_enabled: false,
+            auto_door_locking_when_driving_enabled: false,
+            selective_unlocking_enabled: false,
+            follow_me_home_lighting_duration: 2,
+            automatic_headlamps_enabled: true,
+            follow_me_home_enabled: true,
+            motorway_lighting_enabled: false,
+            adaptive_lamps_enabled: true,
+            ceiling_light_out_delay: 0,
+            daytime_running_lamps_enabled: false,
+            mood_lighting_enabled: false,
+            low_fuel_level_alert_enabled: false,
+            key_left_in_car_alert_enabled: false,
+            lighting_left_on_alert_enabled: false,
+            alt_gen_enabled: false,
+            esp_in_regulation_alert_enabled: false,
+            auto_mirrors_folding_enabled: false,
+            rear_wiper_in_reverse_gear_enabled: true,
+            mirrors_tilting_in_reverse_gear_enabled: false,
+            park_sensors_status: 3,
+            blind_spot_monitoring_status: 0,
+            secu_enabled: false,
+            configurable_key_mode: 2,
         }
     }
 
     fn frame_2_repr() -> Repr {
         Repr {
-            profile_number: UserProfile::Profile1,
-            profile_change_allowed: false,
-            boot_permanent_locking_present: false,
-            partial_window_opening_present: false,
-            welcome_function_present: false,
-            securoscope_present: false,
-            configurable_key_present: true,
-            automatic_headlamps_present: false,
-            gear_efficiency_indicator_present: false,
-            automatic_electric_parking_brake_application_present: false,
-            welcome_lighting_present: false,
-            follow_me_home_present: true,
-            locking_mode_on_coe_present: false,
-            automatic_door_locking_when_leaving_present: false,
-            selective_unlocking_present: false,
-            rear_wiper_in_reverse_gear_present: true,
-            daytime_running_lamps_present: false,
-            adaptive_lamps_present: true,
-            blind_spot_monitoring_inhibition_present: false,
-            blind_spot_monitoring_present: false,
-            mood_lighting_present: false,
-            motorway_lighting_present: false,
-            multi_function_display_present: true,
-            parking_sensors_inhibition_present: false,
-            parking_sensors_audible_assistance_present: false,
-            parking_sensors_visual_assistance_enable: false,
-            automatic_emergency_braking_enable: false,
-            under_inflation_detection_reset_menu_present: false,
-            seat_belt_status_lamps_present: false,
-            under_inflation_detection: UnderInflationDetectionSystem::DirectWithoutAbsolutePressure,
-            blind_spot_audible_assistance_present: false,
+            profile_number: UserProfile::Profile2,
+            parameters_validity: false,
+            auto_elec_parking_brake_application_enabled: true,
+            welcome_function_enabled: true,
+            partial_window_opening_enabled: false,
+            locking_mode_on_coe_enabled: false,
+            auto_door_locking_when_leaving_enabled: false,
+            boot_permanent_locking_enabled: false,
+            auto_door_locking_when_driving_enabled: false,
+            selective_unlocking_enabled: false,
+            follow_me_home_lighting_duration: 2,
+            automatic_headlamps_enabled: true,
+            follow_me_home_enabled: false,
+            motorway_lighting_enabled: false,
+            adaptive_lamps_enabled: true,
+            ceiling_light_out_delay: 0,
+            daytime_running_lamps_enabled: true,
+            mood_lighting_enabled: false,
+            low_fuel_level_alert_enabled: false,
+            key_left_in_car_alert_enabled: false,
+            lighting_left_on_alert_enabled: false,
+            alt_gen_enabled: false,
+            esp_in_regulation_alert_enabled: false,
+            auto_mirrors_folding_enabled: false,
+            rear_wiper_in_reverse_gear_enabled: true,
+            mirrors_tilting_in_reverse_gear_enabled: false,
+            park_sensors_status: 3,
+            blind_spot_monitoring_status: 0,
+            secu_enabled: false,
+            configurable_key_mode: 1,
         }
     }
 
@@ -972,164 +930,150 @@ mod test {
         let frame = Frame::new_unchecked(&REPR_FRAME_BYTES_1);
         assert_eq!(frame.check_len(), Ok(()));
         assert_eq!(frame.profile_number(), UserProfile::Profile1);
-        assert_eq!(frame.profile_change_allowed(), false);
-        assert_eq!(frame.boot_permanent_locking_enable(), false);
+        assert_eq!(frame.parameters_validity(), false);
+        assert_eq!(frame.auto_elec_parking_brake_application_enable(), true);
+        assert_eq!(frame.welcome_function_enable(), true);
         assert_eq!(frame.partial_window_opening_enable(), false);
-        assert_eq!(frame.welcome_function_enable(), false);
-        assert_eq!(frame.securoscope_enable(), false);
-        assert_eq!(frame.configurable_key_enable(), false);
-        assert_eq!(frame.automatic_headlamps_enable(), false);
-        assert_eq!(frame.gear_efficiency_indicator_enable(), true);
-        assert_eq!(frame.auto_elec_parking_brake_application_enable(), false);
-        assert_eq!(frame.welcome_lighting_enable(), false);
-        assert_eq!(frame.follow_me_home_enable(), true);
         assert_eq!(frame.locking_mode_on_coe_enable(), false);
         assert_eq!(frame.auto_door_locking_when_leaving_enable(), false);
+        assert_eq!(frame.boot_permanent_locking_enable(), false);
+        assert_eq!(frame.auto_door_locking_when_driving_enable(), false);
         assert_eq!(frame.selective_unlocking_enable(), false);
-        assert_eq!(frame.rear_wiper_in_reverse_gear_enable(), true);
-        assert_eq!(frame.daytime_running_lamps_enable(), true);
-        assert_eq!(frame.adaptive_lamps_enable(), true);
-        assert_eq!(frame.blind_spot_monitoring_inhibition_enable(), false);
-        assert_eq!(frame.blind_spot_monitoring_enable(), false);
-        assert_eq!(frame.mood_lighting_enable(), false);
+        assert_eq!(frame.follow_me_home_lighting_duration(), 2);
+        assert_eq!(frame.automatic_headlamps_enable(), true);
+        assert_eq!(frame.follow_me_home_enable(), true);
         assert_eq!(frame.motorway_lighting_enable(), false);
-        assert_eq!(frame.multi_function_display_enable(), true);
-        assert_eq!(frame.park_sensors_inhibition_enable(), true);
-        assert_eq!(frame.park_sensors_audible_assistance_enable(), false);
-        assert_eq!(frame.park_sensors_visual_assistance_enable(), false);
-        assert_eq!(frame.automatic_emergency_braking_enable(), false);
-        assert_eq!(frame.under_inflation_detection_reset_menu_enable(), true);
-        assert_eq!(frame.seat_belt_status_lamps_enable(), false);
-        assert_eq!(
-            frame.under_inflation_detection(),
-            UnderInflationDetectionSystem::Indirect
-        );
-        assert_eq!(frame.blind_spot_audible_assistance_enable(), false);
+        assert_eq!(frame.adaptive_lamps_enable(), true);
+        assert_eq!(frame.ceiling_light_out_delay(), 0);
+        assert_eq!(frame.daytime_running_lamps_enable(), false);
+        assert_eq!(frame.low_fuel_level_alert_enable(), false);
+        assert_eq!(frame.key_left_in_car_alert_enable(), false);
+        assert_eq!(frame.lighting_left_on_alert_enable(), false);
+        assert_eq!(frame.alt_gen_enable(), false);
+        assert_eq!(frame.esp_in_regulation_alert_enable(), false);
+        assert_eq!(frame.auto_mirrors_folding_enable(), false);
+        assert_eq!(frame.rear_wiper_in_reverse_gear_enable(), true);
+        assert_eq!(frame.mirrors_tilting_in_reverse_gear_enable(), false);
+        assert_eq!(frame.park_sensors_status(), 3);
+        assert_eq!(frame.blind_spot_monitoring_status(), 0);
+        assert_eq!(frame.secu_enable(), false);
+        assert_eq!(frame.configurable_key_mode(), 2);
     }
 
     #[test]
     fn test_frame_2_deconstruction() {
         let frame = Frame::new_unchecked(&REPR_FRAME_BYTES_2);
         assert_eq!(frame.check_len(), Ok(()));
-        assert_eq!(frame.profile_number(), UserProfile::Profile1);
-        assert_eq!(frame.profile_change_allowed(), false);
-        assert_eq!(frame.boot_permanent_locking_enable(), false);
+        assert_eq!(frame.profile_number(), UserProfile::Profile2);
+        assert_eq!(frame.parameters_validity(), false);
+        assert_eq!(frame.auto_elec_parking_brake_application_enable(), true);
+        assert_eq!(frame.welcome_function_enable(), true);
         assert_eq!(frame.partial_window_opening_enable(), false);
-        assert_eq!(frame.welcome_function_enable(), false);
-        assert_eq!(frame.securoscope_enable(), false);
-        assert_eq!(frame.configurable_key_enable(), true);
-        assert_eq!(frame.automatic_headlamps_enable(), false);
-        assert_eq!(frame.gear_efficiency_indicator_enable(), false);
-        assert_eq!(frame.auto_elec_parking_brake_application_enable(), false);
-        assert_eq!(frame.welcome_lighting_enable(), false);
-        assert_eq!(frame.follow_me_home_enable(), true);
         assert_eq!(frame.locking_mode_on_coe_enable(), false);
         assert_eq!(frame.auto_door_locking_when_leaving_enable(), false);
+        assert_eq!(frame.boot_permanent_locking_enable(), false);
+        assert_eq!(frame.auto_door_locking_when_driving_enable(), false);
         assert_eq!(frame.selective_unlocking_enable(), false);
-        assert_eq!(frame.rear_wiper_in_reverse_gear_enable(), true);
-        assert_eq!(frame.daytime_running_lamps_enable(), false);
-        assert_eq!(frame.adaptive_lamps_enable(), true);
-        assert_eq!(frame.blind_spot_monitoring_inhibition_enable(), false);
-        assert_eq!(frame.blind_spot_monitoring_enable(), false);
-        assert_eq!(frame.mood_lighting_enable(), false);
+        assert_eq!(frame.follow_me_home_lighting_duration(), 2);
+        assert_eq!(frame.automatic_headlamps_enable(), true);
+        assert_eq!(frame.follow_me_home_enable(), false);
         assert_eq!(frame.motorway_lighting_enable(), false);
-        assert_eq!(frame.multi_function_display_enable(), true);
-        assert_eq!(frame.park_sensors_inhibition_enable(), false);
-        assert_eq!(frame.park_sensors_audible_assistance_enable(), false);
-        assert_eq!(frame.park_sensors_visual_assistance_enable(), false);
-        assert_eq!(frame.automatic_emergency_braking_enable(), false);
-        assert_eq!(frame.under_inflation_detection_reset_menu_enable(), false);
-        assert_eq!(frame.seat_belt_status_lamps_enable(), false);
-        assert_eq!(
-            frame.under_inflation_detection(),
-            UnderInflationDetectionSystem::DirectWithoutAbsolutePressure
-        );
-        assert_eq!(frame.blind_spot_audible_assistance_enable(), false);
+        assert_eq!(frame.adaptive_lamps_enable(), true);
+        assert_eq!(frame.ceiling_light_out_delay(), 0);
+        assert_eq!(frame.daytime_running_lamps_enable(), true);
+        assert_eq!(frame.low_fuel_level_alert_enable(), false);
+        assert_eq!(frame.key_left_in_car_alert_enable(), false);
+        assert_eq!(frame.lighting_left_on_alert_enable(), false);
+        assert_eq!(frame.alt_gen_enable(), false);
+        assert_eq!(frame.esp_in_regulation_alert_enable(), false);
+        assert_eq!(frame.auto_mirrors_folding_enable(), false);
+        assert_eq!(frame.rear_wiper_in_reverse_gear_enable(), true);
+        assert_eq!(frame.mirrors_tilting_in_reverse_gear_enable(), false);
+        assert_eq!(frame.park_sensors_status(), 3);
+        assert_eq!(frame.blind_spot_monitoring_status(), 0);
+        assert_eq!(frame.secu_enable(), false);
+        assert_eq!(frame.configurable_key_mode(), 1);
     }
 
     #[test]
     fn test_frame_1_construction() {
-        let mut bytes = [0x00; 6];
+        let mut bytes = [0x00; 8];
         let mut frame = Frame::new_unchecked(&mut bytes);
 
         frame.set_profile_number(UserProfile::Profile1);
-        frame.set_profile_change_allowed(false);
-        frame.set_boot_permanent_locking_enable(false);
+        frame.set_parameters_validity(false);
+        frame.set_auto_elec_parking_brake_application_enable(true);
+        frame.set_welcome_function_enable(true);
         frame.set_partial_window_opening_enable(false);
-        frame.set_welcome_function_enable(false);
-        frame.set_securoscope_enable(false);
-        frame.set_configurable_key_enable(false);
-        frame.set_automatic_headlamps_enable(false);
-        frame.set_gear_efficiency_indicator_enable(true);
-        frame.set_auto_elec_parking_brake_application_enable(false);
-        frame.set_welcome_lighting_enable(false);
-        frame.set_follow_me_home_enable(true);
         frame.set_locking_mode_on_coe_enable(false);
         frame.set_auto_door_locking_when_leaving_enable(false);
+        frame.set_boot_permanent_locking_enable(false);
+        frame.set_auto_door_locking_when_driving_enable(false);
         frame.set_selective_unlocking_enable(false);
-        frame.set_rear_wiper_in_reverse_gear_enable(true);
-        frame.set_daytime_running_lamps_enable(true);
-        frame.set_adaptive_lamps_enable(true);
-        frame.set_blind_spot_monitoring_inhibition_enable(false);
-        frame.set_blind_spot_monitoring_enable(false);
-        frame.set_mood_lighting_enable(false);
+        frame.set_follow_me_home_lighting_duration(2);
+        frame.set_automatic_headlamps_enable(true);
+        frame.set_follow_me_home_enable(true);
         frame.set_motorway_lighting_enable(false);
-        frame.set_multi_function_display_enable(true);
-        frame.set_park_sensors_inhibition_enable(true);
-        frame.set_park_sensors_audible_assistance_enable(false);
-        frame.set_park_sensors_visual_assistance_enable(false);
-        frame.set_automatic_emergency_braking_enable(false);
-        frame.set_under_inflation_detection_reset_menu_enable(true);
-        frame.set_seat_belt_status_lamps_enable(false);
-        frame.set_under_inflation_detection(UnderInflationDetectionSystem::Indirect);
-        frame.set_blind_spot_audible_assistance_enable(false);
+        frame.set_adaptive_lamps_enable(true);
+        frame.set_ceiling_light_out_delay(0);
+        frame.set_daytime_running_lamps_enable(false);
+        frame.set_low_fuel_level_alert_enable(false);
+        frame.set_key_left_in_car_alert_enable(false);
+        frame.set_lighting_left_on_alert_enable(false);
+        frame.set_alt_gen_enable(false);
+        frame.set_esp_in_regulation_alert_enable(false);
+        frame.set_auto_mirrors_folding_enable(false);
+        frame.set_rear_wiper_in_reverse_gear_enable(true);
+        frame.set_mirrors_tilting_in_reverse_gear_enable(false);
+        frame.set_park_sensors_status(3);
+        frame.set_blind_spot_monitoring_status(0);
+        frame.set_secu_enable(false);
+        frame.set_configurable_key_mode(2);
 
         assert_eq!(frame.into_inner(), &REPR_FRAME_BYTES_1);
     }
 
     #[test]
     fn test_frame_2_construction() {
-        let mut bytes = [0x00; 6];
+        let mut bytes = [0x00; 8];
         let mut frame = Frame::new_unchecked(&mut bytes);
 
-        frame.set_profile_number(UserProfile::Profile1);
-        frame.set_profile_change_allowed(false);
-        frame.set_boot_permanent_locking_enable(false);
+        frame.set_profile_number(UserProfile::Profile2);
+        frame.set_parameters_validity(false);
+        frame.set_auto_elec_parking_brake_application_enable(true);
+        frame.set_welcome_function_enable(true);
         frame.set_partial_window_opening_enable(false);
-        frame.set_welcome_function_enable(false);
-        frame.set_securoscope_enable(false);
-        frame.set_configurable_key_enable(true);
-        frame.set_automatic_headlamps_enable(false);
-        frame.set_gear_efficiency_indicator_enable(false);
-        frame.set_auto_elec_parking_brake_application_enable(false);
-        frame.set_welcome_lighting_enable(false);
-        frame.set_follow_me_home_enable(true);
         frame.set_locking_mode_on_coe_enable(false);
         frame.set_auto_door_locking_when_leaving_enable(false);
+        frame.set_boot_permanent_locking_enable(false);
+        frame.set_auto_door_locking_when_driving_enable(false);
         frame.set_selective_unlocking_enable(false);
-        frame.set_rear_wiper_in_reverse_gear_enable(true);
-        frame.set_daytime_running_lamps_enable(false);
-        frame.set_adaptive_lamps_enable(true);
-        frame.set_blind_spot_monitoring_inhibition_enable(false);
-        frame.set_blind_spot_monitoring_enable(false);
-        frame.set_mood_lighting_enable(false);
+        frame.set_follow_me_home_lighting_duration(2);
+        frame.set_automatic_headlamps_enable(true);
+        frame.set_follow_me_home_enable(false);
         frame.set_motorway_lighting_enable(false);
-        frame.set_multi_function_display_enable(true);
-        frame.set_park_sensors_inhibition_enable(false);
-        frame.set_park_sensors_audible_assistance_enable(false);
-        frame.set_park_sensors_visual_assistance_enable(false);
-        frame.set_automatic_emergency_braking_enable(false);
-        frame.set_under_inflation_detection_reset_menu_enable(false);
-        frame.set_seat_belt_status_lamps_enable(false);
-        frame.set_under_inflation_detection(UnderInflationDetectionSystem::DirectWithoutAbsolutePressure);
-        frame.set_blind_spot_audible_assistance_enable(false);
+        frame.set_adaptive_lamps_enable(true);
+        frame.set_ceiling_light_out_delay(0);
+        frame.set_daytime_running_lamps_enable(true);
+        frame.set_low_fuel_level_alert_enable(false);
+        frame.set_key_left_in_car_alert_enable(false);
+        frame.set_lighting_left_on_alert_enable(false);
+        frame.set_alt_gen_enable(false);
+        frame.set_esp_in_regulation_alert_enable(false);
+        frame.set_auto_mirrors_folding_enable(false);
+        frame.set_rear_wiper_in_reverse_gear_enable(true);
+        frame.set_mirrors_tilting_in_reverse_gear_enable(false);
+        frame.set_park_sensors_status(3);
+        frame.set_blind_spot_monitoring_status(0);
+        frame.set_secu_enable(false);
+        frame.set_configurable_key_mode(1);
 
         assert_eq!(frame.into_inner(), &REPR_FRAME_BYTES_2);
     }
 
     #[test]
     fn test_overlong() {
-        let bytes: [u8; 7] = [0x01, 0x00, 0x12, 0xe0, 0x30, 0x34, 0xff];
+        let bytes: [u8; 9] = [0x01, 0x03, 0xb2, 0x00, 0x00, 0xd0, 0x00, 0x20, 0xff];
         assert_eq!(
             Frame::new_unchecked(&bytes).check_len().unwrap_err(),
             Error::Overlong
@@ -1138,7 +1082,7 @@ mod test {
 
     #[test]
     fn test_underlong() {
-        let bytes: [u8; 5] = [0x3f, 0x3f, 0x3f, 0x3f, 0x3f];
+        let bytes: [u8; 7] = [0x01, 0x03, 0xb2, 0x00, 0x00, 0xd0, 0x00];
         assert_eq!(Frame::new_checked(&bytes).unwrap_err(), Error::Truncated);
     }
 
@@ -1158,7 +1102,7 @@ mod test {
 
     #[test]
     fn test_basic_repr_1_emit() {
-        let mut buf = [0u8; 6];
+        let mut buf = [0u8; 8];
         let mut frame = Frame::new_unchecked(&mut buf);
         let repr = frame_1_repr();
         repr.emit(&mut frame);
@@ -1167,7 +1111,7 @@ mod test {
 
     #[test]
     fn test_basic_repr_2_emit() {
-        let mut buf = [0u8; 6];
+        let mut buf = [0u8; 8];
         let mut frame = Frame::new_unchecked(&mut buf);
         let repr = frame_2_repr();
         repr.emit(&mut frame);
