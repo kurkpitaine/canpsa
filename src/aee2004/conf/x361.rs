@@ -764,135 +764,135 @@ impl Repr {
 
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "profile number={}", self.profile_number)?;
-        write!(f, "profile change allowed={}", self.profile_change_allowed)?;
+        write!(f, "x361 profile number={}", self.profile_number)?;
+        write!(f, " profile change allowed={}", self.profile_change_allowed)?;
         write!(
             f,
-            "boot permanent locking present={}",
+            " boot permanent locking present={}",
             self.boot_permanent_locking_present
         )?;
         write!(
             f,
-            "partial window opening present={}",
+            " partial window opening present={}",
             self.partial_window_opening_present
         )?;
         write!(
             f,
-            "welcome function present={}",
+            " welcome function present={}",
             self.welcome_function_present
         )?;
-        write!(f, "securoscope present={}", self.securoscope_present)?;
+        write!(f, " securoscope present={}", self.securoscope_present)?;
         write!(
             f,
-            "configurable key present={}",
+            " configurable key present={}",
             self.configurable_key_present
         )?;
         write!(
             f,
-            "automatic headlamps present={}",
+            " automatic headlamps present={}",
             self.automatic_headlamps_present
         )?;
         write!(
             f,
-            "gear efficiency indicator present={}",
+            " gear efficiency indicator present={}",
             self.gear_efficiency_indicator_present
         )?;
         write!(
             f,
-            "automatic electric parking brake application present={}",
+            " automatic electric parking brake application present={}",
             self.automatic_electric_parking_brake_application_present
         )?;
         write!(
             f,
-            "welcome lighting present={}",
+            " welcome lighting present={}",
             self.welcome_lighting_present
         )?;
-        write!(f, "follow-me-home present={}", self.follow_me_home_present)?;
+        write!(f, " follow-me-home present={}", self.follow_me_home_present)?;
         write!(
             f,
-            "locking mode on coe present={}",
+            " locking mode on coe present={}",
             self.locking_mode_on_coe_present
         )?;
         write!(
             f,
-            "automatic door locking when leaving present={}",
+            " automatic door locking when leaving present={}",
             self.automatic_door_locking_when_leaving_present
         )?;
         write!(
             f,
-            "selective unlocking present={}",
+            " selective unlocking present={}",
             self.selective_unlocking_present
         )?;
         write!(
             f,
-            "rear wiper in reverse gear present={}",
+            " rear wiper in reverse gear present={}",
             self.rear_wiper_in_reverse_gear_present
         )?;
         write!(
             f,
-            "daytime running lamps present={}",
+            " daytime running lamps present={}",
             self.daytime_running_lamps_present
         )?;
-        write!(f, "adaptive lamps present={}", self.adaptive_lamps_present)?;
+        write!(f, " adaptive lamps present={}", self.adaptive_lamps_present)?;
         write!(
             f,
-            "blind spot monitoring inhibition present={}",
+            " blind spot monitoring inhibition present={}",
             self.blind_spot_monitoring_inhibition_present
         )?;
         write!(
             f,
-            "blind spot monitoring present={}",
+            " blind spot monitoring present={}",
             self.blind_spot_monitoring_present
         )?;
-        write!(f, "mood lighting present={}", self.mood_lighting_present)?;
+        write!(f, " mood lighting present={}", self.mood_lighting_present)?;
         write!(
             f,
-            "motorway lighting present={}",
+            " motorway lighting present={}",
             self.motorway_lighting_present
         )?;
         write!(
             f,
-            "multi function display present={}",
+            " multi function display present={}",
             self.multi_function_display_present
         )?;
         write!(
             f,
-            "parking sensors inhibition present={}",
+            " parking sensors inhibition present={}",
             self.parking_sensors_inhibition_present
         )?;
         write!(
             f,
-            "parking sensors audible assistance present={}",
+            " parking sensors audible assistance present={}",
             self.parking_sensors_audible_assistance_present
         )?;
         write!(
             f,
-            "parking sensors visual assistance presence={}",
+            " parking sensors visual assistance presence={}",
             self.parking_sensors_visual_assistance_presence
         )?;
         write!(
             f,
-            "automatic emergency braking presence={}",
+            " automatic emergency braking presence={}",
             self.automatic_emergency_braking_presence
         )?;
         write!(
             f,
-            "under inflation detection reset menu present={}",
+            " under inflation detection reset menu present={}",
             self.under_inflation_detection_reset_menu_present
         )?;
         write!(
             f,
-            "seat belt status lamps present={}",
+            " seat belt status lamps present={}",
             self.seat_belt_status_lamps_present
         )?;
         write!(
             f,
-            "under inflation detection={}",
+            " under inflation detection={}",
             self.under_inflation_detection
         )?;
         write!(
             f,
-            "blind spot audible assistance present={}",
+            " blind spot audible assistance present={}",
             self.blind_spot_audible_assistance_present
         )
     }

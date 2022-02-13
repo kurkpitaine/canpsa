@@ -247,7 +247,11 @@ impl Repr {
 
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "x39b utc_datetime={}", self.utc_datetime)
+        write!(
+            f,
+            "x39b utc_datetime={} clock_format={}",
+            self.utc_datetime, self.clock_format
+        )
     }
 }
 

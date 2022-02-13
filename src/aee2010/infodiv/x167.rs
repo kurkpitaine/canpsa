@@ -493,52 +493,52 @@ impl Repr {
 
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "mfd trip computer page={}", self.mfd_trip_computer_page)?;
+        write!(f, "x167 mfd trip computer page={}", self.mfd_trip_computer_page)?;
         write!(
             f,
-            "maintenance reset request={}",
+            " maintenance reset request={}",
             self.maintenance_reset_request
         )?;
         write!(
             f,
-            "emergency call in progress={}",
+            " emergency call in progress={}",
             self.emergency_call_in_progress
         )?;
-        write!(f, "fault recall request={}", self.fault_recall_request)?;
+        write!(f, " fault recall request={}", self.fault_recall_request)?;
         write!(
             f,
-            "trip computer secondary trip reset_request={}",
+            " trip computer secondary trip reset_request={}",
             self.trip_computer_secondary_trip_reset_request
         )?;
         write!(
             f,
-            "trip computer primary trip reset_request={}",
+            " trip computer primary trip reset_request={}",
             self.trip_computer_primary_trip_reset_request
         )?;
-        write!(f, "preconditioning time={}", self.pre_conditioning_time)?;
-        write!(f, "telematics enabled={}", self.telematics_enabled)?;
-        write!(f, "black panel enabled={}", self.black_panel_enabled)?;
+        write!(f, " preconditioning time={}", self.pre_conditioning_time)?;
+        write!(f, " telematics enabled={}", self.telematics_enabled)?;
+        write!(f, " black panel enabled={}", self.black_panel_enabled)?;
         write!(
             f,
-            "indirect under inflation reset_request={}",
+            " indirect under inflation reset_request={}",
             self.indirect_under_inflation_reset_request
         )?;
         write!(
             f,
-            "pre conditioning request={}",
+            " pre conditioning request={}",
             self.pre_conditioning_request
         )?;
-        write!(f, "total trip distance={}", self.total_trip_distance)?;
-        write!(f, "interactive message={}", self.interactive_message)?;
-        write!(f, "stop check request={}", self.stop_check_request)?;
-        write!(f, "popup id acknowledge={}", self.popup_id_acknowledge)?;
-        write!(f, "selected menu={}", self.selected_menu)?;
+        write!(f, " total trip distance={}", self.total_trip_distance)?;
+        write!(f, " interactive message={}", self.interactive_message)?;
+        write!(f, " stop check request={}", self.stop_check_request)?;
+        write!(f, " popup id acknowledge={}", self.popup_id_acknowledge)?;
+        write!(f, " selected menu={}", self.selected_menu)?;
         write!(
             f,
-            "wifi parameters acknowledge={}",
+            " wifi parameters acknowledge={}",
             self.wifi_parameters_acknowledge
         )?;
-        write!(f, "user_action on mfd={}", self.user_action_on_mfd)
+        write!(f, " user_action on mfd={}", self.user_action_on_mfd)
     }
 }
 

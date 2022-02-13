@@ -667,41 +667,41 @@ impl Repr {
 
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "balance opt={}", self.balance_opt)?;
-        write!(f, "balance level={}", self.balance_level)?;
-        write!(f, "balance under adj={}", self.balance_under_adj)?;
-        write!(f, "fader opt={}", self.fader_opt)?;
-        write!(f, "fader level={}", self.fader_level)?;
-        write!(f, "fader under adj={}", self.fader_under_adj)?;
-        write!(f, "bass opt={}", self.bass_opt)?;
-        write!(f, "bass level={}", self.bass_level)?;
-        write!(f, "bass under adj={}", self.bass_under_adj)?;
-        write!(f, "treble opt={}", self.treble_opt)?;
-        write!(f, "treble level={}", self.treble_level)?;
-        write!(f, "treble under adj={}", self.treble_under_adj)?;
-        write!(f, "speed dependent volume opt={}", self.speed_dependent_volume_opt)?;
-        write!(f, "speed dependent volume enabled={}", self.speed_dependent_volume_enabled)?;
+        write!(f, "x1e5 balance opt={}", self.balance_opt)?;
+        write!(f, " balance level={}", self.balance_level)?;
+        write!(f, " balance under adj={}", self.balance_under_adj)?;
+        write!(f, " fader opt={}", self.fader_opt)?;
+        write!(f, " fader level={}", self.fader_level)?;
+        write!(f, " fader under adj={}", self.fader_under_adj)?;
+        write!(f, " bass opt={}", self.bass_opt)?;
+        write!(f, " bass level={}", self.bass_level)?;
+        write!(f, " bass under adj={}", self.bass_under_adj)?;
+        write!(f, " treble opt={}", self.treble_opt)?;
+        write!(f, " treble level={}", self.treble_level)?;
+        write!(f, " treble under adj={}", self.treble_under_adj)?;
+        write!(f, " speed dependent volume opt={}", self.speed_dependent_volume_opt)?;
+        write!(f, " speed dependent volume enabled={}", self.speed_dependent_volume_enabled)?;
         write!(
             f,
-            "speed dependent volume under adj={}",
+            " speed dependent volume under adj={}",
             self.speed_dependent_volume_under_adj
         )?;
-        write!(f, "loudness opt={}", self.loudness_opt)?;
-        write!(f, "loudness enabled={}", self.loudness_enabled)?;
-        write!(f, "loudness under adj={}", self.loudness_under_adj)?;
-        write!(f, "musical ambiance opt={}", self.musical_ambiance_opt)?;
-        write!(f, "musical ambiance={}", self.musical_ambiance)?;
+        write!(f, " loudness opt={}", self.loudness_opt)?;
+        write!(f, " loudness enabled={}", self.loudness_enabled)?;
+        write!(f, " loudness under adj={}", self.loudness_under_adj)?;
+        write!(f, " musical ambiance opt={}", self.musical_ambiance_opt)?;
+        write!(f, " musical ambiance={}", self.musical_ambiance)?;
         write!(
             f,
-            "musical ambiance under adj={}",
+            " musical ambiance under adj={}",
             self.musical_ambiance_under_adj
         )?;
-        write!(f, "sound repartition opt={}", self.sound_repartition_opt)?;
-        write!(f, "sound repartition ={}", self.sound_repartition)?;
-        write!(f, "sound repartition under adj={}", self.sound_repartition_under_adj)?;
-        write!(f, "spatial sound under adj={}", self.spatial_sound_under_adj)?;
-        write!(f, "spectral sound under adj={}", self.spectral_sound_under_adj)?;
-        write!(f, "impossible setting={}", self.impossible_setting)
+        write!(f, " sound repartition opt={}", self.sound_repartition_opt)?;
+        write!(f, " sound repartition ={}", self.sound_repartition)?;
+        write!(f, " sound repartition under adj={}", self.sound_repartition_under_adj)?;
+        write!(f, " spatial sound under adj={}", self.spatial_sound_under_adj)?;
+        write!(f, " spectral sound under adj={}", self.spectral_sound_under_adj)?;
+        write!(f, " impossible setting={}", self.impossible_setting)
     }
 }
 

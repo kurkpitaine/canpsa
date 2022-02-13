@@ -27,8 +27,9 @@ mod field {
     pub const HOUR: usize = 3;
     /// 6-bit clock minute, 2-bit empty
     pub const MINUTE: usize = 4;
-    /// 5-bit flag, 11-bit AdBlue autonomy.
-    /// TODO: more research on this byte, format is weird...
+    /// 14-bit AdBlue autonomy,
+    /// 1-bit empty,
+    /// 1-bit AdBlue autonomy display request.
     pub const FLAGS_ADBLUE_AUTONOMY: Field = 5..7;
 }
 
@@ -141,8 +142,15 @@ impl<T: AsRef<[u8]>> Frame<T> {
     #[inline]
     pub fn adblue_autonomy(&self) -> u16 {
         let data = self.buffer.as_ref();
-        // NetworkEndian::read_u16(&data[field::FLAGS_ADBLUE_AUTONOMY]) >> 5
-        NetworkEndian::read_u16(&data[field::FLAGS_ADBLUE_AUTONOMY])
+        NetworkEndian::read_u16(&data[field::FLAGS_ADBLUE_AUTONOMY]) & 0x3fff
+    }
+
+    /// Return the AdBlue autonomy display request field.
+    #[inline]
+    pub fn adblue_autonomy_display_request(&self) -> bool {
+        let data = self.buffer.as_ref();
+        let raw = NetworkEndian::read_u16(&data[field::FLAGS_ADBLUE_AUTONOMY]);
+        raw & !0x7fff != 0
     }
 }
 
@@ -214,10 +222,18 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
     #[inline]
     pub fn set_adblue_autonomy(&mut self, value: u16) {
         let data = self.buffer.as_mut();
-        // let raw = NetworkEndian::read_u16(&data[field::FLAGS_ADBLUE_AUTONOMY]);
-        // let raw = (raw & 0x001f) | value << 5;
-        // NetworkEndian::write_u16(&mut data[field::FLAGS_ADBLUE_AUTONOMY], raw);
-        NetworkEndian::write_u16(&mut data[field::FLAGS_ADBLUE_AUTONOMY], value);
+        let raw = NetworkEndian::read_u16(&data[field::FLAGS_ADBLUE_AUTONOMY]);
+        let raw = raw | (value & 0x3fff);
+        NetworkEndian::write_u16(&mut data[field::FLAGS_ADBLUE_AUTONOMY], raw);
+    }
+
+    /// Set the AdBlue autonomy display request field.
+    #[inline]
+    pub fn set_adblue_autonomy_display_request(&mut self, value: bool) {
+        let data = self.buffer.as_mut();
+        let raw = NetworkEndian::read_u16(&data[field::FLAGS_ADBLUE_AUTONOMY]);
+        let raw = if value { raw | 0x8000 } else { raw & !0x8000 };
+        NetworkEndian::write_u16(&mut data[field::FLAGS_ADBLUE_AUTONOMY], raw);
     }
 }
 
@@ -247,6 +263,7 @@ pub struct Repr {
     clock_disp_mode: ClockDisplayMode,
     utc_datetime: PrimitiveDateTime,
     adblue_autonomy: u16,
+    adblue_autonomy_display_request: bool,
 }
 
 impl Repr {
@@ -279,6 +296,7 @@ impl Repr {
                     Time::from_hms(frame.hour(), frame.minute(), 0).unwrap(),
                 ),
                 adblue_autonomy: frame.adblue_autonomy(),
+                adblue_autonomy_display_request: frame.adblue_autonomy_display_request(),
             })
         }
     }
@@ -299,12 +317,17 @@ impl Repr {
         frame.set_hour(self.utc_datetime.hour());
         frame.set_minute(self.utc_datetime.minute());
         frame.set_adblue_autonomy(self.adblue_autonomy);
+        frame.set_adblue_autonomy_display_request(self.adblue_autonomy_display_request);
     }
 }
 
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "x276 utc_datetime={}", self.utc_datetime)
+        write!(
+            f,
+            "x276 utc_datetime={} adblue_autonomy={} adblue_autonomy_disp_req={}",
+            self.utc_datetime, self.adblue_autonomy, self.adblue_autonomy_display_request
+        )
     }
 }
 
@@ -326,6 +349,7 @@ mod test {
             clock_disp_mode: ClockDisplayMode::Blinking,
             utc_datetime: datetime!(2022-01-10 15:29),
             adblue_autonomy: 16382,
+            adblue_autonomy_display_request: false,
         }
     }
 
@@ -341,6 +365,7 @@ mod test {
         assert_eq!(frame.hour(), 0x0f);
         assert_eq!(frame.minute(), 0x1d);
         assert_eq!(frame.adblue_autonomy(), 0x3ffe);
+        assert_eq!(frame.adblue_autonomy_display_request(), false);
     }
 
     #[test]
@@ -356,6 +381,7 @@ mod test {
         frame.set_hour(0x0f);
         frame.set_minute(0x1d);
         frame.set_adblue_autonomy(0x3ffe);
+        frame.set_adblue_autonomy_display_request(false);
 
         assert_eq!(frame.into_inner(), &REPR_FRAME_BYTES);
     }

@@ -901,156 +901,156 @@ impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "daytime running lamps present={}",
+            "x361 daytime running lamps present={}",
             self.daytime_running_lamps_present
         )?;
         write!(
             f,
-            "automatic headlamps present={}",
+            " automatic headlamps present={}",
             self.automatic_headlamps_present
         )?;
-        write!(f, "mood lighting present={}", self.mood_lighting_present)?;
+        write!(f, " mood lighting present={}", self.mood_lighting_present)?;
         write!(
             f,
-            "blind spot monitoring present={}",
+            " blind spot monitoring present={}",
             self.blind_spot_monitoring_present
         )?;
-        write!(f, "adaptive lamps present={}", self.adaptive_lamps_present)?;
+        write!(f, " adaptive lamps present={}", self.adaptive_lamps_present)?;
         write!(
             f,
-            "welcome lighting present={}",
+            " welcome lighting present={}",
             self.welcome_lighting_present
         )?;
         write!(
             f,
-            "motorway lighting present={}",
+            " motorway lighting present={}",
             self.motorway_lighting_present
         )?;
         write!(
             f,
-            "configuration menu information available={}",
+            " configuration menu information available={}",
             self.config_menu_info_available
         )?;
         write!(
             f,
-            "selective unlocking present={}",
+            " selective unlocking present={}",
             self.selective_unlocking_present
         )?;
         write!(
             f,
-            "key selective unlocking present={}",
+            " key selective unlocking present={}",
             self.key_selective_unlocking_present
         )?;
         write!(
             f,
-            "boot selective unlocking present={}",
+            " boot selective unlocking present={}",
             self.boot_selective_unlocking_present
         )?;
         write!(
             f,
-            "motorized tailgate present={}",
+            " motorized tailgate present={}",
             self.motorized_tailgate_present
         )?;
         write!(
             f,
-            "welcome function present={}",
+            " welcome function present={}",
             self.welcome_function_present
         )?;
-        write!(f, "follow-me-home present={}", self.follow_me_home_present)?;
+        write!(f, " follow-me-home present={}", self.follow_me_home_present)?;
         write!(
             f,
-            "rear wiper in reverse gear present={}",
+            " rear wiper in reverse gear present={}",
             self.rear_wiper_in_reverse_gear_present
         )?;
         write!(
             f,
-            "parking sensors inhibition present={}",
+            " parking sensors inhibition present={}",
             self.parking_sensors_inhibition_present
         )?;
         write!(
             f,
-            "extended traffic sign recognition present={}",
+            " extended traffic sign recognition present={}",
             self.extended_traffic_sign_recognition_present
         )?;
-        write!(f, "mirror tilt in reverse present={}", self.mirror_tilt_in_reverse_present)?;
-        write!(f, "sound harmony present={}", self.sound_harmony_present)?;
+        write!(f, " mirror tilt in reverse present={}", self.mirror_tilt_in_reverse_present)?;
+        write!(f, " sound harmony present={}", self.sound_harmony_present)?;
         write!(
             f,
-            "automatic electric parking brake application present={}",
+            " automatic electric parking brake application present={}",
             self.automatic_electric_parking_brake_application_present
         )?;
         write!(
             f,
-            "configurable key present={}",
+            " configurable key present={}",
             self.configurable_key_present
         )?;
         write!(f, "cruise-control custom limits present={}", self.cruise_control_custom_limits_present)?;
         write!(
             f,
-            "seat belt status lamps present={}",
+            " seat belt status lamps present={}",
             self.seat_belt_status_lamps_present
         )?;
         write!(
             f,
-            "under inflation detection={}",
+            " under inflation detection={}",
             self.under_inflation_detection
         )?;
         write!(
             f,
-            "gear efficiency indicator present={}",
+            " gear efficiency indicator present={}",
             self.gear_efficiency_indicator_present
         )?;
         write!(
             f,
-            "cruise-control custom limits menu present={}",
+            " cruise-control custom limits menu present={}",
             self.cruise_control_custom_limits_menu_present
         )?;
         write!(
             f,
-            "collision alert sensibility menu present={}",
+            " collision alert sensibility menu present={}",
             self.collision_alert_sensibility_menu_present
         )?;
         write!(
             f,
-            "automatic emergency braking present={}",
+            " automatic emergency braking present={}",
             self.automatic_emergency_braking_present
         )?;
         write!(
             f,
-            "under inflation detection reset menu present={}",
+            " under inflation detection reset menu present={}",
             self.under_inflation_detection_reset_menu_present
         )?;
         write!(
             f,
-            "hands free tailgate auto lock menu present={}",
+            " hands free tailgate auto lock menu present={}",
             self.hands_free_tailgate_auto_lock_menu_present
         )?;
         write!(
             f,
-            "hands free tailgate present={}",
+            " hands free tailgate present={}",
             self.hands_free_tailgate_present
         )?;
         write!(
             f,
-            "speed limit recognition present={}",
+            " speed limit recognition present={}",
             self.speed_limit_recognition_present
         )?;
         write!(
             f,
-            "radiator grill lamps present={}",
+            " radiator grill lamps present={}",
             self.radiator_grill_lamps_present
         )?;
-        write!(f, "'CFC' present={}", self.cfc_present)?;
-        write!(f, "'IRV' present={}", self.irv_present)?;
+        write!(f, " 'CFC' present={}", self.cfc_present)?;
+        write!(f, " 'IRV' present={}", self.irv_present)?;
         write!(
             f,
-            "automatic main beam present={}",
+            " automatic main beam present={}",
             self.automatic_main_beam_present
         )?;
-        write!(f, "'ECS' present={}", self.ecs_present)?;
+        write!(f, " 'ECS' present={}", self.ecs_present)?;
         write!(
             f,
-            "driver alert assist present={}",
+            " driver alert assist present={}",
             self.driver_alert_assist_present
         )
     }

@@ -391,15 +391,15 @@ impl fmt::Display for Repr {
             "x3f6 running duration={}",
             self.running_duration.whole_seconds()
         )?;
-        write!(f, "     distance unit={}", self.distance_unit)?;
-        write!(f, "     volume unit={}", self.volume_unit)?;
-        write!(f, "     consumption unit={}", self.consumption_unit)?;
-        write!(f, "     pressure unit={}", self.pressure_unit)?;
-        write!(f, "     display charset={}", self.display_charset)?;
-        write!(f, "     temperature unit={}", self.temperature_unit)?;
-        write!(f, "     display mode={}", self.display_mode)?;
-        write!(f, "     time format={}", self.clock_format)?;
-        write!(f, "     language={}", self.language)
+        write!(f, " distance unit={}", self.distance_unit)?;
+        write!(f, " volume unit={}", self.volume_unit)?;
+        write!(f, " consumption unit={}", self.consumption_unit)?;
+        write!(f, " pressure unit={}", self.pressure_unit)?;
+        write!(f, " display charset={}", self.display_charset)?;
+        write!(f, " temperature unit={}", self.temperature_unit)?;
+        write!(f, " display mode={}", self.display_mode)?;
+        write!(f, " time format={}", self.clock_format)?;
+        write!(f, " language={}", self.language)
     }
 }
 
