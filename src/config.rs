@@ -527,6 +527,38 @@ impl fmt::Display for LightingDuration {
 }
 
 enum_with_unknown! {
+    /// Configurable key action. AEE 2004 only.
+    pub enum ConfigurableKeyAction2004(u8) {
+        /// Configurable key enables black panel.
+        BlackPanel = 1,
+        /// Configurable key enables ceiling lighting.
+        CeilingLight = 2,
+        /// Configurable key access to fault log.
+        FaultLog = 5,
+        /// Configurable key access to car functions state.
+        FunctionState = 6,
+        /// Configurable key access to cluster customization menu.
+        ClusterCustomization = 8,
+        /// Configurable key enables cluster color change.
+        ClusterColor = 9,
+    }
+}
+
+impl fmt::Display for ConfigurableKeyAction2004 {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            ConfigurableKeyAction2004::BlackPanel => write!(f, "black panel"),
+            ConfigurableKeyAction2004::CeilingLight => write!(f, "ceiling light"),
+            ConfigurableKeyAction2004::FaultLog => write!(f, "fault log"),
+            ConfigurableKeyAction2004::FunctionState => write!(f, "function state"),
+            ConfigurableKeyAction2004::ClusterCustomization => write!(f, "cluster customization"),
+            ConfigurableKeyAction2004::ClusterColor => write!(f, "cluster color"),
+            ConfigurableKeyAction2004::Unknown(action) => write!(f, "0x{:02x}", action),
+        }
+    }
+}
+
+enum_with_unknown! {
     /// Configurable key action. AEE 2010 only.
     pub enum ConfigurableKeyAction2010(u8) {
         /// Configurable key enables ceiling lighting.
@@ -549,11 +581,11 @@ impl fmt::Display for ConfigurableKeyAction2010 {
         match *self {
             ConfigurableKeyAction2010::CeilingLight => write!(f, "ceiling light"),
             ConfigurableKeyAction2010::BlackPanel => write!(f, "black panel"),
-            ConfigurableKeyAction2010::FaultLog => write!(f, "faultLog"),
+            ConfigurableKeyAction2010::FaultLog => write!(f, "fault log"),
             ConfigurableKeyAction2010::ClusterCustomization => write!(f, "cluster customization"),
             ConfigurableKeyAction2010::ClusterColor => write!(f, "cluster color"),
             ConfigurableKeyAction2010::ManualFaultCheck => write!(f, "manual fault check"),
-            ConfigurableKeyAction2010::Unknown(mood_level) => write!(f, "0x{:02x}", mood_level),
+            ConfigurableKeyAction2010::Unknown(action) => write!(f, "0x{:02x}", action),
         }
     }
 }

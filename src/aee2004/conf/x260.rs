@@ -1,6 +1,9 @@
 use core::fmt;
 
-use crate::{config::UserProfile, Error, Result};
+use crate::{
+    config::{ConfigurableKeyAction2004, UserProfile},
+    Error, Result,
+};
 
 /// A read/write wrapper around an CAN frame buffer.
 #[derive(Debug, PartialEq, Clone)]
@@ -313,9 +316,10 @@ impl<T: AsRef<[u8]>> Frame<T> {
 
     /// Return the configurable button/key mode field.
     #[inline]
-    pub fn configurable_key_mode(&self) -> u8 {
+    pub fn configurable_key_mode(&self) -> ConfigurableKeyAction2004 {
         let data = self.buffer.as_ref();
-        (data[field::OPT_7] & 0xf0) >> 4
+        let raw = (data[field::OPT_7] & 0xf0) >> 4;
+        ConfigurableKeyAction2004::from(raw)
     }
 }
 
@@ -583,10 +587,10 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
 
     /// Set the configurable button/key enable flag.
     #[inline]
-    pub fn set_configurable_key_mode(&mut self, value: u8) {
+    pub fn set_configurable_key_mode(&mut self, value: ConfigurableKeyAction2004) {
         let data = self.buffer.as_mut();
         let raw = data[field::OPT_7] & !0xf0;
-        let raw = raw | ((value << 4) & 0xf0);
+        let raw = raw | ((u8::from(value) << 4) & 0xf0);
         data[field::OPT_7] = raw;
     }
 }
@@ -642,7 +646,7 @@ pub struct Repr {
     park_sensors_status: u8,
     blind_spot_monitoring_status: u8,
     secu_enabled: bool,
-    configurable_key_mode: u8,
+    configurable_key_mode: ConfigurableKeyAction2004,
 }
 
 impl Repr {
@@ -850,7 +854,10 @@ impl fmt::Display for Repr {
 #[cfg(test)]
 mod test {
     use super::{Frame, Repr};
-    use crate::{config::UserProfile, Error};
+    use crate::{
+        config::{ConfigurableKeyAction2004, UserProfile},
+        Error,
+    };
 
     static REPR_FRAME_BYTES_1: [u8; 8] = [0x01, 0x03, 0xb2, 0x00, 0x00, 0xd0, 0x00, 0x20];
     static REPR_FRAME_BYTES_2: [u8; 8] = [0x02, 0x03, 0x92, 0x40, 0x00, 0xd0, 0x00, 0x10];
@@ -886,7 +893,7 @@ mod test {
             park_sensors_status: 3,
             blind_spot_monitoring_status: 0,
             secu_enabled: false,
-            configurable_key_mode: 2,
+            configurable_key_mode: ConfigurableKeyAction2004::CeilingLight,
         }
     }
 
@@ -921,7 +928,7 @@ mod test {
             park_sensors_status: 3,
             blind_spot_monitoring_status: 0,
             secu_enabled: false,
-            configurable_key_mode: 1,
+            configurable_key_mode: ConfigurableKeyAction2004::BlackPanel,
         }
     }
 
@@ -957,7 +964,7 @@ mod test {
         assert_eq!(frame.park_sensors_status(), 3);
         assert_eq!(frame.blind_spot_monitoring_status(), 0);
         assert_eq!(frame.secu_enable(), false);
-        assert_eq!(frame.configurable_key_mode(), 2);
+        assert_eq!(frame.configurable_key_mode(), ConfigurableKeyAction2004::CeilingLight);
     }
 
     #[test]
@@ -992,7 +999,7 @@ mod test {
         assert_eq!(frame.park_sensors_status(), 3);
         assert_eq!(frame.blind_spot_monitoring_status(), 0);
         assert_eq!(frame.secu_enable(), false);
-        assert_eq!(frame.configurable_key_mode(), 1);
+        assert_eq!(frame.configurable_key_mode(), ConfigurableKeyAction2004::BlackPanel);
     }
 
     #[test]
@@ -1028,7 +1035,7 @@ mod test {
         frame.set_park_sensors_status(3);
         frame.set_blind_spot_monitoring_status(0);
         frame.set_secu_enable(false);
-        frame.set_configurable_key_mode(2);
+        frame.set_configurable_key_mode(ConfigurableKeyAction2004::CeilingLight);
 
         assert_eq!(frame.into_inner(), &REPR_FRAME_BYTES_1);
     }
@@ -1066,7 +1073,7 @@ mod test {
         frame.set_park_sensors_status(3);
         frame.set_blind_spot_monitoring_status(0);
         frame.set_secu_enable(false);
-        frame.set_configurable_key_mode(1);
+        frame.set_configurable_key_mode(ConfigurableKeyAction2004::BlackPanel);
 
         assert_eq!(frame.into_inner(), &REPR_FRAME_BYTES_2);
     }
