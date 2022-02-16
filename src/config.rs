@@ -444,3 +444,139 @@ impl fmt::Display for UserProfile {
         }
     }
 }
+
+enum_with_unknown! {
+    /// Sound harmony setting. AEE 2010 only.
+    pub enum SoundHarmony(u8) {
+        /// Harmony setting 1.
+        Harmony1 = 0,
+        /// Harmony setting 2.
+        Harmony2 = 1,
+        /// Harmony setting 3.
+        Harmony3 = 2,
+        /// Harmony setting 4.
+        Harmony4 = 3,
+    }
+}
+
+impl fmt::Display for SoundHarmony {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            SoundHarmony::Harmony1 => write!(f, "harmony 1"),
+            SoundHarmony::Harmony2 => write!(f, "harmony 2"),
+            SoundHarmony::Harmony3 => write!(f, "harmony 3"),
+            SoundHarmony::Harmony4 => write!(f, "harmony 4"),
+            SoundHarmony::Unknown(harmony) => write!(f, "0x{:02x}", harmony),
+        }
+    }
+}
+
+enum_with_unknown! {
+    /// Mood lighting level. AEE 2010 only.
+    pub enum MoodLightingLevel(u8) {
+        /// Mood lighting level 1.
+        Level1 = 0,
+        /// Mood lighting level 2.
+        Level2 = 1,
+        /// Mood lighting level 3.
+        Level3 = 2,
+        /// Mood lighting level 4.
+        Level4 = 3,
+        /// Mood lighting level 5.
+        Level5 = 5,
+        /// Mood lighting level 6.
+        Level6 = 6,
+    }
+}
+
+impl fmt::Display for MoodLightingLevel {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            MoodLightingLevel::Level1 => write!(f, "level 1"),
+            MoodLightingLevel::Level2 => write!(f, "level 2"),
+            MoodLightingLevel::Level3 => write!(f, "level 3"),
+            MoodLightingLevel::Level4 => write!(f, "level 4"),
+            MoodLightingLevel::Level5 => write!(f, "level 5"),
+            MoodLightingLevel::Level6 => write!(f, "level 6"),
+            MoodLightingLevel::Unknown(mood_level) => write!(f, "0x{:02x}", mood_level),
+        }
+    }
+}
+
+enum_with_unknown! {
+    /// Lighting duration for welcome/follow-me-home lighting. AEE 2010 only.
+    pub enum LightingDuration(u8) {
+        /// 15 sec lighting duration.
+        FifteenSeconds = 0,
+        /// 30 sec lighting duration.
+        ThirtySeconds = 1,
+        /// 60 sec lighting duration.
+        SixtySeconds = 2,
+    }
+}
+
+impl fmt::Display for LightingDuration {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            LightingDuration::FifteenSeconds => write!(f, "15 seconds"),
+            LightingDuration::ThirtySeconds => write!(f, "30 seconds"),
+            LightingDuration::SixtySeconds => write!(f, "60 seconds"),
+            LightingDuration::Unknown(duration) => write!(f, "0x{:02x}", duration),
+        }
+    }
+}
+
+enum_with_unknown! {
+    /// Configurable key action. AEE 2010 only.
+    pub enum ConfigurableKeyAction2010(u8) {
+        /// Configurable key enables ceiling lighting.
+        CeilingLight = 0,
+        /// Configurable key enables black panel.
+        BlackPanel = 1,
+        /// Configurable key access to fault log.
+        FaultLog = 2,
+        /// Configurable key access to cluster customization menu.
+        ClusterCustomization = 3,
+        /// Configurable key enables cluster color change.
+        ClusterColor = 5,
+        /// Configurable key set a manual fault check.
+        ManualFaultCheck = 6,
+    }
+}
+
+impl fmt::Display for ConfigurableKeyAction2010 {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            ConfigurableKeyAction2010::CeilingLight => write!(f, "ceiling light"),
+            ConfigurableKeyAction2010::BlackPanel => write!(f, "black panel"),
+            ConfigurableKeyAction2010::FaultLog => write!(f, "faultLog"),
+            ConfigurableKeyAction2010::ClusterCustomization => write!(f, "cluster customization"),
+            ConfigurableKeyAction2010::ClusterColor => write!(f, "cluster color"),
+            ConfigurableKeyAction2010::ManualFaultCheck => write!(f, "manual fault check"),
+            ConfigurableKeyAction2010::Unknown(mood_level) => write!(f, "0x{:02x}", mood_level),
+        }
+    }
+}
+
+enum_with_unknown! {
+    /// Collision alert warning sensibility level. AEE 2010 only.
+    pub enum CollisionAlertSensibilityLevel(u8) {
+        /// Sensibility level 1.
+        Level1 = 1,
+        /// Sensibility level 2.
+        Level2 = 2,
+        /// Sensibility level 3.
+        Level3 = 3,
+    }
+}
+
+impl fmt::Display for CollisionAlertSensibilityLevel {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            CollisionAlertSensibilityLevel::Level1 => write!(f, "level 1"),
+            CollisionAlertSensibilityLevel::Level2 => write!(f, "level 2"),
+            CollisionAlertSensibilityLevel::Level3 => write!(f, "level 3"),
+            CollisionAlertSensibilityLevel::Unknown(level) => write!(f, "0x{:02x}", level),
+        }
+    }
+}

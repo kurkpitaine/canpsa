@@ -311,7 +311,7 @@ impl<T: AsRef<[u8]>> Frame<T> {
         data[field::OPT_6] & 0x80 != 0
     }
 
-    /// Return the configurable button/key mode flag.
+    /// Return the configurable button/key mode field.
     #[inline]
     pub fn configurable_key_mode(&self) -> u8 {
         let data = self.buffer.as_ref();
