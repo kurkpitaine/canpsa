@@ -1,3 +1,6 @@
+pub mod x0f6;
+pub use x0f6 as ID_DONNEES_BSI_LENTES;
+
 pub mod x15b;
 pub use x15b as ID_ECRAN_INFO_PROFILS;
 
@@ -18,12 +21,3 @@ pub use x361 as ID_BSI_INF_CFG;
 
 pub mod x39b;
 pub use x39b as ID_DMD_MAJ_DATE_HEURE;
-
-// When x15b is written on CAN bus, BSI should answer in BSI_INF_PROFILS.
-// length = 5
-// pub mod x15b;
-// pub use x15b as MSG_ECRAN_INFO_PROFILS;
-
-// length =
-// pub mod x151;
-// pub use x151 as BSI_INF_PROFILS;

@@ -1117,7 +1117,7 @@ impl fmt::Display for Repr {
         )?;
         write!(
             f,
-            " indirect_under_inflation_reset_status={}",
+            " indirect_under_inflation_enabled={}",
             self.indirect_under_inflation_enabled
         )?;
         write!(

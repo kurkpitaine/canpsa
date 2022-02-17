@@ -1,3 +1,6 @@
+pub mod x0f6;
+pub use x0f6 as DONNEES_BSI_LENTES;
+
 pub mod x15b;
 pub use x15b as EMF_CDE_MODIF_PROFILS;
 
