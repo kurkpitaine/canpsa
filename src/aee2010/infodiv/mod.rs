@@ -16,8 +16,17 @@ pub use x260 as ID_BSI_INF_PROFILS;
 pub mod x276;
 pub use x276 as ID_DONNEES_BSI_LENTES_3;
 
+pub mod x2b6;
+pub use x2b6 as ID_VIN_VIS;
+
+pub mod x336;
+pub use x336 as ID_VIN_WMI;
+
 pub mod x361;
 pub use x361 as ID_BSI_INF_CFG;
 
 pub mod x39b;
 pub use x39b as ID_DMD_MAJ_DATE_HEURE;
+
+pub mod x3b6;
+pub use x3b6 as ID_VIN_VDS;

@@ -19,6 +19,15 @@ pub use x1e5 as ETAT_RADIO_GEN_AUD;
 pub mod x228;
 pub use x228 as CDE_HEURE;
 
+pub mod x2b6;
+pub use x2b6 as VIN_VIS;
+
+pub mod x3b6;
+pub use x3b6 as VIN_VDS;
+
+pub mod x336;
+pub use x336 as VIN_WMI;
+
 pub mod x361;
 pub use x361 as BSI_INF_CFG;
 
