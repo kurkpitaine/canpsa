@@ -1,8 +1,8 @@
 use core::fmt;
 
 enum_with_unknown! {
-   /// Vehicle configuration mode.
-   pub enum ConfigMode(u8) {
+   /// Vehicle Supervision Module configuration mode.
+   pub enum VsmConfigMode(u8) {
        /// Vehicle is configured in factory mode.
        Factory = 0,
        /// Vehicle is configured in showroom mode.
@@ -12,16 +12,51 @@ enum_with_unknown! {
    }
 }
 
-impl fmt::Display for ConfigMode {
+impl fmt::Display for VsmConfigMode {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            ConfigMode::Factory => write!(f, "factory"),
-            ConfigMode::Showroom => write!(f, "showroom"),
-            ConfigMode::Customer => write!(f, "customer"),
-            ConfigMode::Unknown(state) => write!(f, "0x{:02x}", state),
+            VsmConfigMode::Factory => write!(f, "factory"),
+            VsmConfigMode::Showroom => write!(f, "showroom"),
+            VsmConfigMode::Customer => write!(f, "customer"),
+            VsmConfigMode::Unknown(state) => write!(f, "0x{:02x}", state),
         }
     }
 }
+
+enum_with_unknown! {
+    /// Vehicle configuration mode.
+    pub enum VehicleConfigMode(u8) {
+        /// Vehicle is configured in assembly-line mode.
+        Assembly = 0,
+        /// Vehicle is configured in factory mode.
+        Factory = 1,
+        /// Vehicle is configured in control mode.
+        Control = 2,
+        /// Vehicle is configured in storage mode.
+        Storage = 3,
+        /// Vehicle is configured in customer mode.
+        Customer = 4,
+        /// Vehicle is configured in showroom mode.
+        Showroom = 5,
+        /// Vehicle is configured in workshop mode.
+        Workshop = 6,
+    }
+ }
+
+ impl fmt::Display for VehicleConfigMode {
+     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+         match *self {
+            VehicleConfigMode::Assembly => write!(f, "assembly"),
+            VehicleConfigMode::Factory => write!(f, "factory"),
+            VehicleConfigMode::Control => write!(f, "control"),
+            VehicleConfigMode::Storage => write!(f, "storage"),
+            VehicleConfigMode::Customer => write!(f, "customer"),
+            VehicleConfigMode::Showroom => write!(f, "showroom"),
+            VehicleConfigMode::Workshop => write!(f, "workshop"),
+            VehicleConfigMode::Unknown(state) => write!(f, "0x{:02x}", state),
+         }
+     }
+ }
 
 enum_with_unknown! {
    /// Vehicle steering wheel position on the dashboard.
@@ -304,6 +339,49 @@ impl fmt::Display for ConvertibleRoofPosition {
             ConvertibleRoofPosition::Coupe => write!(f, "coupe"),
             ConvertibleRoofPosition::Convertible => write!(f, "convertible"),
             ConvertibleRoofPosition::Unknown(pos) => write!(f, "0x{:02x}", pos),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// Vehicle electrical network state.
+   pub enum ElectricalNetworkState(u8) {
+       /// Electrical network is running on battery in normal mode.
+       BatteryNormal = 0,
+       /// Electrical network is running on battery in fail-soft mode.
+       BatteryFailSoftMode = 1,
+       /// Electrical network is running on battery and cranking is available.
+       BatteryCrankingAvailable = 2,
+       /// Electrical network is starting.
+       Starting = 3,
+       /// Electrical network is restarting.
+       Restart = 4,
+       /// Electrical network is running on generator in normal mode.
+       GeneratorNormal = 5,
+       /// Electrical network is running on generator in fail-soft mode.
+       GeneratorFailSoftMode = 6,
+       /// Electrical network is running on generator in secured mode.
+       GeneratorSecured = 7,
+       /// Electrical network is running on generator in urgent mode.
+       GeneratorUrgent = 8,
+   }
+}
+
+impl fmt::Display for ElectricalNetworkState {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            ElectricalNetworkState::BatteryNormal => write!(f, "battery normal"),
+            ElectricalNetworkState::BatteryFailSoftMode => write!(f, "battery fail-soft mode"),
+            ElectricalNetworkState::BatteryCrankingAvailable => {
+                write!(f, "battery cranking available")
+            }
+            ElectricalNetworkState::Starting => write!(f, "starting"),
+            ElectricalNetworkState::Restart => write!(f, "restart"),
+            ElectricalNetworkState::GeneratorNormal => write!(f, "generator normal"),
+            ElectricalNetworkState::GeneratorFailSoftMode => write!(f, "generator fail-soft mode"),
+            ElectricalNetworkState::GeneratorSecured => write!(f, "generator secured"),
+            ElectricalNetworkState::GeneratorUrgent => write!(f, "generator urgent"),
+            ElectricalNetworkState::Unknown(mode) => write!(f, "0x{:02x}", mode),
         }
     }
 }

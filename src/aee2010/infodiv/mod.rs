@@ -13,6 +13,9 @@ pub use x167 as ID_DEMANDES_EMF;
 pub mod x1e5;
 pub use x1e5 as ID_ETAT_RADIO_GEN_AUD;
 
+pub mod x236;
+pub use x236 as ID_DONNEES_BSI_LENTES_2;
+
 pub mod x260;
 pub use x260 as ID_BSI_INF_PROFILS;
 

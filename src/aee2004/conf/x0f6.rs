@@ -3,7 +3,7 @@ use core::fmt;
 use byteorder::{ByteOrder, NetworkEndian};
 
 use crate::{
-    vehicle::{BlinkersStatus, ConfigMode, MainStatus, PowertrainStatus, SteeringWheelPosition},
+    vehicle::{BlinkersStatus, VsmConfigMode, MainStatus, PowertrainStatus, SteeringWheelPosition},
     Error, Result,
 };
 
@@ -20,7 +20,7 @@ mod field {
     /// 1-bit generator working flag,
     /// 2-bit vehicle main status,
     /// 1-bit factory park flag,
-    /// 2-bit vehicle config mode.
+    /// 2-bit vehicle supervision module config mode.
     pub const STATES: usize = 0;
     /// 8-bit engine coolant temperature value, in celsius with a +40 offset.
     pub const COOLANT_TEMP: usize = 1;
@@ -120,12 +120,12 @@ impl<T: AsRef<[u8]>> Frame<T> {
         data[field::STATES] & 0x20 != 0
     }
 
-    /// Return the vehicle config mode field.
+    /// Return the vehicle supervision module config mode field.
     #[inline]
-    pub fn vehicle_config_mode(&self) -> ConfigMode {
+    pub fn vsm_config_mode(&self) -> VsmConfigMode {
         let data = self.buffer.as_ref();
         let raw = (data[field::STATES] & 0xc0) >> 6;
-        ConfigMode::from(raw)
+        VsmConfigMode::from(raw)
     }
 
     /// Return the engine coolant temperature value, in celsius with a +40 offset.
@@ -231,9 +231,9 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
         data[field::STATES] = raw;
     }
 
-    /// Set the vehicle config mode field.
+    /// Set the vehicle supervision config mode field.
     #[inline]
-    pub fn set_vehicle_config_mode(&mut self, value: ConfigMode) {
+    pub fn set_vsm_config_mode(&mut self, value: VsmConfigMode) {
         let data = self.buffer.as_mut();
         let raw = data[field::STATES] & !0xc0;
         let raw = raw | ((u8::from(value) << 6) & 0xc0);
@@ -340,7 +340,7 @@ pub struct Repr {
     generator_working: bool,
     vehicle_main_status: MainStatus,
     factory_park_enabled: bool,
-    vehicle_config_mode: ConfigMode,
+    vsm_config_mode: VsmConfigMode,
     coolant_temperature: f32,
     odometer: f32,
     external_temperature: f32,
@@ -361,7 +361,7 @@ impl Repr {
             generator_working: frame.generator_working(),
             vehicle_main_status: frame.vehicle_main_status(),
             factory_park_enabled: frame.factory_park(),
-            vehicle_config_mode: frame.vehicle_config_mode(),
+            vsm_config_mode: frame.vsm_config_mode(),
             coolant_temperature: frame.coolant_temp() as f32 - 40.0,
             odometer: (frame.odometer() as f32 / 10.0),
             external_temperature: (frame.external_temp() as f32 - 40.0) / 2.0,
@@ -385,7 +385,7 @@ impl Repr {
         frame.set_generator_working(self.generator_working);
         frame.set_vehicle_main_status(self.vehicle_main_status);
         frame.set_factory_park(self.factory_park_enabled);
-        frame.set_vehicle_config_mode(self.vehicle_config_mode);
+        frame.set_vsm_config_mode(self.vsm_config_mode);
         frame.set_coolant_temp((self.coolant_temperature + 40.0) as u8);
         frame.set_odometer((self.odometer * 10.0) as u32);
         frame.set_external_temp((self.external_temperature * 2.0 + 40.0) as u8);
@@ -404,7 +404,7 @@ impl fmt::Display for Repr {
         write!(f, " generator_working={}", self.generator_working)?;
         write!(f, " vehicle_main_status={}", self.vehicle_main_status)?;
         write!(f, " factory_park_enabled={}", self.factory_park_enabled)?;
-        write!(f, " vehicle_config_mode={}", self.vehicle_config_mode)?;
+        write!(f, " vsm_config_mode={}", self.vsm_config_mode)?;
         write!(f, " coolant_temperature={}", self.coolant_temperature)?;
         write!(f, " odometer={}", self.odometer)?;
         write!(f, " external_temperature={}", self.external_temperature)?;
@@ -434,7 +434,7 @@ mod test {
     use super::{Frame, Repr};
     use crate::{
         vehicle::{
-            BlinkersStatus, ConfigMode, MainStatus, PowertrainStatus, SteeringWheelPosition,
+            BlinkersStatus, VsmConfigMode, MainStatus, PowertrainStatus, SteeringWheelPosition,
         },
         Error,
     };
@@ -448,7 +448,7 @@ mod test {
             generator_working: false,
             vehicle_main_status: MainStatus::Off,
             factory_park_enabled: false,
-            vehicle_config_mode: ConfigMode::Customer,
+            vsm_config_mode: VsmConfigMode::Customer,
             coolant_temperature: 20.0,
             odometer: 121887.0,
             external_temperature: 37.5,
@@ -467,7 +467,7 @@ mod test {
             generator_working: true,
             vehicle_main_status: MainStatus::On,
             factory_park_enabled: false,
-            vehicle_config_mode: ConfigMode::Customer,
+            vsm_config_mode: VsmConfigMode::Customer,
             coolant_temperature: 65.0,
             odometer: 114413.4,
             external_temperature: 30.0,
@@ -488,7 +488,7 @@ mod test {
         assert_eq!(frame.generator_working(), false);
         assert_eq!(frame.vehicle_main_status(), MainStatus::Off);
         assert_eq!(frame.factory_park(), false);
-        assert_eq!(frame.vehicle_config_mode(), ConfigMode::Customer);
+        assert_eq!(frame.vsm_config_mode(), VsmConfigMode::Customer);
         assert_eq!(frame.coolant_temp(), 60);
         assert_eq!(frame.odometer(), 1218870);
         assert_eq!(frame.external_temp(), 115);
@@ -508,7 +508,7 @@ mod test {
         assert_eq!(frame.generator_working(), true);
         assert_eq!(frame.vehicle_main_status(), MainStatus::On);
         assert_eq!(frame.factory_park(), false);
-        assert_eq!(frame.vehicle_config_mode(), ConfigMode::Customer);
+        assert_eq!(frame.vsm_config_mode(), VsmConfigMode::Customer);
         assert_eq!(frame.coolant_temp(), 105);
         assert_eq!(frame.odometer(), 1144134);
         assert_eq!(frame.external_temp(), 100);
@@ -529,7 +529,7 @@ mod test {
         frame.set_generator_working(false);
         frame.set_vehicle_main_status(MainStatus::Off);
         frame.set_factory_park(false);
-        frame.set_vehicle_config_mode(ConfigMode::Customer);
+        frame.set_vsm_config_mode(VsmConfigMode::Customer);
         frame.set_coolant_temp(60);
         frame.set_odometer(1218870);
         frame.set_external_temp(115);
@@ -552,7 +552,7 @@ mod test {
         frame.set_generator_working(true);
         frame.set_vehicle_main_status(MainStatus::On);
         frame.set_factory_park(false);
-        frame.set_vehicle_config_mode(ConfigMode::Customer);
+        frame.set_vsm_config_mode(VsmConfigMode::Customer);
         frame.set_coolant_temp(105);
         frame.set_odometer(1144134);
         frame.set_external_temp(100);
