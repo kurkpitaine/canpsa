@@ -405,3 +405,43 @@ impl fmt::Display for ElectricalNetworkState {
         }
     }
 }
+
+enum_with_unknown! {
+   /// Volume level origin.
+   pub enum VolumeLevelOrigin(u8) {
+       /// Volume level origin is from user setting.
+       User = 0,
+       /// Volume level origin is from a source change.
+       SourceChange = 1,
+       /// Volume level origin is from speed dependent volume.
+       SpeedDependentVolume = 2,
+       /// Volume level origin is from parking sensors source mix.
+       ParkSensorsSourceMix = 3,
+       /// Volume level origin is from thermal protection.
+       ThermalProtection = 4,
+       /// Volume level origin if from overtake.
+       Overtake = 5,
+       /// Volume level origin is from user phone.
+       Phone = 6,
+       /// Volume level origin is other or sleep.
+       OtherOrSleep = 7,
+   }
+}
+
+impl fmt::Display for VolumeLevelOrigin {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            VolumeLevelOrigin::User => write!(f, "user"),
+            VolumeLevelOrigin::SourceChange => write!(f, "source change"),
+            VolumeLevelOrigin::SpeedDependentVolume => {
+                write!(f, "speed-dependent volume")
+            }
+            VolumeLevelOrigin::ParkSensorsSourceMix => write!(f, "park sensors source mix"),
+            VolumeLevelOrigin::ThermalProtection => write!(f, "thermal protection"),
+            VolumeLevelOrigin::Overtake => write!(f, "overtake"),
+            VolumeLevelOrigin::Phone => write!(f, "phone"),
+            VolumeLevelOrigin::OtherOrSleep => write!(f, "other or sleep"),
+            VolumeLevelOrigin::Unknown(origin) => write!(f, "0x{:02x}", origin),
+        }
+    }
+}

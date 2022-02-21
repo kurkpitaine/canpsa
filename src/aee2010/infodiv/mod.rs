@@ -13,6 +13,9 @@ pub use x15b as ID_ECRAN_INFO_PROFILS;
 pub mod x167;
 pub use x167 as ID_DEMANDES_EMF;
 
+pub mod x1a5;
+pub use x1a5 as ID_ETAT_RADIO_GEN_VOL;
+
 pub mod x1e5;
 pub use x1e5 as ID_ETAT_RADIO_GEN_AUD;
 
