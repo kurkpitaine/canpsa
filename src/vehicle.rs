@@ -24,28 +24,28 @@ impl fmt::Display for VsmConfigMode {
 }
 
 enum_with_unknown! {
-    /// Vehicle configuration mode.
-    pub enum VehicleConfigMode(u8) {
-        /// Vehicle is configured in assembly-line mode.
-        Assembly = 0,
-        /// Vehicle is configured in factory mode.
-        Factory = 1,
-        /// Vehicle is configured in control mode.
-        Control = 2,
-        /// Vehicle is configured in storage mode.
-        Storage = 3,
-        /// Vehicle is configured in customer mode.
-        Customer = 4,
-        /// Vehicle is configured in showroom mode.
-        Showroom = 5,
-        /// Vehicle is configured in workshop mode.
-        Workshop = 6,
-    }
- }
+   /// Vehicle configuration mode.
+   pub enum VehicleConfigMode(u8) {
+       /// Vehicle is configured in assembly-line mode.
+       Assembly = 0,
+       /// Vehicle is configured in factory mode.
+       Factory = 1,
+       /// Vehicle is configured in control mode.
+       Control = 2,
+       /// Vehicle is configured in storage mode.
+       Storage = 3,
+       /// Vehicle is configured in customer mode.
+       Customer = 4,
+       /// Vehicle is configured in showroom mode.
+       Showroom = 5,
+       /// Vehicle is configured in workshop mode.
+       Workshop = 6,
+   }
+}
 
- impl fmt::Display for VehicleConfigMode {
-     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-         match *self {
+impl fmt::Display for VehicleConfigMode {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
             VehicleConfigMode::Assembly => write!(f, "assembly"),
             VehicleConfigMode::Factory => write!(f, "factory"),
             VehicleConfigMode::Control => write!(f, "control"),
@@ -54,9 +54,9 @@ enum_with_unknown! {
             VehicleConfigMode::Showroom => write!(f, "showroom"),
             VehicleConfigMode::Workshop => write!(f, "workshop"),
             VehicleConfigMode::Unknown(state) => write!(f, "0x{:02x}", state),
-         }
-     }
- }
+        }
+    }
+}
 
 enum_with_unknown! {
    /// Vehicle steering wheel position on the dashboard.
@@ -117,6 +117,26 @@ impl fmt::Display for MainStatusValidity {
         match *self {
             MainStatusValidity::Valid => write!(f, "valid"),
             MainStatusValidity::Unknown(state) => write!(f, "invalid: 0x{:02x}", state),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// Vehicle speed validity. Only [valid] value should be considered
+   /// as a valid speed valid, everything else is invalid.
+   ///
+   /// [valid]: #variant.Valid
+   pub enum SpeedValidity(u8) {
+       /// Speed is valid.
+       Valid = 0x0A,
+   }
+}
+
+impl fmt::Display for SpeedValidity {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            SpeedValidity::Valid => write!(f, "valid"),
+            SpeedValidity::Unknown(state) => write!(f, "invalid: 0x{:02x}", state),
         }
     }
 }
