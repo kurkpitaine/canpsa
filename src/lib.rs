@@ -3,11 +3,11 @@ use core::fmt;
 #[macro_use]
 mod macros;
 
-mod aee2004;
-mod aee2010;
-mod config;
-mod mfd;
-mod vehicle;
+pub mod aee2004;
+pub mod aee2010;
+pub mod config;
+pub mod mfd;
+pub mod vehicle;
 
 mod field {
     pub type Field = ::core::ops::Range<usize>;

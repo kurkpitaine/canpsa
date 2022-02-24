@@ -1,4 +1,4 @@
-use core::fmt;
+use core::{fmt, time::Duration};
 
 use crate::{
     vehicle::{
@@ -98,6 +98,9 @@ mod field {
 
 /// Length of a x0f6 CAN frame.
 pub const FRAME_LEN: usize = field::FLAGS_MAIN_STATE + 1;
+
+/// Periodicity of a x0f6 CAN frame.
+pub const PERIODICITY: Duration = Duration::from_millis(100);
 
 impl<T: AsRef<[u8]>> Frame<T> {
     /// Create a raw octet buffer with a CAN frame structure.
@@ -642,35 +645,35 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
 #[derive(Debug, PartialEq, Clone, Copy)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Repr {
-    driver_memory_setting: u8,
-    driver_memory_setting_write: bool,
-    driver_memory_setting_recall: bool,
-    vehicle_driving_direction: DrivingDirection,
-    unknown: u8,
-    mux_panel_lighting_level: u8,
-    economy_mode_enabled: bool,
-    lighting_level: u8,
-    black_panel_enabled: bool,
-    day_night: DayNightStatus,
-    rheostat_mode: RheostatMode,
-    lighting_reset_to_reference_level_request: bool,
-    network_state: NetworkState,
-    fault_logging_forbidden: bool,
-    network_supervision_authorization: bool,
-    fault_erase_request: bool,
-    sport_mode_enable: bool,
-    hybrid_powertrain_mode_updated_data: bool,
-    hybrid_powertrain_mode: HybridPowertrainMode,
-    hybrid_powertrain_state_updated_data: bool,
-    hybrid_powertrain_state: HybridPowertrainState,
-    radio_on_off_synchronization: bool,
-    radio_on_off_toggle: bool,
-    preconditioning_menu_presence: bool,
-    visual_parking_assistance_enable: bool,
-    media_shutdown_request: bool,
-    convertible_roof_position: ConvertibleRoofPosition,
-    audio_inviolability_request: bool,
-    vehicle_main_status_validity: MainStatusValidity,
+    pub driver_memory_setting: u8,
+    pub driver_memory_setting_write: bool,
+    pub driver_memory_setting_recall: bool,
+    pub vehicle_driving_direction: DrivingDirection,
+    pub unknown: u8,
+    pub mux_panel_lighting_level: u8,
+    pub economy_mode_enabled: bool,
+    pub lighting_level: u8,
+    pub black_panel_enabled: bool,
+    pub day_night: DayNightStatus,
+    pub rheostat_mode: RheostatMode,
+    pub lighting_reset_to_reference_level_request: bool,
+    pub network_state: NetworkState,
+    pub fault_logging_forbidden: bool,
+    pub network_supervision_authorization: bool,
+    pub fault_erase_request: bool,
+    pub sport_mode_enable: bool,
+    pub hybrid_powertrain_mode_updated_data: bool,
+    pub hybrid_powertrain_mode: HybridPowertrainMode,
+    pub hybrid_powertrain_state_updated_data: bool,
+    pub hybrid_powertrain_state: HybridPowertrainState,
+    pub radio_on_off_synchronization: bool,
+    pub radio_on_off_toggle: bool,
+    pub preconditioning_menu_presence: bool,
+    pub visual_parking_assistance_enable: bool,
+    pub media_shutdown_request: bool,
+    pub convertible_roof_position: ConvertibleRoofPosition,
+    pub audio_inviolability_request: bool,
+    pub vehicle_main_status_validity: MainStatusValidity,
 }
 
 impl Repr {

@@ -259,11 +259,11 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Repr {
-    clock_format: ClockFormat,
-    clock_disp_mode: ClockDisplayMode,
-    utc_datetime: PrimitiveDateTime,
-    adblue_autonomy: u16,
-    adblue_autonomy_display_request: bool,
+    pub clock_format: ClockFormat,
+    pub clock_disp_mode: ClockDisplayMode,
+    pub utc_datetime: PrimitiveDateTime,
+    pub adblue_autonomy: u16,
+    pub adblue_autonomy_display_request: bool,
 }
 
 impl Repr {

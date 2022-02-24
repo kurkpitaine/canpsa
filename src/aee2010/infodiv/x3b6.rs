@@ -1,4 +1,4 @@
-use core::fmt;
+use core::{fmt, time::Duration};
 
 use heapless::String;
 
@@ -28,6 +28,9 @@ mod field {
 
 /// Length of a x3b6 CAN frame.
 pub const FRAME_LEN: usize = field::VDS_6 + 1;
+
+/// Periodicity of a x3b6 CAN frame.
+pub const PERIODICITY: Duration = Duration::from_millis(1000);
 
 impl<T: AsRef<[u8]>> Frame<T> {
     /// Create a raw octet buffer with a CAN frame structure.
@@ -186,7 +189,7 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
 #[derive(Debug, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Repr {
-    vds: String<6>,
+    pub vds: String<6>,
 }
 
 impl Repr {

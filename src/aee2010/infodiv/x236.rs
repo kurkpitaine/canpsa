@@ -1,4 +1,4 @@
-use core::fmt;
+use core::{fmt, time::Duration};
 
 use byteorder::{ByteOrder, NetworkEndian};
 
@@ -54,6 +54,9 @@ mod field {
 
 /// Length of a x236 CAN frame.
 pub const FRAME_LEN: usize = field::UNKNOWN_FLAGS + 1;
+
+/// Periodicity of a x236 CAN frame.
+pub const PERIODICITY: Duration = Duration::from_millis(500);
 
 impl<T: AsRef<[u8]>> Frame<T> {
     /// Create a raw octet buffer with a CAN frame structure.
@@ -254,14 +257,14 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
 #[derive(Debug, PartialEq, Clone, Copy)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Repr {
-    vehicle_config_mode: VehicleConfigMode,
-    electrical_network_status: ElectricalNetworkState,
-    vsm_temporal_counter: u32,
-    jdd_context: u8,
-    driver_door_open_evt: bool,
-    boot_open: bool,
-    gct_reset_counter: u8,
-    power_on_req_denied: bool,
+    pub vehicle_config_mode: VehicleConfigMode,
+    pub electrical_network_status: ElectricalNetworkState,
+    pub vsm_temporal_counter: u32,
+    pub jdd_context: u8,
+    pub driver_door_open_evt: bool,
+    pub boot_open: bool,
+    pub gct_reset_counter: u8,
+    pub power_on_req_denied: bool,
 }
 
 impl Repr {

@@ -1,4 +1,4 @@
-use core::fmt;
+use core::{fmt, time::Duration};
 
 use byteorder::{ByteOrder, NetworkEndian};
 
@@ -41,6 +41,9 @@ mod field {
 
 /// Length of a x0f6 CAN frame.
 pub const FRAME_LEN: usize = field::FLAGS + 1;
+
+/// Periodicity of a x0f6 CAN frame.
+pub const PERIODICITY: Duration = Duration::from_millis(500);
 
 impl<T: AsRef<[u8]>> Frame<T> {
     /// Create a raw octet buffer with a CAN frame structure.
@@ -336,20 +339,20 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
 #[derive(Debug, PartialEq, Clone, Copy)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Repr {
-    powertrain_status: PowertrainStatus,
-    generator_working: bool,
-    vehicle_main_status: MainStatus,
-    factory_park_enabled: bool,
-    vsm_config_mode: VsmConfigMode,
-    coolant_temperature: f32,
-    odometer: f32,
-    external_temperature: f32,
-    external_temperature_filtered: f32,
-    blinkers_status: BlinkersStatus,
-    cluster_lights_test: bool,
-    steering_wheel_position: SteeringWheelPosition,
-    front_wiping_acknowledge: bool,
-    reverse_gear_engaged: bool,
+    pub powertrain_status: PowertrainStatus,
+    pub generator_working: bool,
+    pub vehicle_main_status: MainStatus,
+    pub factory_park_enabled: bool,
+    pub vsm_config_mode: VsmConfigMode,
+    pub coolant_temperature: f32,
+    pub odometer: f32,
+    pub external_temperature: f32,
+    pub external_temperature_filtered: f32,
+    pub blinkers_status: BlinkersStatus,
+    pub cluster_lights_test: bool,
+    pub steering_wheel_position: SteeringWheelPosition,
+    pub front_wiping_acknowledge: bool,
+    pub reverse_gear_engaged: bool,
 }
 
 impl Repr {
@@ -364,8 +367,8 @@ impl Repr {
             vsm_config_mode: frame.vsm_config_mode(),
             coolant_temperature: frame.coolant_temp() as f32 - 40.0,
             odometer: (frame.odometer() as f32 / 10.0),
-            external_temperature: (frame.external_temp() as f32 - 40.0) / 2.0,
-            external_temperature_filtered: (frame.external_temp_filtered() as f32 - 40.0) / 2.0,
+            external_temperature: (frame.external_temp() as f32 / 2.0) - 40.0,
+            external_temperature_filtered: (frame.external_temp_filtered() as f32 / 2.0) - 40.0,
             blinkers_status: frame.blinkers_status(),
             cluster_lights_test: frame.cluster_lights_test(),
             steering_wheel_position: frame.steering_wheel_pos(),
@@ -388,8 +391,8 @@ impl Repr {
         frame.set_vsm_config_mode(self.vsm_config_mode);
         frame.set_coolant_temp((self.coolant_temperature + 40.0) as u8);
         frame.set_odometer((self.odometer * 10.0) as u32);
-        frame.set_external_temp((self.external_temperature * 2.0 + 40.0) as u8);
-        frame.set_external_temp_filtered((self.external_temperature_filtered * 2.0 + 40.0) as u8);
+        frame.set_external_temp(((self.external_temperature + 40.0) * 2.0) as u8);
+        frame.set_external_temp_filtered(((self.external_temperature_filtered + 40.0) * 2.0) as u8);
         frame.set_blinkers_status(self.blinkers_status);
         frame.set_cluster_lights_test(self.cluster_lights_test);
         frame.set_steering_wheel_pos(self.steering_wheel_position);

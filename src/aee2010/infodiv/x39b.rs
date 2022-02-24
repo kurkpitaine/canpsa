@@ -196,8 +196,8 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Repr {
-    clock_format: ClockFormat,
-    utc_datetime: PrimitiveDateTime,
+    pub clock_format: ClockFormat,
+    pub utc_datetime: PrimitiveDateTime,
 }
 
 impl Repr {
