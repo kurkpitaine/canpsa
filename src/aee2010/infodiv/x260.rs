@@ -1,4 +1,4 @@
-use core::fmt;
+use core::{fmt, time::Duration};
 
 use crate::{
     config::{
@@ -63,16 +63,20 @@ mod field {
     /// 1-bit driver alert assist enable flag,
     /// 1-bit hands-free tailgate automatic locking enable flag,
     /// 1-bit extended traffic sign recognition enable flag,
-    /// 1-bit 'ECS/SEE' enable flag.
+    /// 1-bit electric child lock security enable flag.
     pub const OPT_6: usize = 6;
     /// 2-bit empty,
     /// 1-bit 'IRV' enable flag (maybe InfraRed Vision?),
-    /// 5-bit empty.
+    /// 1-bit automatic mirrors folding enable flag, logic is inverted here, 0 means enabled,
+    /// 4-bit empty.
     pub const OPT_7: usize = 7;
 }
 
 /// Length of a x260 CAN frame.
 pub const FRAME_LEN: usize = field::OPT_7 + 1;
+
+/// Periodicity of a x260 CAN frame.
+pub const PERIODICITY: Duration = Duration::from_millis(500);
 
 impl<T: AsRef<[u8]>> Frame<T> {
     /// Create a raw octet buffer with a CAN frame structure.
@@ -413,9 +417,9 @@ impl<T: AsRef<[u8]>> Frame<T> {
         data[field::OPT_6] & 0x40 != 0
     }
 
-    /// Return the 'ECS' enable flag.
+    /// Return the electric child lock security enable flag.
     #[inline]
-    pub fn ecs_enable(&self) -> bool {
+    pub fn electric_child_security_enable(&self) -> bool {
         let data = self.buffer.as_ref();
         data[field::OPT_6] & 0x80 != 0
     }
@@ -425,6 +429,13 @@ impl<T: AsRef<[u8]>> Frame<T> {
     pub fn irv_enable(&self) -> bool {
         let data = self.buffer.as_ref();
         data[field::OPT_7] & 0x04 != 0
+    }
+
+    /// Return automatic mirrors folding enable flag, logic is inverted here, 0 means enabled.
+    #[inline]
+    pub fn auto_mirrors_folding_enable(&self) -> bool {
+        let data = self.buffer.as_ref();
+        !(data[field::OPT_7] & 0x08 != 0)
     }
 }
 
@@ -825,9 +836,9 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
         data[field::OPT_6] = raw;
     }
 
-    /// Set the 'ECS' enable flag.
+    /// Set the electric child lock security enable flag.
     #[inline]
-    pub fn set_ecs_enable(&mut self, value: bool) {
+    pub fn set_electric_child_security_enable(&mut self, value: bool) {
         let data = self.buffer.as_mut();
         let raw = data[field::OPT_6] & !0x80;
         let raw = if value { raw | 0x80 } else { raw & !0x80 };
@@ -840,6 +851,15 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
         let data = self.buffer.as_mut();
         let raw = data[field::OPT_7] & !0x04;
         let raw = if value { raw | 0x04 } else { raw & !0x04 };
+        data[field::OPT_7] = raw;
+    }
+
+    /// Set the automatic mirrors folding enable flag, logic is inverted here, 0 means enabled.
+    #[inline]
+    pub fn set_auto_mirrors_folding_enable(&mut self, value: bool) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::OPT_7] & !0x08;
+        let raw = if !value { raw | 0x08 } else { raw & !0x08 };
         data[field::OPT_7] = raw;
     }
 }
@@ -866,48 +886,49 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Repr {
-    consumption_unit: ConsumptionUnit,
-    distance_unit: DistanceUnit,
-    language: Language,
-    units_language_parameters_validity: bool,
-    sound_harmony: SoundHarmony,
-    parameters_validity: bool,
-    mood_lighting_level: MoodLightingLevel,
-    temperature_unit: TemperatureUnit,
-    volume_unit: VolumeUnit,
-    mood_lighting_enabled: bool,
-    daytime_running_lamps_enabled: bool,
-    adaptive_lamps_enabled: bool,
-    welcome_function_enabled: bool,
-    boot_selective_unlocking_enabled: bool,
-    selective_unlocking_enabled: bool,
-    key_selective_unlocking_enabled: bool,
-    automatic_elec_parking_brake_application_enabled: bool,
-    automatic_headlamps_enabled: bool,
-    welcome_lighting_duration: LightingDuration,
-    welcome_lighting_enabled: bool,
-    motorway_lighting_enabled: bool,
-    follow_me_home_lighting_duration: LightingDuration,
-    follow_me_home_enabled: bool,
-    configurable_key_mode: ConfigurableKeyAction2010,
-    motorized_tailgate_enabled: bool,
-    rear_wiper_in_reverse_gear_enabled: bool,
-    blind_spot_monitoring_enabled: bool,
-    park_sensors_enabled: bool,
-    mirrors_tilting_in_reverse_gear_enabled: bool,
-    indirect_under_inflation_reset_status: bool,
-    automatic_emergency_braking_enabled: bool,
-    collision_alert_sensibility_level: CollisionAlertSensibilityLevel,
-    collision_alert_enabled: bool,
-    hands_free_tailgate_enabled: bool,
-    speed_limit_recognition_enabled: bool,
-    radiator_grill_lamps_enabled: bool,
-    automatic_main_beam_enabled: bool,
-    driver_alert_assist_enabled: bool,
-    hands_free_tailgate_auto_lock_enabled: bool,
-    extended_traffic_sign_recognition_enabled: bool,
-    ecs_enabled: bool,
-    irv_enabled: bool,
+    pub consumption_unit: ConsumptionUnit,
+    pub distance_unit: DistanceUnit,
+    pub language: Language,
+    pub units_language_parameters_validity: bool,
+    pub sound_harmony: SoundHarmony,
+    pub parameters_validity: bool,
+    pub mood_lighting_level: MoodLightingLevel,
+    pub temperature_unit: TemperatureUnit,
+    pub volume_unit: VolumeUnit,
+    pub mood_lighting_enabled: bool,
+    pub daytime_running_lamps_enabled: bool,
+    pub adaptive_lamps_enabled: bool,
+    pub welcome_function_enabled: bool,
+    pub boot_selective_unlocking_enabled: bool,
+    pub selective_unlocking_enabled: bool,
+    pub key_selective_unlocking_enabled: bool,
+    pub automatic_elec_parking_brake_application_enabled: bool,
+    pub automatic_headlamps_enabled: bool,
+    pub welcome_lighting_duration: LightingDuration,
+    pub welcome_lighting_enabled: bool,
+    pub motorway_lighting_enabled: bool,
+    pub follow_me_home_lighting_duration: LightingDuration,
+    pub follow_me_home_enabled: bool,
+    pub configurable_key_mode: ConfigurableKeyAction2010,
+    pub motorized_tailgate_enabled: bool,
+    pub rear_wiper_in_reverse_gear_enabled: bool,
+    pub blind_spot_monitoring_enabled: bool,
+    pub park_sensors_enabled: bool,
+    pub mirrors_tilting_in_reverse_gear_enabled: bool,
+    pub indirect_under_inflation_reset_status: bool,
+    pub automatic_emergency_braking_enabled: bool,
+    pub collision_alert_sensibility_level: CollisionAlertSensibilityLevel,
+    pub collision_alert_enabled: bool,
+    pub hands_free_tailgate_enabled: bool,
+    pub speed_limit_recognition_enabled: bool,
+    pub radiator_grill_lamps_enabled: bool,
+    pub automatic_main_beam_enabled: bool,
+    pub driver_alert_assist_enabled: bool,
+    pub hands_free_tailgate_auto_lock_enabled: bool,
+    pub extended_traffic_sign_recognition_enabled: bool,
+    pub electric_child_security_enabled: bool,
+    pub irv_enabled: bool,
+    pub auto_mirrors_folding_enabled: bool,
 }
 
 impl Repr {
@@ -957,8 +978,9 @@ impl Repr {
             hands_free_tailgate_auto_lock_enabled: frame.hands_free_tailgate_auto_lock_enable(),
             extended_traffic_sign_recognition_enabled: frame
                 .extended_traffic_sign_recognition_enable(),
-            ecs_enabled: frame.ecs_enable(),
+            electric_child_security_enabled: frame.electric_child_security_enable(),
             irv_enabled: frame.irv_enable(),
+            auto_mirrors_folding_enabled: frame.auto_mirrors_folding_enable(),
         })
     }
 
@@ -1015,163 +1037,168 @@ impl Repr {
         frame.set_extended_traffic_sign_recognition_enable(
             self.extended_traffic_sign_recognition_enabled,
         );
-        frame.set_ecs_enable(self.ecs_enabled);
+        frame.set_electric_child_security_enable(self.electric_child_security_enabled);
         frame.set_irv_enable(self.irv_enabled);
+        frame.set_auto_mirrors_folding_enable(self.auto_mirrors_folding_enabled);
     }
 }
 
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "x260 consumption_unit={}", self.consumption_unit)?;
-        write!(f, " distance_unit={}", self.distance_unit)?;
-        write!(f, " language={}", self.language)?;
-        write!(
+        writeln!(f, "x260 consumption_unit={}", self.consumption_unit)?;
+        writeln!(f, " distance_unit={}", self.distance_unit)?;
+        writeln!(f, " language={}", self.language)?;
+        writeln!(
             f,
             " units_language_parameters_validity={}",
             self.units_language_parameters_validity
         )?;
-        write!(f, " sound_harmony={}", self.sound_harmony)?;
-        write!(f, " parameters_validity={}", self.parameters_validity)?;
-        write!(f, " mood_lighting_level={}", self.mood_lighting_level)?;
-        write!(f, " temperature_unit={}", self.temperature_unit)?;
-        write!(f, " volume_unit={}", self.volume_unit)?;
-        write!(f, " mood_lighting_enabled={}", self.mood_lighting_enabled)?;
-        write!(
+        writeln!(f, " sound_harmony={}", self.sound_harmony)?;
+        writeln!(f, " parameters_validity={}", self.parameters_validity)?;
+        writeln!(f, " mood_lighting_level={}", self.mood_lighting_level)?;
+        writeln!(f, " temperature_unit={}", self.temperature_unit)?;
+        writeln!(f, " volume_unit={}", self.volume_unit)?;
+        writeln!(f, " mood_lighting_enabled={}", self.mood_lighting_enabled)?;
+        writeln!(
             f,
             " daytime_running_lamps_enabled={}",
             self.daytime_running_lamps_enabled
         )?;
-        write!(f, " adaptive_lamps_enabled={}", self.adaptive_lamps_enabled)?;
-        write!(
+        writeln!(f, " adaptive_lamps_enabled={}", self.adaptive_lamps_enabled)?;
+        writeln!(
             f,
             " welcome_function_enabled={}",
             self.welcome_function_enabled
         )?;
-        write!(
+        writeln!(
             f,
             " boot_selective_unlocking_enabled={}",
             self.boot_selective_unlocking_enabled
         )?;
-        write!(
+        writeln!(
             f,
             " selective_unlocking_enabled={}",
             self.selective_unlocking_enabled
         )?;
-        write!(
+        writeln!(
             f,
             " key_selective_unlocking_enabled={}",
             self.key_selective_unlocking_enabled
         )?;
-        write!(
+        writeln!(
             f,
             " automatic_elec_parking_brake_application_enabled={}",
             self.automatic_elec_parking_brake_application_enabled
         )?;
-        write!(
+        writeln!(
             f,
             " automatic_headlamps_enabled={}",
             self.automatic_headlamps_enabled
         )?;
-        write!(
+        writeln!(
             f,
             " welcome_lighting_duration={}",
             self.welcome_lighting_duration
         )?;
-        write!(
+        writeln!(
             f,
             " welcome_lighting_enabled={}",
             self.welcome_lighting_enabled
         )?;
-        write!(
+        writeln!(
             f,
             " motorway_lighting_enabled={}",
             self.motorway_lighting_enabled
         )?;
-        write!(
+        writeln!(
             f,
             " follow_me_home_lighting_duration={}",
             self.follow_me_home_lighting_duration
         )?;
-        write!(f, " follow_me_home_enabled={}", self.follow_me_home_enabled)?;
-        write!(f, " configurable_key_mode={}", self.configurable_key_mode)?;
-        write!(
+        writeln!(f, " follow_me_home_enabled={}", self.follow_me_home_enabled)?;
+        writeln!(f, " configurable_key_mode={}", self.configurable_key_mode)?;
+        writeln!(
             f,
             " motorized_tailgate_enabled={}",
             self.motorized_tailgate_enabled
         )?;
-        write!(
+        writeln!(
             f,
             " rear_wiper_in_reverse_gear_enabled={}",
             self.rear_wiper_in_reverse_gear_enabled
         )?;
-        write!(
+        writeln!(
             f,
             " blind_spot_monitoring_enabled={}",
             self.blind_spot_monitoring_enabled
         )?;
-        write!(f, " park_sensors_enabled={}", self.park_sensors_enabled)?;
-        write!(
+        writeln!(f, " park_sensors_enabled={}", self.park_sensors_enabled)?;
+        writeln!(
             f,
             " mirrors_tilting_in_reverse_gear_enabled={}",
             self.mirrors_tilting_in_reverse_gear_enabled
         )?;
-        write!(
+        writeln!(
             f,
             " indirect_under_inflation_reset_status={}",
             self.indirect_under_inflation_reset_status
         )?;
-        write!(
+        writeln!(
             f,
             " automatic_emergency_braking_enabled={}",
             self.automatic_emergency_braking_enabled
         )?;
-        write!(
+        writeln!(
             f,
             " collision_alert_sensibility_level={}",
             self.collision_alert_sensibility_level
         )?;
-        write!(
+        writeln!(
             f,
             " collision_alert_enabled={}",
             self.collision_alert_enabled
         )?;
-        write!(
+        writeln!(
             f,
             " hands_free_tailgate_enabled={}",
             self.hands_free_tailgate_enabled
         )?;
-        write!(
+        writeln!(
             f,
             " speed_limit_recognition_enabled={}",
             self.speed_limit_recognition_enabled
         )?;
-        write!(
+        writeln!(
             f,
             " radiator_grill_lamps_enabled={}",
             self.radiator_grill_lamps_enabled
         )?;
-        write!(
+        writeln!(
             f,
             " automatic_main_beam_enabled={}",
             self.automatic_main_beam_enabled
         )?;
-        write!(
+        writeln!(
             f,
             " driver_alert_assist_enabled={}",
             self.driver_alert_assist_enabled
         )?;
-        write!(
+        writeln!(
             f,
             " hands_free_tailgate_auto_lock_enabled={}",
             self.hands_free_tailgate_auto_lock_enabled
         )?;
-        write!(
+        writeln!(
             f,
             " extended_traffic_sign_recognition_enabled={}",
             self.extended_traffic_sign_recognition_enabled
         )?;
-        write!(f, " ecs_enabled={}", self.ecs_enabled)?;
-        write!(f, " irv_enabled={}", self.irv_enabled)
+        writeln!(
+            f,
+            " electric_child_security_enabled={}",
+            self.electric_child_security_enabled
+        )?;
+        writeln!(f, " irv_enabled={}", self.irv_enabled)
     }
 }
 
@@ -1188,7 +1215,7 @@ mod test {
     };
 
     static REPR_FRAME_BYTES_1: [u8; 8] = [0x01, 0x00, 0xab, 0xaa, 0xa3, 0xa8, 0xaa, 0x00];
-    static REPR_FRAME_BYTES_2: [u8; 8] = [0x86, 0xef, 0x54, 0x55, 0x50, 0x74, 0x55, 0x04];
+    static REPR_FRAME_BYTES_2: [u8; 8] = [0x86, 0xef, 0x54, 0x55, 0x50, 0x74, 0x55, 0x0c];
 
     fn frame_1_repr() -> Repr {
         Repr {
@@ -1223,7 +1250,7 @@ mod test {
             mirrors_tilting_in_reverse_gear_enabled: false,
             indirect_under_inflation_reset_status: true,
             automatic_emergency_braking_enabled: false,
-            collision_alert_sensibility_level: CollisionAlertSensibilityLevel::Level1,
+            collision_alert_sensibility_level: CollisionAlertSensibilityLevel::Close,
             collision_alert_enabled: true,
             hands_free_tailgate_enabled: false,
             speed_limit_recognition_enabled: true,
@@ -1232,8 +1259,9 @@ mod test {
             driver_alert_assist_enabled: false,
             hands_free_tailgate_auto_lock_enabled: true,
             extended_traffic_sign_recognition_enabled: false,
-            ecs_enabled: true,
+            electric_child_security_enabled: true,
             irv_enabled: false,
+            auto_mirrors_folding_enabled: true,
         }
     }
 
@@ -1270,7 +1298,7 @@ mod test {
             mirrors_tilting_in_reverse_gear_enabled: true,
             indirect_under_inflation_reset_status: false,
             automatic_emergency_braking_enabled: true,
-            collision_alert_sensibility_level: CollisionAlertSensibilityLevel::Level3,
+            collision_alert_sensibility_level: CollisionAlertSensibilityLevel::Distant,
             collision_alert_enabled: false,
             hands_free_tailgate_enabled: true,
             speed_limit_recognition_enabled: false,
@@ -1279,8 +1307,9 @@ mod test {
             driver_alert_assist_enabled: true,
             hands_free_tailgate_auto_lock_enabled: false,
             extended_traffic_sign_recognition_enabled: true,
-            ecs_enabled: false,
+            electric_child_security_enabled: false,
             irv_enabled: true,
+            auto_mirrors_folding_enabled: false,
         }
     }
 
@@ -1329,7 +1358,7 @@ mod test {
         assert_eq!(frame.automatic_emergency_braking_enable(), false);
         assert_eq!(
             frame.collision_alert_sensibility_level(),
-            CollisionAlertSensibilityLevel::Level1
+            CollisionAlertSensibilityLevel::Close
         );
         assert_eq!(frame.collision_alert_enable(), true);
         assert_eq!(frame.hands_free_tailgate_enable(), false);
@@ -1339,8 +1368,9 @@ mod test {
         assert_eq!(frame.driver_alert_assist_enable(), false);
         assert_eq!(frame.hands_free_tailgate_auto_lock_enable(), true);
         assert_eq!(frame.extended_traffic_sign_recognition_enable(), false);
-        assert_eq!(frame.ecs_enable(), true);
+        assert_eq!(frame.electric_child_security_enable(), true);
         assert_eq!(frame.irv_enable(), false);
+        assert_eq!(frame.auto_mirrors_folding_enable(), true);
     }
 
     #[test]
@@ -1388,7 +1418,7 @@ mod test {
         assert_eq!(frame.automatic_emergency_braking_enable(), true);
         assert_eq!(
             frame.collision_alert_sensibility_level(),
-            CollisionAlertSensibilityLevel::Level3
+            CollisionAlertSensibilityLevel::Distant
         );
         assert_eq!(frame.collision_alert_enable(), false);
         assert_eq!(frame.hands_free_tailgate_enable(), true);
@@ -1398,8 +1428,9 @@ mod test {
         assert_eq!(frame.driver_alert_assist_enable(), true);
         assert_eq!(frame.hands_free_tailgate_auto_lock_enable(), false);
         assert_eq!(frame.extended_traffic_sign_recognition_enable(), true);
-        assert_eq!(frame.ecs_enable(), false);
+        assert_eq!(frame.electric_child_security_enable(), false);
         assert_eq!(frame.irv_enable(), true);
+        assert_eq!(frame.auto_mirrors_folding_enable(), false);
     }
 
     #[test]
@@ -1438,7 +1469,7 @@ mod test {
         frame.set_mirrors_tilting_in_reverse_gear_enable(false);
         frame.set_indirect_under_inflation_reset_status(true);
         frame.set_automatic_emergency_braking_enable(false);
-        frame.set_collision_alert_sensibility_level(CollisionAlertSensibilityLevel::Level1);
+        frame.set_collision_alert_sensibility_level(CollisionAlertSensibilityLevel::Close);
         frame.set_collision_alert_enable(true);
         frame.set_hands_free_tailgate_enable(false);
         frame.set_speed_limit_recognition_enable(true);
@@ -1447,8 +1478,9 @@ mod test {
         frame.set_driver_alert_assist_enable(false);
         frame.set_hands_free_tailgate_auto_lock_enable(true);
         frame.set_extended_traffic_sign_recognition_enable(false);
-        frame.set_ecs_enable(true);
+        frame.set_electric_child_security_enable(true);
         frame.set_irv_enable(false);
+        frame.set_auto_mirrors_folding_enable(true);
 
         assert_eq!(frame.into_inner(), &REPR_FRAME_BYTES_1);
     }
@@ -1489,7 +1521,7 @@ mod test {
         frame.set_mirrors_tilting_in_reverse_gear_enable(true);
         frame.set_indirect_under_inflation_reset_status(false);
         frame.set_automatic_emergency_braking_enable(true);
-        frame.set_collision_alert_sensibility_level(CollisionAlertSensibilityLevel::Level3);
+        frame.set_collision_alert_sensibility_level(CollisionAlertSensibilityLevel::Distant);
         frame.set_collision_alert_enable(false);
         frame.set_hands_free_tailgate_enable(true);
         frame.set_speed_limit_recognition_enable(false);
@@ -1498,8 +1530,9 @@ mod test {
         frame.set_driver_alert_assist_enable(true);
         frame.set_hands_free_tailgate_auto_lock_enable(false);
         frame.set_extended_traffic_sign_recognition_enable(true);
-        frame.set_ecs_enable(false);
+        frame.set_electric_child_security_enable(false);
         frame.set_irv_enable(true);
+        frame.set_auto_mirrors_folding_enable(false);
 
         assert_eq!(frame.into_inner(), &REPR_FRAME_BYTES_2);
     }

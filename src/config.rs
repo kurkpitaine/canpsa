@@ -593,21 +593,21 @@ impl fmt::Display for ConfigurableKeyAction2010 {
 enum_with_unknown! {
     /// Collision alert warning sensibility level. AEE 2010 only.
     pub enum CollisionAlertSensibilityLevel(u8) {
-        /// Sensibility level 1.
-        Level1 = 1,
-        /// Sensibility level 2.
-        Level2 = 2,
-        /// Sensibility level 3.
-        Level3 = 3,
+        /// Sensibility level 1 - close.
+        Close = 1,
+        /// Sensibility level 2 - normal.
+        Normal = 2,
+        /// Sensibility level 3 - distant.
+        Distant = 3,
     }
 }
 
 impl fmt::Display for CollisionAlertSensibilityLevel {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            CollisionAlertSensibilityLevel::Level1 => write!(f, "level 1"),
-            CollisionAlertSensibilityLevel::Level2 => write!(f, "level 2"),
-            CollisionAlertSensibilityLevel::Level3 => write!(f, "level 3"),
+            CollisionAlertSensibilityLevel::Close => write!(f, "close"),
+            CollisionAlertSensibilityLevel::Normal => write!(f, "normal"),
+            CollisionAlertSensibilityLevel::Distant => write!(f, "distant"),
             CollisionAlertSensibilityLevel::Unknown(level) => write!(f, "0x{:02x}", level),
         }
     }

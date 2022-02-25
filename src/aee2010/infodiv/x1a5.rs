@@ -123,8 +123,8 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
 #[derive(Debug, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Repr {
-    volume: u8,
-    origin: VolumeLevelOrigin,
+    pub volume: u8,
+    pub origin: VolumeLevelOrigin,
 }
 
 impl Repr {

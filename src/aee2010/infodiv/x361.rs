@@ -1,4 +1,4 @@
-use core::fmt;
+use core::{fmt, time::Duration};
 
 use crate::{config::UnderInflationDetectionSystem, Error, Result};
 
@@ -55,13 +55,16 @@ mod field {
     /// 1-bit 'IRV' option presence flag (maybe InfraRed Vision?),
     /// 4-bit empty,
     /// 1-bit automatic main beam option presence flag,
-    /// 1-bit 'ECS/SEE' option presence flag,
+    /// 1-bit electric child lock security option presence flag,
     /// 1-bit driver alert assist option presence flag.
     pub const OPT_5: usize = 5;
 }
 
 /// Length of a x361 CAN frame.
 pub const FRAME_LEN: usize = field::OPT_5 + 1;
+
+/// Periodicity of a x361 CAN frame.
+pub const PERIODICITY: Duration = Duration::from_millis(1000);
 
 impl<T: AsRef<[u8]>> Frame<T> {
     /// Create a raw octet buffer with a CAN frame structure.
@@ -364,9 +367,9 @@ impl<T: AsRef<[u8]>> Frame<T> {
         data[field::OPT_5] & 0x20 != 0
     }
 
-    /// Return the 'ECS' option presence flag.
+    /// Return the electric child lock security option presence flag.
     #[inline]
-    pub fn ecs_presence(&self) -> bool {
+    pub fn electric_child_security_presence(&self) -> bool {
         let data = self.buffer.as_ref();
         data[field::OPT_5] & 0x40 != 0
     }
@@ -704,9 +707,9 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
         data[field::OPT_5] = raw;
     }
 
-    /// Set the 'ECS' option presence flag.
+    /// Set the electric child lock security option presence flag.
     #[inline]
-    pub fn set_ecs_presence(&mut self, value: bool) {
+    pub fn set_electric_child_security_presence(&mut self, value: bool) {
         let data = self.buffer.as_mut();
         let raw = data[field::OPT_5] & !0x40;
         let raw = if value { raw | 0x40 } else { raw & !0x40 };
@@ -745,44 +748,44 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Repr {
-    daytime_running_lamps_present: bool,
-    automatic_headlamps_present: bool,
-    mood_lighting_present: bool,
-    blind_spot_monitoring_present: bool,
-    adaptive_lamps_present: bool,
-    welcome_lighting_present: bool,
-    motorway_lighting_present: bool,
-    config_menu_info_available: bool,
-    selective_unlocking_present: bool,
-    key_selective_unlocking_present: bool,
-    boot_selective_unlocking_present: bool,
-    motorized_tailgate_present: bool,
-    welcome_function_present: bool,
-    follow_me_home_present: bool,
-    rear_wiper_in_reverse_gear_present: bool,
-    parking_sensors_inhibition_present: bool,
-    extended_traffic_sign_recognition_present: bool,
-    mirror_tilt_in_reverse_present: bool,
-    sound_harmony_present: bool,
-    automatic_electric_parking_brake_application_present: bool,
-    configurable_key_present: bool,
-    cruise_control_custom_limits_present: bool,
-    seat_belt_status_lamps_present: bool,
-    under_inflation_detection: UnderInflationDetectionSystem,
-    gear_efficiency_indicator_present: bool,
-    cruise_control_custom_limits_menu_present: bool,
-    collision_alert_sensibility_menu_present: bool,
-    automatic_emergency_braking_present: bool,
-    under_inflation_detection_reset_menu_present: bool,
-    hands_free_tailgate_auto_lock_menu_present: bool,
-    hands_free_tailgate_present: bool,
-    speed_limit_recognition_present: bool,
-    radiator_grill_lamps_present: bool,
-    cfc_present: bool,
-    irv_present: bool,
-    automatic_main_beam_present: bool,
-    ecs_present: bool,
-    driver_alert_assist_present: bool,
+    pub daytime_running_lamps_present: bool,
+    pub automatic_headlamps_present: bool,
+    pub mood_lighting_present: bool,
+    pub blind_spot_monitoring_present: bool,
+    pub adaptive_lamps_present: bool,
+    pub welcome_lighting_present: bool,
+    pub motorway_lighting_present: bool,
+    pub config_menu_info_available: bool,
+    pub selective_unlocking_present: bool,
+    pub key_selective_unlocking_present: bool,
+    pub boot_selective_unlocking_present: bool,
+    pub motorized_tailgate_present: bool,
+    pub welcome_function_present: bool,
+    pub follow_me_home_present: bool,
+    pub rear_wiper_in_reverse_gear_present: bool,
+    pub parking_sensors_inhibition_present: bool,
+    pub extended_traffic_sign_recognition_present: bool,
+    pub mirror_tilt_in_reverse_present: bool,
+    pub sound_harmony_present: bool,
+    pub automatic_electric_parking_brake_application_present: bool,
+    pub configurable_key_present: bool,
+    pub cruise_control_custom_limits_present: bool,
+    pub seat_belt_status_lamps_present: bool,
+    pub under_inflation_detection: UnderInflationDetectionSystem,
+    pub gear_efficiency_indicator_present: bool,
+    pub cruise_control_custom_limits_menu_present: bool,
+    pub collision_alert_sensibility_menu_present: bool,
+    pub automatic_emergency_braking_present: bool,
+    pub under_inflation_detection_reset_menu_present: bool,
+    pub hands_free_tailgate_auto_lock_menu_present: bool,
+    pub hands_free_tailgate_present: bool,
+    pub speed_limit_recognition_present: bool,
+    pub radiator_grill_lamps_present: bool,
+    pub cfc_present: bool,
+    pub irv_present: bool,
+    pub automatic_main_beam_present: bool,
+    pub electric_child_security_presence: bool,
+    pub driver_alert_assist_present: bool,
 }
 
 impl Repr {
@@ -832,7 +835,7 @@ impl Repr {
             cfc_present: frame.cfc_presence(),
             irv_present: frame.irv_presence(),
             automatic_main_beam_present: frame.automatic_main_beam_presence(),
-            ecs_present: frame.ecs_presence(),
+            electric_child_security_presence: frame.electric_child_security_presence(),
             driver_alert_assist_present: frame.driver_alert_assist_presence(),
         })
     }
@@ -892,7 +895,7 @@ impl Repr {
         frame.set_cfc_presence(self.cfc_present);
         frame.set_irv_presence(self.irv_present);
         frame.set_automatic_main_beam_presence(self.automatic_main_beam_present);
-        frame.set_ecs_presence(self.ecs_present);
+        frame.set_electric_child_security_presence(self.electric_child_security_presence);
         frame.set_driver_alert_assist_presence(self.driver_alert_assist_present);
     }
 }
@@ -901,156 +904,168 @@ impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "x361 daytime running lamps present={}",
+            "x361 daytime_running_lamps_present={}",
             self.daytime_running_lamps_present
         )?;
         write!(
             f,
-            " automatic headlamps present={}",
+            " automatic_headlamps_present={}",
             self.automatic_headlamps_present
         )?;
-        write!(f, " mood lighting present={}", self.mood_lighting_present)?;
+        write!(f, " mood_lighting_present={}", self.mood_lighting_present)?;
         write!(
             f,
-            " blind spot monitoring present={}",
+            " blind_spot_monitoring_present={}",
             self.blind_spot_monitoring_present
         )?;
-        write!(f, " adaptive lamps present={}", self.adaptive_lamps_present)?;
+        write!(f, " adaptive_lamps_present={}", self.adaptive_lamps_present)?;
         write!(
             f,
-            " welcome lighting present={}",
+            " welcome_lighting_present={}",
             self.welcome_lighting_present
         )?;
         write!(
             f,
-            " motorway lighting present={}",
+            " motorway_lighting_present={}",
             self.motorway_lighting_present
         )?;
         write!(
             f,
-            " configuration menu information available={}",
+            " config_menu_info_available={}",
             self.config_menu_info_available
         )?;
         write!(
             f,
-            " selective unlocking present={}",
+            " selective_unlocking_present={}",
             self.selective_unlocking_present
         )?;
         write!(
             f,
-            " key selective unlocking present={}",
+            " key_selective_unlocking_present={}",
             self.key_selective_unlocking_present
         )?;
         write!(
             f,
-            " boot selective unlocking present={}",
+            " boot_selective_unlocking_present={}",
             self.boot_selective_unlocking_present
         )?;
         write!(
             f,
-            " motorized tailgate present={}",
+            " motorized_tailgate_present={}",
             self.motorized_tailgate_present
         )?;
         write!(
             f,
-            " welcome function present={}",
+            " welcome_function_present={}",
             self.welcome_function_present
         )?;
-        write!(f, " follow-me-home present={}", self.follow_me_home_present)?;
+        write!(f, " follow_me_home_present={}", self.follow_me_home_present)?;
         write!(
             f,
-            " rear wiper in reverse gear present={}",
+            " rear_wiper_in_reverse_gear_present={}",
             self.rear_wiper_in_reverse_gear_present
         )?;
         write!(
             f,
-            " parking sensors inhibition present={}",
+            " parking_sensors_inhibition_present={}",
             self.parking_sensors_inhibition_present
         )?;
         write!(
             f,
-            " extended traffic sign recognition present={}",
+            " extended_traffic_sign_recognition_present={}",
             self.extended_traffic_sign_recognition_present
         )?;
-        write!(f, " mirror tilt in reverse present={}", self.mirror_tilt_in_reverse_present)?;
-        write!(f, " sound harmony present={}", self.sound_harmony_present)?;
         write!(
             f,
-            " automatic electric parking brake application present={}",
+            " mirror_tilt_in_reverse_present={}",
+            self.mirror_tilt_in_reverse_present
+        )?;
+        write!(f, " sound_harmony_present={}", self.sound_harmony_present)?;
+        write!(
+            f,
+            " automatic_electric_parking_brake_application_present={}",
             self.automatic_electric_parking_brake_application_present
         )?;
         write!(
             f,
-            " configurable key present={}",
+            " configurable_key_present={}",
             self.configurable_key_present
         )?;
-        write!(f, "cruise-control custom limits present={}", self.cruise_control_custom_limits_present)?;
         write!(
             f,
-            " seat belt status lamps present={}",
+            "cruise_control_custom_limits_present={}",
+            self.cruise_control_custom_limits_present
+        )?;
+        write!(
+            f,
+            " seat_belt_status_lamps_present={}",
             self.seat_belt_status_lamps_present
         )?;
         write!(
             f,
-            " under inflation detection={}",
+            " under_inflation_detection={}",
             self.under_inflation_detection
         )?;
         write!(
             f,
-            " gear efficiency indicator present={}",
+            " gear_efficiency_indicator_present={}",
             self.gear_efficiency_indicator_present
         )?;
         write!(
             f,
-            " cruise-control custom limits menu present={}",
+            " cruise_control_custom_limits_menu_present={}",
             self.cruise_control_custom_limits_menu_present
         )?;
         write!(
             f,
-            " collision alert sensibility menu present={}",
+            " collision_alert_sensibility_menu_present={}",
             self.collision_alert_sensibility_menu_present
         )?;
         write!(
             f,
-            " automatic emergency braking present={}",
+            " automatic_emergency_braking_present={}",
             self.automatic_emergency_braking_present
         )?;
         write!(
             f,
-            " under inflation detection reset menu present={}",
+            " under_inflation_detection_reset_menu_present={}",
             self.under_inflation_detection_reset_menu_present
         )?;
         write!(
             f,
-            " hands free tailgate auto lock menu present={}",
+            " hands_free_tailgate_auto_lock_menu_present={}",
             self.hands_free_tailgate_auto_lock_menu_present
         )?;
         write!(
             f,
-            " hands free tailgate present={}",
+            " hands_free_tailgate_present={}",
             self.hands_free_tailgate_present
         )?;
         write!(
             f,
-            " speed limit recognition present={}",
+            " speed_limit_recognition_present={}",
             self.speed_limit_recognition_present
         )?;
         write!(
             f,
-            " radiator grill lamps present={}",
+            " radiator_grill_lamps_present={}",
             self.radiator_grill_lamps_present
         )?;
         write!(f, " 'CFC' present={}", self.cfc_present)?;
         write!(f, " 'IRV' present={}", self.irv_present)?;
         write!(
             f,
-            " automatic main beam present={}",
+            " automatic_main_beam_present={}",
             self.automatic_main_beam_present
         )?;
-        write!(f, " 'ECS' present={}", self.ecs_present)?;
         write!(
             f,
-            " driver alert assist present={}",
+            " electric_child_security_presence present={}",
+            self.electric_child_security_presence
+        )?;
+        write!(
+            f,
+            " driver_alert_assist_present={}",
             self.driver_alert_assist_present
         )
     }
@@ -1102,7 +1117,7 @@ mod test {
             cfc_present: false,
             irv_present: true,
             automatic_main_beam_present: false,
-            ecs_present: true,
+            electric_child_security_presence: true,
             driver_alert_assist_present: false,
         }
     }
@@ -1145,7 +1160,7 @@ mod test {
             cfc_present: true,
             irv_present: false,
             automatic_main_beam_present: true,
-            ecs_present: false,
+            electric_child_security_presence: false,
             driver_alert_assist_present: true,
         }
     }
@@ -1193,7 +1208,7 @@ mod test {
         assert_eq!(frame.cfc_presence(), false);
         assert_eq!(frame.irv_presence(), true);
         assert_eq!(frame.automatic_main_beam_presence(), false);
-        assert_eq!(frame.ecs_presence(), true);
+        assert_eq!(frame.electric_child_security_presence(), true);
         assert_eq!(frame.driver_alert_assist_presence(), false);
     }
 
@@ -1240,7 +1255,7 @@ mod test {
         assert_eq!(frame.cfc_presence(), true);
         assert_eq!(frame.irv_presence(), false);
         assert_eq!(frame.automatic_main_beam_presence(), true);
-        assert_eq!(frame.ecs_presence(), false);
+        assert_eq!(frame.electric_child_security_presence(), false);
         assert_eq!(frame.driver_alert_assist_presence(), true);
     }
 
@@ -1285,7 +1300,7 @@ mod test {
         frame.set_cfc_presence(false);
         frame.set_irv_presence(true);
         frame.set_automatic_main_beam_presence(false);
-        frame.set_ecs_presence(true);
+        frame.set_electric_child_security_presence(true);
         frame.set_driver_alert_assist_presence(false);
 
         assert_eq!(frame.into_inner(), &REPR_FRAME_BYTES_1);
@@ -1334,7 +1349,7 @@ mod test {
         frame.set_cfc_presence(true);
         frame.set_irv_presence(false);
         frame.set_automatic_main_beam_presence(true);
-        frame.set_ecs_presence(false);
+        frame.set_electric_child_security_presence(false);
         frame.set_driver_alert_assist_presence(true);
 
         assert_eq!(frame.into_inner(), &REPR_FRAME_BYTES_2);

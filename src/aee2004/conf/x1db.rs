@@ -617,36 +617,36 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Repr {
-    profile_number: UserProfile,
-    parameters_validity: bool,
-    auto_elec_parking_brake_application_enabled: bool,
-    welcome_function_enabled: bool,
-    partial_window_opening_enabled: bool,
-    locking_mode_on_coe_enabled: bool,
-    auto_door_locking_when_leaving_enabled: bool,
-    boot_permanent_locking_enabled: bool,
-    auto_door_locking_when_driving_enabled: bool,
-    selective_unlocking_enabled: bool,
-    follow_me_home_lighting_duration: u8,
-    automatic_headlamps_enabled: bool,
-    follow_me_home_enabled: bool,
-    motorway_lighting_enabled: bool,
-    adaptive_lamps_enabled: bool,
-    ceiling_light_out_delay: u8,
-    daytime_running_lamps_enabled: bool,
-    mood_lighting_enabled: bool,
-    low_fuel_level_alert_enabled: bool,
-    key_left_in_car_alert_enabled: bool,
-    lighting_left_on_alert_enabled: bool,
-    alt_gen_enabled: bool,
-    esp_in_regulation_alert_enabled: bool,
-    auto_mirrors_folding_enabled: bool,
-    rear_wiper_in_reverse_gear_enabled: bool,
-    mirrors_tilting_in_reverse_gear_enabled: bool,
-    park_sensors_status: u8,
-    blind_spot_monitoring_status: u8,
-    secu_enabled: bool,
-    configurable_key_mode: ConfigurableKeyAction2004,
+    pub profile_number: UserProfile,
+    pub parameters_validity: bool,
+    pub auto_elec_parking_brake_application_enabled: bool,
+    pub welcome_function_enabled: bool,
+    pub partial_window_opening_enabled: bool,
+    pub locking_mode_on_coe_enabled: bool,
+    pub auto_door_locking_when_leaving_enabled: bool,
+    pub boot_permanent_locking_enabled: bool,
+    pub auto_door_locking_when_driving_enabled: bool,
+    pub selective_unlocking_enabled: bool,
+    pub follow_me_home_lighting_duration: u8,
+    pub automatic_headlamps_enabled: bool,
+    pub follow_me_home_enabled: bool,
+    pub motorway_lighting_enabled: bool,
+    pub adaptive_lamps_enabled: bool,
+    pub ceiling_light_out_delay: u8,
+    pub daytime_running_lamps_enabled: bool,
+    pub mood_lighting_enabled: bool,
+    pub low_fuel_level_alert_enabled: bool,
+    pub key_left_in_car_alert_enabled: bool,
+    pub lighting_left_on_alert_enabled: bool,
+    pub alt_gen_enabled: bool,
+    pub esp_in_regulation_alert_enabled: bool,
+    pub auto_mirrors_folding_enabled: bool,
+    pub rear_wiper_in_reverse_gear_enabled: bool,
+    pub mirrors_tilting_in_reverse_gear_enabled: bool,
+    pub park_sensors_status: u8,
+    pub blind_spot_monitoring_status: u8,
+    pub secu_enabled: bool,
+    pub configurable_key_mode: ConfigurableKeyAction2004,
 }
 
 impl Repr {
@@ -964,7 +964,10 @@ mod test {
         assert_eq!(frame.park_sensors_status(), 3);
         assert_eq!(frame.blind_spot_monitoring_status(), 0);
         assert_eq!(frame.secu_enable(), false);
-        assert_eq!(frame.configurable_key_mode(), ConfigurableKeyAction2004::CeilingLight);
+        assert_eq!(
+            frame.configurable_key_mode(),
+            ConfigurableKeyAction2004::CeilingLight
+        );
     }
 
     #[test]
@@ -999,7 +1002,10 @@ mod test {
         assert_eq!(frame.park_sensors_status(), 3);
         assert_eq!(frame.blind_spot_monitoring_status(), 0);
         assert_eq!(frame.secu_enable(), false);
-        assert_eq!(frame.configurable_key_mode(), ConfigurableKeyAction2004::BlackPanel);
+        assert_eq!(
+            frame.configurable_key_mode(),
+            ConfigurableKeyAction2004::BlackPanel
+        );
     }
 
     #[test]

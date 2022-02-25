@@ -564,33 +564,33 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Repr {
-    balance_opt: ConfigOption,
-    balance_level: u8,
-    balance_under_adj: bool,
-    fader_opt: ConfigOption,
-    fader_level: u8,
-    fader_under_adj: bool,
-    bass_opt: ConfigOption,
-    bass_level: u8,
-    bass_under_adj: bool,
-    treble_opt: ConfigOption,
-    treble_level: u8,
-    treble_under_adj: bool,
-    speed_dependent_volume_opt: ConfigOption,
-    speed_dependent_volume_enabled: bool,
-    speed_dependent_volume_under_adj: bool,
-    loudness_opt: ConfigOption,
-    loudness_enabled: bool,
-    loudness_under_adj: bool,
-    musical_ambiance_opt: ConfigOption,
-    musical_ambiance: MusicalAmbiance,
-    musical_ambiance_under_adj: bool,
-    sound_repartition_opt: ConfigOption,
-    sound_repartition: SoundRepartition,
-    sound_repartition_under_adj: bool,
-    spatial_sound_under_adj: bool,
-    spectral_sound_under_adj: bool,
-    impossible_setting: bool,
+    pub balance_opt: ConfigOption,
+    pub balance_level: u8,
+    pub balance_under_adj: bool,
+    pub fader_opt: ConfigOption,
+    pub fader_level: u8,
+    pub fader_under_adj: bool,
+    pub bass_opt: ConfigOption,
+    pub bass_level: u8,
+    pub bass_under_adj: bool,
+    pub treble_opt: ConfigOption,
+    pub treble_level: u8,
+    pub treble_under_adj: bool,
+    pub speed_dependent_volume_opt: ConfigOption,
+    pub speed_dependent_volume_enabled: bool,
+    pub speed_dependent_volume_under_adj: bool,
+    pub loudness_opt: ConfigOption,
+    pub loudness_enabled: bool,
+    pub loudness_under_adj: bool,
+    pub musical_ambiance_opt: ConfigOption,
+    pub musical_ambiance: MusicalAmbiance,
+    pub musical_ambiance_under_adj: bool,
+    pub sound_repartition_opt: ConfigOption,
+    pub sound_repartition: SoundRepartition,
+    pub sound_repartition_under_adj: bool,
+    pub spatial_sound_under_adj: bool,
+    pub spectral_sound_under_adj: bool,
+    pub impossible_setting: bool,
 }
 
 impl Repr {
@@ -679,8 +679,16 @@ impl fmt::Display for Repr {
         write!(f, " treble opt={}", self.treble_opt)?;
         write!(f, " treble level={}", self.treble_level)?;
         write!(f, " treble under adj={}", self.treble_under_adj)?;
-        write!(f, " speed dependent volume opt={}", self.speed_dependent_volume_opt)?;
-        write!(f, " speed dependent volume enabled={}", self.speed_dependent_volume_enabled)?;
+        write!(
+            f,
+            " speed dependent volume opt={}",
+            self.speed_dependent_volume_opt
+        )?;
+        write!(
+            f,
+            " speed dependent volume enabled={}",
+            self.speed_dependent_volume_enabled
+        )?;
         write!(
             f,
             " speed dependent volume under adj={}",
@@ -698,9 +706,21 @@ impl fmt::Display for Repr {
         )?;
         write!(f, " sound repartition opt={}", self.sound_repartition_opt)?;
         write!(f, " sound repartition ={}", self.sound_repartition)?;
-        write!(f, " sound repartition under adj={}", self.sound_repartition_under_adj)?;
-        write!(f, " spatial sound under adj={}", self.spatial_sound_under_adj)?;
-        write!(f, " spectral sound under adj={}", self.spectral_sound_under_adj)?;
+        write!(
+            f,
+            " sound repartition under adj={}",
+            self.sound_repartition_under_adj
+        )?;
+        write!(
+            f,
+            " spatial sound under adj={}",
+            self.spatial_sound_under_adj
+        )?;
+        write!(
+            f,
+            " spectral sound under adj={}",
+            self.spectral_sound_under_adj
+        )?;
         write!(f, " impossible setting={}", self.impossible_setting)
     }
 }
@@ -796,16 +816,25 @@ mod test {
         assert_eq!(frame.treble_option(), ConfigOption::SelectableOption);
         assert_eq!(frame.treble_level(), 31);
         assert_eq!(frame.treble_under_adjustment(), false);
-        assert_eq!(frame.speed_dependent_volume_option(), ConfigOption::SelectableOption);
+        assert_eq!(
+            frame.speed_dependent_volume_option(),
+            ConfigOption::SelectableOption
+        );
         assert_eq!(frame.speed_dependent_volume_enabled(), true);
         assert_eq!(frame.speed_dependent_volume_under_adjustment(), false);
         assert_eq!(frame.loudness_option(), ConfigOption::SelectableOption);
         assert_eq!(frame.loudness_enabled(), true);
         assert_eq!(frame.loudness_under_adjustment(), false);
-        assert_eq!(frame.musical_ambiance_option(), ConfigOption::SelectableOption);
+        assert_eq!(
+            frame.musical_ambiance_option(),
+            ConfigOption::SelectableOption
+        );
         assert_eq!(frame.musical_ambiance(), MusicalAmbiance::None);
         assert_eq!(frame.musical_ambiance_under_adjustment(), false);
-        assert_eq!(frame.sound_repartition_option(), ConfigOption::SelectableOption);
+        assert_eq!(
+            frame.sound_repartition_option(),
+            ConfigOption::SelectableOption
+        );
         assert_eq!(frame.sound_repartition(), SoundRepartition::AllPassengers);
         assert_eq!(frame.sound_repartition_under_adjustment(), false);
         assert_eq!(frame.spatial_sound_under_adjustment(), false);
@@ -829,16 +858,25 @@ mod test {
         assert_eq!(frame.treble_option(), ConfigOption::UnselectableOption);
         assert_eq!(frame.treble_level(), 31);
         assert_eq!(frame.treble_under_adjustment(), true);
-        assert_eq!(frame.speed_dependent_volume_option(), ConfigOption::UnselectableOption);
+        assert_eq!(
+            frame.speed_dependent_volume_option(),
+            ConfigOption::UnselectableOption
+        );
         assert_eq!(frame.speed_dependent_volume_enabled(), false);
         assert_eq!(frame.speed_dependent_volume_under_adjustment(), true);
         assert_eq!(frame.loudness_option(), ConfigOption::UnselectableOption);
         assert_eq!(frame.loudness_enabled(), true);
         assert_eq!(frame.loudness_under_adjustment(), true);
-        assert_eq!(frame.musical_ambiance_option(), ConfigOption::UnselectableOption);
+        assert_eq!(
+            frame.musical_ambiance_option(),
+            ConfigOption::UnselectableOption
+        );
         assert_eq!(frame.musical_ambiance(), MusicalAmbiance::PopRock);
         assert_eq!(frame.musical_ambiance_under_adjustment(), true);
-        assert_eq!(frame.sound_repartition_option(), ConfigOption::UnselectableOption);
+        assert_eq!(
+            frame.sound_repartition_option(),
+            ConfigOption::UnselectableOption
+        );
         assert_eq!(frame.sound_repartition(), SoundRepartition::Driver);
         assert_eq!(frame.sound_repartition_under_adjustment(), true);
         assert_eq!(frame.spatial_sound_under_adjustment(), true);

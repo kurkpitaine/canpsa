@@ -1008,10 +1008,7 @@ mod test {
         assert_eq!(frame.fault_erase_request(), true);
         assert_eq!(frame.sport_mode_enable(), false);
         assert_eq!(frame.hybrid_powertrain_mode_updated_data(), true);
-        assert_eq!(
-            frame.hybrid_powertrain_mode(),
-            HybridPowertrainMode::Sport
-        );
+        assert_eq!(frame.hybrid_powertrain_mode(), HybridPowertrainMode::Sport);
         assert_eq!(frame.hybrid_powertrain_state_updated_data(), false);
         assert_eq!(
             frame.hybrid_powertrain_state(),

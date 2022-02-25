@@ -1,4 +1,4 @@
-use core::fmt;
+use core::{fmt, time::Duration};
 
 use byteorder::{ByteOrder, NetworkEndian};
 
@@ -38,6 +38,9 @@ mod field {
 
 /// Length of a x0b6 CAN frame.
 pub const FRAME_LEN: usize = field::VALIDITY + 1;
+
+/// Periodicity of a x0b6 CAN frame.
+pub const PERIODICITY: Duration = Duration::from_millis(50);
 
 impl<T: AsRef<[u8]>> Frame<T> {
     /// Create a raw octet buffer with a CAN frame structure.
@@ -201,12 +204,12 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
 #[derive(Debug, PartialEq, Clone, Copy)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Repr {
-    engine_rpm: f32,
-    vehicle_immediate_speed: f32,
-    trip_odometer: u16,
-    trip_fuel_consumption: u8,
-    speed_validity: SpeedValidity,
-    immediate_speed_validity: bool,
+    pub engine_rpm: f32,
+    pub vehicle_immediate_speed: f32,
+    pub trip_odometer: u16,
+    pub trip_fuel_consumption: u8,
+    pub speed_validity: SpeedValidity,
+    pub immediate_speed_validity: bool,
 }
 
 impl Repr {
@@ -214,7 +217,7 @@ impl Repr {
         frame.check_len()?;
 
         Ok(Repr {
-            engine_rpm: frame.engine_rpm() as f32/ 10.0,
+            engine_rpm: frame.engine_rpm() as f32 / 10.0,
             vehicle_immediate_speed: frame.vehicle_immediate_speed() as f32 / 100.0,
             trip_odometer: frame.trip_odometer(),
             trip_fuel_consumption: frame.trip_fuel_consumption(),

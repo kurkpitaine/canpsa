@@ -305,16 +305,16 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Repr {
-    running_duration: Duration,
-    distance_unit: DistanceUnit,
-    volume_unit: VolumeUnit,
-    consumption_unit: ConsumptionUnit,
-    pressure_unit: PressureUnit,
-    display_charset: DisplayCharset,
-    temperature_unit: TemperatureUnit,
-    display_mode: DisplayMode,
-    clock_format: ClockFormat,
-    language: Language,
+    pub running_duration: Duration,
+    pub distance_unit: DistanceUnit,
+    pub volume_unit: VolumeUnit,
+    pub consumption_unit: ConsumptionUnit,
+    pub pressure_unit: PressureUnit,
+    pub display_charset: DisplayCharset,
+    pub temperature_unit: TemperatureUnit,
+    pub display_mode: DisplayMode,
+    pub clock_format: ClockFormat,
+    pub language: Language,
 }
 
 impl Repr {

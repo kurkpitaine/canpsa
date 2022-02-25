@@ -218,7 +218,7 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
 #[derive(Debug, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Repr {
-    vis: String<8>,
+    pub vis: String<8>,
 }
 
 impl Repr {

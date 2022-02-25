@@ -126,7 +126,7 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Repr {
-    time: Time,
+    pub time: Time,
 }
 
 impl Repr {
@@ -171,7 +171,7 @@ mod test {
 
     fn frame_repr() -> Repr {
         Repr {
-            time: Time::from_hms(16, 46, 0).unwrap()
+            time: Time::from_hms(16, 46, 0).unwrap(),
         }
     }
 

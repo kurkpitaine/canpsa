@@ -3,7 +3,7 @@ use core::{fmt, time::Duration};
 use byteorder::{ByteOrder, NetworkEndian};
 
 use crate::{
-    vehicle::{BlinkersStatus, VsmConfigMode, MainStatus, PowertrainStatus, SteeringWheelPosition},
+    vehicle::{BlinkersStatus, MainStatus, PowertrainStatus, SteeringWheelPosition, VsmConfigMode},
     Error, Result,
 };
 
@@ -437,7 +437,7 @@ mod test {
     use super::{Frame, Repr};
     use crate::{
         vehicle::{
-            BlinkersStatus, VsmConfigMode, MainStatus, PowertrainStatus, SteeringWheelPosition,
+            BlinkersStatus, MainStatus, PowertrainStatus, SteeringWheelPosition, VsmConfigMode,
         },
         Error,
     };

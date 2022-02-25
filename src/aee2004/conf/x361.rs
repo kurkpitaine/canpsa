@@ -630,37 +630,37 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Repr {
-    profile_number: UserProfile,
-    profile_change_allowed: bool,
-    boot_permanent_locking_present: bool,
-    partial_window_opening_present: bool,
-    welcome_function_present: bool,
-    securoscope_present: bool,
-    configurable_key_present: bool,
-    automatic_headlamps_present: bool,
-    gear_efficiency_indicator_present: bool,
-    automatic_electric_parking_brake_application_present: bool,
-    welcome_lighting_present: bool,
-    follow_me_home_present: bool,
-    locking_mode_on_coe_present: bool,
-    automatic_door_locking_when_leaving_present: bool,
-    selective_unlocking_present: bool,
-    rear_wiper_in_reverse_gear_present: bool,
-    daytime_running_lamps_present: bool,
-    adaptive_lamps_present: bool,
-    blind_spot_monitoring_inhibition_present: bool,
-    blind_spot_monitoring_present: bool,
-    mood_lighting_present: bool,
-    motorway_lighting_present: bool,
-    multi_function_display_present: bool,
-    parking_sensors_inhibition_present: bool,
-    parking_sensors_audible_assistance_present: bool,
-    parking_sensors_visual_assistance_presence: bool,
-    automatic_emergency_braking_presence: bool,
-    under_inflation_detection_reset_menu_present: bool,
-    seat_belt_status_lamps_present: bool,
-    under_inflation_detection: UnderInflationDetectionSystem,
-    blind_spot_audible_assistance_present: bool,
+    pub profile_number: UserProfile,
+    pub profile_change_allowed: bool,
+    pub boot_permanent_locking_present: bool,
+    pub partial_window_opening_present: bool,
+    pub welcome_function_present: bool,
+    pub securoscope_present: bool,
+    pub configurable_key_present: bool,
+    pub automatic_headlamps_present: bool,
+    pub gear_efficiency_indicator_present: bool,
+    pub automatic_electric_parking_brake_application_present: bool,
+    pub welcome_lighting_present: bool,
+    pub follow_me_home_present: bool,
+    pub locking_mode_on_coe_present: bool,
+    pub automatic_door_locking_when_leaving_present: bool,
+    pub selective_unlocking_present: bool,
+    pub rear_wiper_in_reverse_gear_present: bool,
+    pub daytime_running_lamps_present: bool,
+    pub adaptive_lamps_present: bool,
+    pub blind_spot_monitoring_inhibition_present: bool,
+    pub blind_spot_monitoring_present: bool,
+    pub mood_lighting_present: bool,
+    pub motorway_lighting_present: bool,
+    pub multi_function_display_present: bool,
+    pub parking_sensors_inhibition_present: bool,
+    pub parking_sensors_audible_assistance_present: bool,
+    pub parking_sensors_visual_assistance_presence: bool,
+    pub automatic_emergency_braking_presence: bool,
+    pub under_inflation_detection_reset_menu_present: bool,
+    pub seat_belt_status_lamps_present: bool,
+    pub under_inflation_detection: UnderInflationDetectionSystem,
+    pub blind_spot_audible_assistance_present: bool,
 }
 
 impl Repr {
@@ -1135,7 +1135,9 @@ mod test {
         frame.set_automatic_emergency_braking_presence(false);
         frame.set_under_inflation_detection_reset_menu_presence(false);
         frame.set_seat_belt_status_lamps_presence(false);
-        frame.set_under_inflation_detection(UnderInflationDetectionSystem::DirectWithoutAbsolutePressure);
+        frame.set_under_inflation_detection(
+            UnderInflationDetectionSystem::DirectWithoutAbsolutePressure,
+        );
         frame.set_blind_spot_audible_assistance_presence(false);
 
         assert_eq!(frame.into_inner(), &REPR_FRAME_BYTES_2);

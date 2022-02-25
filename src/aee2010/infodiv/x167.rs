@@ -409,24 +409,24 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Repr {
-    mfd_trip_computer_page: TripComputerPage,
-    maintenance_reset_request: bool,
-    emergency_call_in_progress: bool,
-    fault_recall_request: bool,
-    trip_computer_secondary_trip_reset_request: bool,
-    trip_computer_primary_trip_reset_request: bool,
-    pre_conditioning_time: u8,
-    telematics_enabled: bool,
-    black_panel_enabled: bool,
-    indirect_under_inflation_reset_request: bool,
-    pre_conditioning_request: bool,
-    total_trip_distance: u16,
-    interactive_message: u16,
-    stop_check_request: bool,
-    popup_id_acknowledge: Popup,
-    selected_menu: Menu,
-    wifi_parameters_acknowledge: bool,
-    user_action_on_mfd: UserAction2010,
+    pub mfd_trip_computer_page: TripComputerPage,
+    pub maintenance_reset_request: bool,
+    pub emergency_call_in_progress: bool,
+    pub fault_recall_request: bool,
+    pub trip_computer_secondary_trip_reset_request: bool,
+    pub trip_computer_primary_trip_reset_request: bool,
+    pub pre_conditioning_time: u8,
+    pub telematics_enabled: bool,
+    pub black_panel_enabled: bool,
+    pub indirect_under_inflation_reset_request: bool,
+    pub pre_conditioning_request: bool,
+    pub total_trip_distance: u16,
+    pub interactive_message: u16,
+    pub stop_check_request: bool,
+    pub popup_id_acknowledge: Popup,
+    pub selected_menu: Menu,
+    pub wifi_parameters_acknowledge: bool,
+    pub user_action_on_mfd: UserAction2010,
 }
 
 impl Repr {
@@ -493,7 +493,11 @@ impl Repr {
 
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "x167 mfd trip computer page={}", self.mfd_trip_computer_page)?;
+        write!(
+            f,
+            "x167 mfd trip computer page={}",
+            self.mfd_trip_computer_page
+        )?;
         write!(
             f,
             " maintenance reset request={}",

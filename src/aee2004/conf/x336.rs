@@ -138,7 +138,7 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
 #[derive(Debug, PartialEq, Eq, Clone)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Repr {
-    wmi: String<3>,
+    pub wmi: String<3>,
 }
 
 impl Repr {
@@ -150,9 +150,7 @@ impl Repr {
         wmi.push(frame.wmi_second_char()).unwrap();
         wmi.push(frame.wmi_third_char()).unwrap();
 
-        Ok(Repr {
-            wmi,
-        })
+        Ok(Repr { wmi })
     }
 
     /// Return the length of a frame that will be emitted from this high-level representation.

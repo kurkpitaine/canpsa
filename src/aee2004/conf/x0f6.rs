@@ -336,20 +336,20 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
 #[derive(Debug, PartialEq, Clone, Copy)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Repr {
-    powertrain_status: PowertrainStatus,
-    generator_working: bool,
-    vehicle_main_status: MainStatus,
-    factory_park_enabled: bool,
-    vsm_config_mode: VsmConfigMode,
-    coolant_temperature: f32,
-    odometer: f32,
-    external_temperature: f32,
-    external_temperature_filtered: f32,
-    blinkers_status: BlinkersStatus,
-    cluster_lights_test: bool,
-    steering_wheel_position: SteeringWheelPosition,
-    front_wiping_acknowledge: bool,
-    reverse_gear_engaged: bool,
+    pub powertrain_status: PowertrainStatus,
+    pub generator_working: bool,
+    pub vehicle_main_status: MainStatus,
+    pub factory_park_enabled: bool,
+    pub vsm_config_mode: VsmConfigMode,
+    pub coolant_temperature: f32,
+    pub odometer: f32,
+    pub external_temperature: f32,
+    pub external_temperature_filtered: f32,
+    pub blinkers_status: BlinkersStatus,
+    pub cluster_lights_test: bool,
+    pub steering_wheel_position: SteeringWheelPosition,
+    pub front_wiping_acknowledge: bool,
+    pub reverse_gear_engaged: bool,
 }
 
 impl Repr {

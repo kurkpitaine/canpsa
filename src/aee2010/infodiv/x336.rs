@@ -153,9 +153,7 @@ impl Repr {
         wmi.push(frame.wmi_second_char()).unwrap();
         wmi.push(frame.wmi_third_char()).unwrap();
 
-        Ok(Repr {
-            wmi,
-        })
+        Ok(Repr { wmi })
     }
 
     /// Return the length of a frame that will be emitted from this high-level representation.
