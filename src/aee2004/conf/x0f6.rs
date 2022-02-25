@@ -3,7 +3,7 @@ use core::fmt;
 use byteorder::{ByteOrder, NetworkEndian};
 
 use crate::{
-    vehicle::{BlinkersStatus, VsmConfigMode, MainStatus, PowertrainStatus, SteeringWheelPosition},
+    vehicle::{BlinkersStatus, MainStatus, PowertrainStatus, SteeringWheelPosition, VsmConfigMode},
     Error, Result,
 };
 
@@ -364,8 +364,8 @@ impl Repr {
             vsm_config_mode: frame.vsm_config_mode(),
             coolant_temperature: frame.coolant_temp() as f32 - 40.0,
             odometer: (frame.odometer() as f32 / 10.0),
-            external_temperature: (frame.external_temp() as f32 - 40.0) / 2.0,
-            external_temperature_filtered: (frame.external_temp_filtered() as f32 - 40.0) / 2.0,
+            external_temperature: (frame.external_temp() as f32 / 2.0) - 40.0,
+            external_temperature_filtered: (frame.external_temp_filtered() as f32 / 2.0) - 40.0,
             blinkers_status: frame.blinkers_status(),
             cluster_lights_test: frame.cluster_lights_test(),
             steering_wheel_position: frame.steering_wheel_pos(),
@@ -388,8 +388,8 @@ impl Repr {
         frame.set_vsm_config_mode(self.vsm_config_mode);
         frame.set_coolant_temp((self.coolant_temperature + 40.0) as u8);
         frame.set_odometer((self.odometer * 10.0) as u32);
-        frame.set_external_temp((self.external_temperature * 2.0 + 40.0) as u8);
-        frame.set_external_temp_filtered((self.external_temperature_filtered * 2.0 + 40.0) as u8);
+        frame.set_external_temp(((self.external_temperature + 40.0) * 2.0) as u8);
+        frame.set_external_temp_filtered(((self.external_temperature_filtered + 40.0) * 2.0) as u8);
         frame.set_blinkers_status(self.blinkers_status);
         frame.set_cluster_lights_test(self.cluster_lights_test);
         frame.set_steering_wheel_pos(self.steering_wheel_position);
@@ -434,13 +434,13 @@ mod test {
     use super::{Frame, Repr};
     use crate::{
         vehicle::{
-            BlinkersStatus, VsmConfigMode, MainStatus, PowertrainStatus, SteeringWheelPosition,
+            BlinkersStatus, MainStatus, PowertrainStatus, SteeringWheelPosition, VsmConfigMode,
         },
         Error,
     };
 
-    static REPR_FRAME_BYTES_1: [u8; 8] = [0x80, 0x3c, 0x12, 0x99, 0x36, 0x73, 0x73, 0x20];
-    static REPR_FRAME_BYTES_2: [u8; 8] = [0x8e, 0x69, 0x11, 0x75, 0x46, 0x64, 0x64, 0x20];
+    static REPR_FRAME_BYTES_1: [u8; 8] = [0x80, 0x3c, 0x12, 0x99, 0x36, 0x9b, 0x9b, 0x20];
+    static REPR_FRAME_BYTES_2: [u8; 8] = [0x8e, 0x69, 0x11, 0x75, 0x46, 0x8c, 0x8c, 0x20];
 
     fn frame_1_repr() -> Repr {
         Repr {
@@ -491,8 +491,8 @@ mod test {
         assert_eq!(frame.vsm_config_mode(), VsmConfigMode::Customer);
         assert_eq!(frame.coolant_temp(), 60);
         assert_eq!(frame.odometer(), 1218870);
-        assert_eq!(frame.external_temp(), 115);
-        assert_eq!(frame.external_temp_filtered(), 115);
+        assert_eq!(frame.external_temp(), 155);
+        assert_eq!(frame.external_temp_filtered(), 155);
         assert_eq!(frame.blinkers_status(), BlinkersStatus::Off);
         assert_eq!(frame.cluster_lights_test(), false);
         assert_eq!(frame.steering_wheel_pos(), SteeringWheelPosition::Left);
@@ -511,8 +511,8 @@ mod test {
         assert_eq!(frame.vsm_config_mode(), VsmConfigMode::Customer);
         assert_eq!(frame.coolant_temp(), 105);
         assert_eq!(frame.odometer(), 1144134);
-        assert_eq!(frame.external_temp(), 100);
-        assert_eq!(frame.external_temp_filtered(), 100);
+        assert_eq!(frame.external_temp(), 140);
+        assert_eq!(frame.external_temp_filtered(), 140);
         assert_eq!(frame.blinkers_status(), BlinkersStatus::Off);
         assert_eq!(frame.cluster_lights_test(), false);
         assert_eq!(frame.steering_wheel_pos(), SteeringWheelPosition::Left);
@@ -532,8 +532,8 @@ mod test {
         frame.set_vsm_config_mode(VsmConfigMode::Customer);
         frame.set_coolant_temp(60);
         frame.set_odometer(1218870);
-        frame.set_external_temp(115);
-        frame.set_external_temp_filtered(115);
+        frame.set_external_temp(155);
+        frame.set_external_temp_filtered(155);
         frame.set_blinkers_status(BlinkersStatus::Off);
         frame.set_cluster_lights_test(false);
         frame.set_steering_wheel_pos(SteeringWheelPosition::Left);
@@ -555,8 +555,8 @@ mod test {
         frame.set_vsm_config_mode(VsmConfigMode::Customer);
         frame.set_coolant_temp(105);
         frame.set_odometer(1144134);
-        frame.set_external_temp(100);
-        frame.set_external_temp_filtered(100);
+        frame.set_external_temp(140);
+        frame.set_external_temp_filtered(140);
         frame.set_blinkers_status(BlinkersStatus::Off);
         frame.set_cluster_lights_test(false);
         frame.set_steering_wheel_pos(SteeringWheelPosition::Left);
