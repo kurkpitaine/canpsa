@@ -4,6 +4,7 @@ use byteorder::{ByteOrder, NetworkEndian};
 
 use crate::{
     mfd::{Menu, Popup, TripComputerPage, UserAction2010},
+    vehicle::{AutomaticParkingMode, CruiseControlCustomSettingPosition},
     Error, Result,
 };
 
@@ -14,12 +15,49 @@ pub struct Frame<T: AsRef<[u8]>> {
     buffer: T,
 }
 
+/*
+1A9 DEMANDES_IVI_APPUI_PUSH_DETECTE_HS4_1A9
+1A9 DEMANDES_IVI_APP_URG_HS4_1A9
+1A9 DEMANDES_IVI_CGT_XVV_CONS_MEMO_CLOSE_HS4_1A9    // OK
+1A9 DEMANDES_IVI_DEFAUT_AFF_ARC_HS4_1A9             // OK
+1A9 DEMANDES_IVI_DMD_CHG_ET_SCP_SEC_HS4_1A9         // OK
+1A9 DEMANDES_IVI_DMD_XVV_CONS_VIT_PROG_HS4_1A9      // OK
+1A9 DEMANDES_IVI_ENT_CONS_ARTIV_MOINS_HS4_1A9       // OK
+1A9 DEMANDES_IVI_ENT_CONS_ARTIV_PLUS_HS4_1A9        // OK
+1A9 DEMANDES_IVI_ENT_PUSH_AAS_HS4_1A9               // OK
+1A9 DEMANDES_IVI_ENT_PUSH_ACTIV_AVP_HS4_1A9         // OK
+1A9 DEMANDES_IVI_ENT_PUSH_ARTIV_HS4_1A9             // OK
+1A9 DEMANDES_IVI_ENT_PUSH_AVP_AR_HS4_1A9            // OK
+1A9 DEMANDES_IVI_ENT_PUSH_AVP_AV_HS4_1A9            // OK
+1A9 DEMANDES_IVI_ENT_PUSH_AVP_PANO_HS4_1A9          // OK
+1A9 DEMANDES_IVI_ENT_PUSH_CAFR_HS4_1A9              // OK
+1A9 DEMANDES_IVI_ENT_PUSH_CHECK_TACT_HS4_1A9        // OK
+1A9 DEMANDES_IVI_ENT_PUSH_DSGI_HS4_1A9              // OK
+1A9 DEMANDES_IVI_ENT_PUSH_MPD_HS4_1A9               // OK
+1A9 DEMANDES_IVI_ENT_PUSH_SAM_HS4_1A9               // OK
+1A9 DEMANDES_IVI_ENT_PUSH_STL_HS4_1A9               // OK
+1A9 DEMANDES_IVI_ENT_PUSH_STT_HS4_1A9               // OK
+1A9 DEMANDES_IVI_ENT_PUSH_VUE_VPARK_HS4_1A9         // OK
+1A9 DEMANDES_IVI_ETAT_BP_DARK_HS4_1A9               // OK
+1A9 DEMANDES_IVI_NIV_LUM_TACT_HS4_1A9               // OK
+1A9 DEMANDES_IVI_PHASE_VIE_BTEL_HS4_1A9             // OK
+1A9 DEMANDES_IVI_POINT_MESS_INTERACTIF_HS4_1A9      // OK
+1A9 DEMANDES_IVI_RAZ_CUMT1_DDES_EMF_HS4_1A9         // OK
+1A9 DEMANDES_IVI_RAZ_CUMT2_DDES_EMF_HS4_1A9         // OK
+1A9 DEMANDES_IVI_SEL_MENU_CPK_HS4_1A9               // OK
+1A9 DEMANDES_IVI_S_FCT_TELE_HS4_1A9                 // OK
+1A9 DEMANDES_IVI_STOP_CHECK_EMF_HS4_1A9             // OK
+1A9 DEMANDES_IVI_XVV_CONS_VIT_PROG_HS4_1A9          // OK
+1A9 DEMANDES_IVI_XVV_POS_C_VIT_PROG_HS4_1A9         // OK
+1A9 DEMANDES_IVI_XVV_VALID_C_VIT_PROG_HS4_1A9       // OK
+ */
+
 mod field {
     use crate::field::Field;
     /// 1-bit trip computer secondary trip reset request,
     /// 1-bit trip computer primary trip reset request,
     /// 1-bit adaptive cruise-control push button state,
-    /// 2-bit automatic parking menu type selection,
+    /// 2-bit automatic parking mode selection,
     /// 1-bit telematics state,
     /// 1-bit empty,
     /// 1-bit black panel function state.
@@ -36,26 +74,26 @@ mod field {
     /// 1-bit adaptive cruise-control '+' push button state,
     /// 1-bit adaptive cruise-control '-' push button state,
     pub const REQ_1: usize = 3;
-    /// 8-bit cruise-control speed instruction value field,
+    /// 8-bit cruise-control speed instruction value field.
     pub const CC_SPD: usize = 4;
     /// 1-bit indirect under-inflation push button state,
     /// 1-bit empty,
-    /// 1-bit automatic parking state change request,
-    /// 1-bit collision alert failure display request,
-    /// 3-bit cruise-control speed setting instruction position,
+    /// 1-bit automatic parking state change request flag,
+    /// 1-bit collision alert failure display request flag,
+    /// 3-bit cruise-control speed setting instruction position field,
     /// 1-bit empty.
     pub const REQ_2: usize = 5;
-    /// 1-bit fault check request,
+    /// 1-bit fault check request flag,
     /// 4-bit telematic screen lighting level value field,
-    /// 2-bit telematic unit life state,
-    /// 1-bit Stop & Start push button state,
+    /// 2-bit telematic unit life state field,
+    /// 1-bit Stop & Start push button state flag.
     pub const REQ_3: usize = 6;
-    /// 3-bit 'visiopark' visual parking assistance push button state,
-    /// 1-bit cruise-control speed instruction value request,
-    /// 1-bit visual parking assistance panoramic view push button state,
-    /// 1-bit front visual parking assistance push button state,
-    /// 1-bit rear visual parking assistance push button state,
-    /// 1-bit visual parking assistance activation request.
+    /// 3-bit 'visiopark' visual parking assistance push button state field,
+    /// 1-bit cruise-control speed instruction value request flag,
+    /// 1-bit visual parking assistance panoramic view push button state flag,
+    /// 1-bit front visual parking assistance push button state flag,
+    /// 1-bit rear visual parking assistance push button state flag,
+    /// 1-bit visual parking assistance activation request flag.
     pub const REQ_4: usize = 7;
 }
 
@@ -124,77 +162,33 @@ impl<T: AsRef<[u8]>> Frame<T> {
         data[field::REQ_0] & 0x02 != 0
     }
 
-    /// Return the multi-function display trip computer displayed page field.
+    /// Return the adaptive cruise-control push button state flag.
     #[inline]
-    pub fn mfd_trip_computer_page(&self) -> TripComputerPage {
+    pub fn adaptive_cruise_control_button_state(&self) -> bool {
         let data = self.buffer.as_ref();
-        let raw = data[field::REQ_0] & 0x07;
-        TripComputerPage::from(raw)
+        data[field::REQ_0] & 0x04 != 0
     }
 
-    /// Return the maintenance reset request flag.
-    /// logic is inverted here, 0 means requested...
+    /// Return the automatic parking mode selection field.
     #[inline]
-    pub fn maintenance_reset_request(&self) -> bool {
+    pub fn auto_parking_mode(&self) -> AutomaticParkingMode {
         let data = self.buffer.as_ref();
-        !(data[field::REQ_0] & 0x08 != 0)
-    }
-
-    /// Return the emergency call in progress flag.
-    #[inline]
-    pub fn emergency_call_in_progress(&self) -> bool {
-        let data = self.buffer.as_ref();
-        data[field::REQ_0] & 0x10 != 0
-    }
-
-    /// Return the fault check recall request flag.
-    #[inline]
-    pub fn fault_recall_request(&self) -> bool {
-        let data = self.buffer.as_ref();
-        data[field::REQ_0] & 0x20 != 0
-    }
-
-
-    /// Return the pre-conditioning time field (units: minutes).
-    #[inline]
-    pub fn pre_conditioning_time(&self) -> u8 {
-        let data = self.buffer.as_ref();
-        data[field::REQ_1] & 0x08
+        let raw = (data[field::REQ_0] & 0x18) >> 3;
+        AutomaticParkingMode::from(raw)
     }
 
     /// Return the telematics enabled flag.
     #[inline]
     pub fn telematics_enabled(&self) -> bool {
         let data = self.buffer.as_ref();
-        data[field::REQ_1] & 0x10 != 0
+        data[field::REQ_0] & 0x20 != 0
     }
 
     /// Return the black panel function state flag.
     #[inline]
     pub fn black_panel_enabled(&self) -> bool {
         let data = self.buffer.as_ref();
-        data[field::REQ_1] & 0x20 != 0
-    }
-
-    /// Return the indirect under-inflation detection reset request flag.
-    #[inline]
-    pub fn indirect_under_inflation_reset_request(&self) -> bool {
-        let data = self.buffer.as_ref();
-        data[field::REQ_1] & 0x40 != 0
-    }
-
-    /// Return the thermal pre-conditioning request flag.
-    #[inline]
-    pub fn pre_conditioning_request(&self) -> bool {
-        let data = self.buffer.as_ref();
-        data[field::REQ_1] & 0x80 != 0
-    }
-
-    /// Return the total trip distance field.
-    #[inline]
-    pub fn total_trip_distance(&self) -> u16 {
-        let data = self.buffer.as_ref();
-        NetworkEndian::read_u16(&data[field::TOTAL_TRIP_DISTANCE])
+        data[field::REQ_0] & 0x80 != 0
     }
 
     /// Return the interactive message field.
@@ -212,81 +206,176 @@ impl<T: AsRef<[u8]>> Frame<T> {
         raw & !0x7fff != 0
     }
 
-    /// Return the popup id to display acknowledge field.
+    /// Return the cruise-control custom speed memorization request flag.
     #[inline]
-    pub fn popup_id_ack(&self) -> Popup {
+    pub fn cruise_control_custom_speed_mem_request(&self) -> bool {
         let data = self.buffer.as_ref();
-        Popup::from(data[field::POPUP_ID])
+        data[field::REQ_1] & 0x01 != 0
     }
 
-    /// Return the user selected menu field.
+    /// Return the available space measurement push button state flag.
     #[inline]
-    pub fn selected_menu(&self) -> Menu {
+    pub fn available_space_measurement_button_state(&self) -> bool {
         let data = self.buffer.as_ref();
-        let raw = (data[field::MENU_ACTION] & 0x1c) >> 2;
-        Menu::from(raw)
+        data[field::REQ_1] & 0x02 != 0
     }
 
-    /// Return the wifi parameters reception acknowledge flag.
+    /// Return the parking sensors push button state flag.
     #[inline]
-    pub fn wifi_parameters_ack(&self) -> bool {
+    pub fn parking_sensors_button_state(&self) -> bool {
         let data = self.buffer.as_ref();
-        data[field::MENU_ACTION] & 0x20 != 0
+        data[field::REQ_1] & 0x04 != 0
     }
 
-    /// Return the user action on MFD field.
+    /// Return the automatic main beam push button state flag.
     #[inline]
-    pub fn user_action_on_mfd(&self) -> UserAction2010 {
+    pub fn auto_main_beam_button_state(&self) -> bool {
         let data = self.buffer.as_ref();
-        let raw = data[field::MENU_ACTION] >> 6;
-        UserAction2010::from(raw)
+        data[field::REQ_1] & 0x08 != 0
+    }
+
+    /// Return the lane centering push button state flag.
+    #[inline]
+    pub fn lane_centering_button_state(&self) -> bool {
+        let data = self.buffer.as_ref();
+        data[field::REQ_1] & 0x10 != 0
+    }
+
+    /// Return the blind spot monitoring push button state flag.
+    #[inline]
+    pub fn blind_spot_monitoring_button_state(&self) -> bool {
+        let data = self.buffer.as_ref();
+        data[field::REQ_1] & 0x20 != 0
+    }
+
+    /// Return the adaptive cruise-control '+' push button state flag.
+    #[inline]
+    pub fn adaptive_cruise_control_plus_button_state(&self) -> bool {
+        let data = self.buffer.as_ref();
+        data[field::REQ_1] & 0x40 != 0
+    }
+
+    /// Return the adaptive cruise-control '-' push button state flag.
+    #[inline]
+    pub fn adaptive_cruise_control_minus_button_state(&self) -> bool {
+        let data = self.buffer.as_ref();
+        data[field::REQ_1] & 0x80 != 0
+    }
+
+    /// Return the cruise-control speed instruction value field.
+    #[inline]
+    pub fn cruise_control_speed_instruction(&self) -> u8 {
+        let data = self.buffer.as_ref();
+        data[field::CC_SPD]
+    }
+
+    /// Return the indirect under-inflation push button state flag.
+    #[inline]
+    pub fn indirect_under_inflation_button_state(&self) -> bool {
+        let data = self.buffer.as_ref();
+        data[field::REQ_2] & 0x01 != 0
+    }
+
+    /// Return the automatic parking state change request flag.
+    #[inline]
+    pub fn auto_parking_state_change_request(&self) -> bool {
+        let data = self.buffer.as_ref();
+        data[field::REQ_2] & 0x04 != 0
+    }
+
+    /// Return the collision alert failure display request flag.
+    #[inline]
+    pub fn collision_alert_failure_display_request(&self) -> bool {
+        let data = self.buffer.as_ref();
+        data[field::REQ_2] & 0x08 != 0
+    }
+
+    /// Return the cruise-control speed setting instruction position field.
+    #[inline]
+    pub fn cruise_control_spd_setting_instruction_pos(&self) -> CruiseControlCustomSettingPosition {
+        let data = self.buffer.as_ref();
+        let raw = (data[field::REQ_2] & 0x70) >> 4;
+        CruiseControlCustomSettingPosition::from(raw)
+    }
+
+    /// Return the fault check request flag.
+    #[inline]
+    pub fn fault_check_request(&self) -> bool {
+        let data = self.buffer.as_ref();
+        data[field::REQ_3] & 0x01 != 0
+    }
+
+    /// Return the telematic screen lighting level value field.
+    #[inline]
+    pub fn telematic_screen_lighting_level(&self) -> u8 {
+        let data = self.buffer.as_ref();
+        (data[field::REQ_3] & 0x1e) >> 1
+    }
+
+    /// Return the telematic unit life state field.
+    #[inline]
+    pub fn telematic_unit_life_state(&self) -> u8 {
+        let data = self.buffer.as_ref();
+        (data[field::REQ_3] & 0x60) >> 5
+    }
+
+    /// Return the Stop & Start push button state flag.
+    #[inline]
+    pub fn stop_start_button_state(&self) -> bool {
+        let data = self.buffer.as_ref();
+        data[field::REQ_3] & 0x80 != 0
+    }
+
+    /// Return the 'visiopark' visual parking assistance push button state field.
+    #[inline]
+    pub fn visual_parking_assistance_button_state(&self) -> u8 {
+        let data = self.buffer.as_ref();
+        data[field::REQ_4] & 0x07
+    }
+
+    /// Return the cruise-control speed instruction value request flag.
+    #[inline]
+    pub fn cruise_control_spd_instruction_val_request(&self) -> bool {
+        let data = self.buffer.as_ref();
+        data[field::REQ_4] & 0x08 != 0
+    }
+
+    /// Return the visual parking assistance panoramic view push button state flag.
+    #[inline]
+    pub fn visual_parking_assistance_panoramic_view_button_state(&self) -> bool {
+        let data = self.buffer.as_ref();
+        data[field::REQ_4] & 0x10 != 0
+    }
+
+    /// Return the front visual parking assistance push button state flag.
+    #[inline]
+    pub fn front_visual_parking_assistance_button_state(&self) -> bool {
+        let data = self.buffer.as_ref();
+        data[field::REQ_4] & 0x20 != 0
+    }
+
+    /// Return the rear visual parking assistance push button state flag.
+    #[inline]
+    pub fn rear_visual_parking_assistance_button_state(&self) -> bool {
+        let data = self.buffer.as_ref();
+        data[field::REQ_4] & 0x40 != 0
+    }
+
+    /// Return the visual parking assistance activation request flag.
+    #[inline]
+    pub fn visual_parking_assistance_activation_request(&self) -> bool {
+        let data = self.buffer.as_ref();
+        data[field::REQ_4] & 0x80 != 0
     }
 }
 
 impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
-    /// Set the multi-function display trip computer displayed page field.
-    #[inline]
-    pub fn set_mfd_trip_computer_page(&mut self, value: TripComputerPage) {
-        let data = self.buffer.as_mut();
-        let raw = data[field::REQ_0] & !0x07;
-        let raw = raw | (u8::from(value) & 0x07);
-        data[field::REQ_0] = raw;
-    }
-
-    /// Set the maintenance reset request flag.
-    /// logic is inverted here, 0 means requested...
-    #[inline]
-    pub fn set_maintenance_reset_request(&mut self, value: bool) {
-        let data = self.buffer.as_mut();
-        let raw = data[field::REQ_0];
-        let raw = if !value { raw | 0x08 } else { raw & !0x08 };
-        data[field::REQ_0] = raw;
-    }
-
-    /// Set the emergency call in progress flag.
-    #[inline]
-    pub fn set_emergency_call_in_progress(&mut self, value: bool) {
-        let data = self.buffer.as_mut();
-        let raw = data[field::REQ_0];
-        let raw = if value { raw | 0x10 } else { raw & !0x10 };
-        data[field::REQ_0] = raw;
-    }
-
-    /// Set the fault check recall request flag.
-    #[inline]
-    pub fn set_fault_check_recall_request(&mut self, value: bool) {
-        let data = self.buffer.as_mut();
-        let raw = data[field::REQ_0];
-        let raw = if value { raw | 0x20 } else { raw & !0x20 };
-        data[field::REQ_0] = raw;
-    }
-
     /// Set the trip computer secondary trip reset request flag.
     #[inline]
     pub fn set_trip_computer_secondary_trip_reset_request(&mut self, value: bool) {
         let data = self.buffer.as_mut();
         let raw = data[field::REQ_0];
-        let raw = if value { raw | 0x40 } else { raw & !0x40 };
+        let raw = if value { raw | 0x01 } else { raw & !0x01 };
         data[field::REQ_0] = raw;
     }
 
@@ -295,60 +384,44 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
     pub fn set_trip_computer_primary_trip_reset_request(&mut self, value: bool) {
         let data = self.buffer.as_mut();
         let raw = data[field::REQ_0];
-        let raw = if value { raw | 0x80 } else { raw & !0x80 };
+        let raw = if value { raw | 0x02 } else { raw & !0x02 };
         data[field::REQ_0] = raw;
     }
 
-    /// Set the pre-conditioning time field (units: minutes).
+    /// Set the adaptive cruise-control push button state flag.
     #[inline]
-    pub fn set_pre_conditioning_time(&mut self, value: u8) {
+    pub fn set_adaptive_cruise_control_button_state(&mut self, value: bool) {
         let data = self.buffer.as_mut();
-        let raw = data[field::REQ_1] & !0x08;
-        let raw = raw | (value & 0x08);
-        data[field::REQ_1] = raw;
+        let raw = data[field::REQ_0];
+        let raw = if value { raw | 0x04 } else { raw & !0x04 };
+        data[field::REQ_0] = raw;
+    }
+
+    /// Set the automatic parking mode selection field.
+    #[inline]
+    pub fn set_auto_parking_mode(&mut self, value: AutomaticParkingMode) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::REQ_0] & !0x18;
+        let raw = raw | ((u8::from(value) << 3) & 0x18);
+        data[field::REQ_0] = raw;
     }
 
     /// Set the telematics enabled flag.
     #[inline]
     pub fn set_telematics_enabled(&mut self, value: bool) {
         let data = self.buffer.as_mut();
-        let raw = data[field::REQ_1];
-        let raw = if value { raw | 0x10 } else { raw & !0x10 };
-        data[field::REQ_1] = raw;
+        let raw = data[field::REQ_0];
+        let raw = if value { raw | 0x20 } else { raw & !0x20 };
+        data[field::REQ_0] = raw;
     }
 
     /// Set the black panel function state flag.
     #[inline]
     pub fn set_black_panel_enabled(&mut self, value: bool) {
         let data = self.buffer.as_mut();
-        let raw = data[field::REQ_1];
-        let raw = if value { raw | 0x20 } else { raw & !0x20 };
-        data[field::REQ_1] = raw;
-    }
-
-    /// Set the indirect under-inflation detection reset request flag.
-    #[inline]
-    pub fn set_indirect_under_inflation_reset_request(&mut self, value: bool) {
-        let data = self.buffer.as_mut();
-        let raw = data[field::REQ_1];
-        let raw = if value { raw | 0x40 } else { raw & !0x40 };
-        data[field::REQ_1] = raw;
-    }
-
-    /// Set the thermal pre-conditioning request flag.
-    #[inline]
-    pub fn set_pre_conditioning_request(&mut self, value: bool) {
-        let data = self.buffer.as_mut();
-        let raw = data[field::REQ_1];
+        let raw = data[field::REQ_0];
         let raw = if value { raw | 0x80 } else { raw & !0x80 };
-        data[field::REQ_1] = raw;
-    }
-
-    /// Set the total trip distance field.
-    #[inline]
-    pub fn set_total_trip_distance(&mut self, value: u16) {
-        let data = self.buffer.as_mut();
-        NetworkEndian::write_u16(&mut data[field::TOTAL_TRIP_DISTANCE], value);
+        data[field::REQ_0] = raw;
     }
 
     /// Set the interactive message field.
@@ -369,38 +442,212 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
         NetworkEndian::write_u16(&mut data[field::INTERACTIVE_MSG_STOP_CHK], raw);
     }
 
-    /// Set the popup id to display acknowledge field.
+    /// Set the cruise-control custom speed memorization request field.
     #[inline]
-    pub fn set_popup_id_ack(&mut self, value: Popup) {
+    pub fn set_cruise_control_custom_speed_mem_request(&mut self, value: bool) {
         let data = self.buffer.as_mut();
-        data[field::POPUP_ID] = u8::from(value);
+        let raw = data[field::REQ_1];
+        let raw = if value { raw | 0x01 } else { raw & !0x01 };
+        data[field::REQ_1] = raw;
     }
 
-    /// Set the user selected menu field.
+    /// Set the available space measurement push button state flag.
     #[inline]
-    pub fn set_selected_menu(&mut self, value: Menu) {
+    pub fn set_available_space_measurement_button_state(&mut self, value: bool) {
         let data = self.buffer.as_mut();
-        let raw = data[field::MENU_ACTION] & !0x1c;
-        let raw = raw | ((u8::from(value) << 2) & 0x1c);
-        data[field::MENU_ACTION] = raw;
+        let raw = data[field::REQ_1];
+        let raw = if value { raw | 0x02 } else { raw & !0x02 };
+        data[field::REQ_1] = raw;
     }
 
-    /// Set the wifi parameters reception acknowledge flag.
+    /// Set the parking sensors push button state flag.
     #[inline]
-    pub fn set_wifi_parameters_ack(&mut self, value: bool) {
+    pub fn set_parking_sensors_button_state(&mut self, value: bool) {
         let data = self.buffer.as_mut();
-        let raw = data[field::MENU_ACTION];
+        let raw = data[field::REQ_1];
+        let raw = if value { raw | 0x04 } else { raw & !0x04 };
+        data[field::REQ_1] = raw;
+    }
+
+    /// Set the automatic main beam push button state flag.
+    #[inline]
+    pub fn set_auto_main_beam_button_state(&mut self, value: bool) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::REQ_1];
+        let raw = if value { raw | 0x08 } else { raw & !0x08 };
+        data[field::REQ_1] = raw;
+    }
+
+    /// Set the lane centering push button state flag.
+    #[inline]
+    pub fn set_lane_centering_button_state(&mut self, value: bool) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::REQ_1];
+        let raw = if value { raw | 0x10 } else { raw & !0x10 };
+        data[field::REQ_1] = raw;
+    }
+
+    /// Set the blind spot monitoring push button state flag.
+    #[inline]
+    pub fn set_blind_spot_monitoring_button_state(&mut self, value: bool) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::REQ_1];
         let raw = if value { raw | 0x20 } else { raw & !0x20 };
-        data[field::MENU_ACTION] = raw;
+        data[field::REQ_1] = raw;
     }
 
-    /// Set the user action on MFD field.
+    /// Set the adaptive cruise-control '+' push button state flag.
     #[inline]
-    pub fn set_user_action_on_mfd(&mut self, value: UserAction2010) {
+    pub fn set_adaptive_cruise_control_plus_button_state(&mut self, value: bool) {
         let data = self.buffer.as_mut();
-        let raw = data[field::MENU_ACTION];
-        let raw = raw | (u8::from(value) << 6);
-        data[field::MENU_ACTION] = raw;
+        let raw = data[field::REQ_1];
+        let raw = if value { raw | 0x40 } else { raw & !0x40 };
+        data[field::REQ_1] = raw;
+    }
+
+    /// Set the adaptive cruise-control '-' push button state flag.
+    #[inline]
+    pub fn set_adaptive_cruise_control_minus_button_state(&mut self, value: bool) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::REQ_1];
+        let raw = if value { raw | 0x80 } else { raw & !0x80 };
+        data[field::REQ_1] = raw;
+    }
+
+    /// Set the cruise-control speed instruction value field.
+    #[inline]
+    pub fn set_cruise_control_speed_instruction(&mut self, value: u8) {
+        let data = self.buffer.as_mut();
+        data[field::CC_SPD] = value;
+    }
+
+    /// Set the indirect under-inflation push button state flag.
+    #[inline]
+    pub fn set_indirect_under_inflation_button_state(&mut self, value: bool) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::REQ_2];
+        let raw = if value { raw | 0x01 } else { raw & !0x01 };
+        data[field::REQ_2] = raw;
+    }
+
+    /// Set the automatic parking state change request flag.
+    #[inline]
+    pub fn set_auto_parking_state_change_request(&mut self, value: bool) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::REQ_2];
+        let raw = if value { raw | 0x04 } else { raw & !0x04 };
+        data[field::REQ_2] = raw;
+    }
+
+    /// Set the collision alert failure display request flag.
+    #[inline]
+    pub fn set_collision_alert_failure_display_request(&mut self, value: bool) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::REQ_2];
+        let raw = if value { raw | 0x08 } else { raw & !0x08 };
+        data[field::REQ_2] = raw;
+    }
+
+    /// Set the cruise-control speed setting instruction position field.
+    #[inline]
+    pub fn set_cruise_control_spd_setting_instruction_pos(
+        &mut self,
+        value: CruiseControlCustomSettingPosition,
+    ) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::REQ_2];
+        let raw = raw | ((u8::from(value) << 4) & 0x70);
+        data[field::REQ_2] = raw;
+    }
+
+    /// Set the fault check request flag.
+    #[inline]
+    pub fn set_fault_check_request(&mut self, value: bool) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::REQ_3];
+        let raw = if value { raw | 0x01 } else { raw & !0x01 };
+        data[field::REQ_3] = raw;
+    }
+
+    /// Set the telematic screen lighting level value field.
+    #[inline]
+    pub fn set_telematic_screen_lighting_level(&mut self, value: u8) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::REQ_3] & !0x1e;
+        let raw = raw | ((value << 1) & 0x1e);
+        data[field::REQ_3] = raw;
+    }
+
+    /// Set the telematic unit life state field.
+    #[inline]
+    pub fn set_telematic_unit_life_state(&mut self, value: u8) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::REQ_3] & !0x60;
+        let raw = raw | ((value << 5) & 0x60);
+        data[field::REQ_3] = raw;
+    }
+
+    /// Set the indirect under-inflation detection reset request flag.
+    #[inline]
+    pub fn set_stop_start_button_state(&mut self, value: bool) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::REQ_3];
+        let raw = if value { raw | 0x80 } else { raw & !0x80 };
+        data[field::REQ_3] = raw;
+    }
+
+    /// Set the 'visiopark' visual parking assistance push button state field.
+    #[inline]
+    pub fn set_visual_parking_assistance_button_state(&mut self, value: u8) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::REQ_4] & !0x07;
+        let raw = raw | (value & 0x07);
+        data[field::REQ_4] = raw;
+    }
+
+    /// Set the cruise-control speed instruction value request flag.
+    #[inline]
+    pub fn set_cruise_control_spd_instruction_val_request(&mut self, value: bool) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::REQ_4];
+        let raw = if value { raw | 0x08 } else { raw & !0x08 };
+        data[field::REQ_4] = raw;
+    }
+
+    /// Set the visual parking assistance panoramic view push button state flag.
+    #[inline]
+    pub fn set_visual_parking_assistance_panoramic_view_button_state(&mut self, value: bool) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::REQ_4];
+        let raw = if value { raw | 0x10 } else { raw & !0x10 };
+        data[field::REQ_4] = raw;
+    }
+
+    /// Set the front visual parking assistance push button state flag.
+    #[inline]
+    pub fn set_front_visual_parking_assistance_button_state(&mut self, value: bool) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::REQ_4];
+        let raw = if value { raw | 0x20 } else { raw & !0x20 };
+        data[field::REQ_4] = raw;
+    }
+
+    /// Set the rear visual parking assistance push button state flag.
+    #[inline]
+    pub fn set_rear_visual_parking_assistance_button_state(&mut self, value: bool) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::REQ_4];
+        let raw = if value { raw | 0x40 } else { raw & !0x40 };
+        data[field::REQ_4] = raw;
+    }
+
+    /// Set the visual parking assistance activation request flag.
+    #[inline]
+    pub fn set_visual_parking_assistance_activation_request(&mut self, value: bool) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::REQ_4];
+        let raw = if value { raw | 0x80 } else { raw & !0x80 };
+        data[field::REQ_4] = raw;
     }
 }
 
@@ -426,24 +673,37 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Repr {
-    pub mfd_trip_computer_page: TripComputerPage,
-    pub maintenance_reset_request: bool,
-    pub emergency_call_in_progress: bool,
-    pub fault_recall_request: bool,
     pub trip_computer_secondary_trip_reset_request: bool,
     pub trip_computer_primary_trip_reset_request: bool,
-    pub pre_conditioning_time: u8,
+    pub adaptive_cruise_control_button_state: bool,
+    pub automatic_parking_mode: AutomaticParkingMode,
     pub telematics_enabled: bool,
     pub black_panel_enabled: bool,
-    pub indirect_under_inflation_reset_request: bool,
-    pub pre_conditioning_request: bool,
-    pub total_trip_distance: u16,
     pub interactive_message: u16,
     pub stop_check_request: bool,
-    pub popup_id_acknowledge: Popup,
-    pub selected_menu: Menu,
-    pub wifi_parameters_acknowledge: bool,
-    pub user_action_on_mfd: UserAction2010,
+    pub cruise_control_custom_speed_memorization_request: bool,
+    pub available_space_measurement_button_state: bool,
+    pub parking_sensors_button_state: bool,
+    pub auto_main_beam_button_state: bool,
+    pub lane_centering_button_state: bool,
+    pub blind_spot_monitoring_button_state: bool,
+    pub adaptive_cruise_control_plus_button_state: bool,
+    pub adaptive_cruise_control_minus_button_state: bool,
+    pub cruise_control_speed_instruction: u8,
+    pub indirect_under_inflation_button_state: bool,
+    pub automatic_parking_state_change_request: bool,
+    pub collision_alert_failure_display_request: bool,
+    pub cruise_control_speed_setting_instruction_position: CruiseControlCustomSettingPosition,
+    pub fault_check_request: bool,
+    pub telematic_screen_lighting_level: u8,
+    pub telematic_unit_life_state: u8,
+    pub stop_start_button_state: bool,
+    pub visual_parking_assistance_button_state: u8,
+    pub cruise_control_speed_instruction_value_request: bool,
+    pub visual_parking_assistance_panoramic_view_button_state: bool,
+    pub front_visual_parking_assistance_button_state: bool,
+    pub rear_visual_parking_assistance_button_state: bool,
+    pub visual_parking_assistance_activation_request: bool,
 }
 
 impl Repr {
@@ -451,26 +711,50 @@ impl Repr {
         frame.check_len()?;
 
         Ok(Repr {
-            mfd_trip_computer_page: frame.mfd_trip_computer_page(),
-            maintenance_reset_request: frame.maintenance_reset_request(),
-            emergency_call_in_progress: frame.emergency_call_in_progress(),
-            fault_recall_request: frame.fault_recall_request(),
             trip_computer_secondary_trip_reset_request: frame
                 .trip_computer_secondary_trip_reset_request(),
             trip_computer_primary_trip_reset_request: frame
                 .trip_computer_primary_trip_reset_request(),
-            pre_conditioning_time: frame.pre_conditioning_time() / 5,
+            adaptive_cruise_control_button_state: frame.adaptive_cruise_control_button_state(),
+            automatic_parking_mode: frame.auto_parking_mode(),
             telematics_enabled: frame.telematics_enabled(),
             black_panel_enabled: frame.black_panel_enabled(),
-            indirect_under_inflation_reset_request: frame.indirect_under_inflation_reset_request(),
-            pre_conditioning_request: frame.pre_conditioning_request(),
-            total_trip_distance: frame.total_trip_distance() * 2,
             interactive_message: frame.interactive_message(),
             stop_check_request: frame.stop_check_request(),
-            popup_id_acknowledge: frame.popup_id_ack(),
-            selected_menu: frame.selected_menu(),
-            wifi_parameters_acknowledge: frame.wifi_parameters_ack(),
-            user_action_on_mfd: frame.user_action_on_mfd(),
+            cruise_control_custom_speed_memorization_request: frame
+                .cruise_control_custom_speed_mem_request(),
+            available_space_measurement_button_state: frame
+                .available_space_measurement_button_state(),
+            parking_sensors_button_state: frame.parking_sensors_button_state(),
+            auto_main_beam_button_state: frame.auto_main_beam_button_state(),
+            lane_centering_button_state: frame.lane_centering_button_state(),
+            blind_spot_monitoring_button_state: frame.blind_spot_monitoring_button_state(),
+            adaptive_cruise_control_plus_button_state: frame
+                .adaptive_cruise_control_plus_button_state(),
+            adaptive_cruise_control_minus_button_state: frame
+                .adaptive_cruise_control_minus_button_state(),
+            cruise_control_speed_instruction: frame.cruise_control_speed_instruction(),
+            indirect_under_inflation_button_state: frame.indirect_under_inflation_button_state(),
+            automatic_parking_state_change_request: frame.auto_parking_state_change_request(),
+            collision_alert_failure_display_request: frame
+                .collision_alert_failure_display_request(),
+            cruise_control_speed_setting_instruction_position: frame
+                .cruise_control_spd_setting_instruction_pos(),
+            fault_check_request: frame.fault_check_request(),
+            telematic_screen_lighting_level: frame.telematic_screen_lighting_level(),
+            telematic_unit_life_state: frame.telematic_unit_life_state(),
+            stop_start_button_state: frame.stop_start_button_state(),
+            visual_parking_assistance_button_state: frame.visual_parking_assistance_button_state(),
+            cruise_control_speed_instruction_value_request: frame
+                .cruise_control_spd_instruction_val_request(),
+            visual_parking_assistance_panoramic_view_button_state: frame
+                .visual_parking_assistance_panoramic_view_button_state(),
+            front_visual_parking_assistance_button_state: frame
+                .front_visual_parking_assistance_button_state(),
+            rear_visual_parking_assistance_button_state: frame
+                .rear_visual_parking_assistance_button_state(),
+            visual_parking_assistance_activation_request: frame
+                .visual_parking_assistance_activation_request(),
         })
     }
 
@@ -481,85 +765,201 @@ impl Repr {
 
     /// Emit a high-level representation into a x1a9 CAN frame.
     pub fn emit<T: AsRef<[u8]> + AsMut<[u8]>>(&self, frame: &mut Frame<T>) {
-        frame.set_mfd_trip_computer_page(self.mfd_trip_computer_page);
-        frame.set_maintenance_reset_request(self.maintenance_reset_request);
-        frame.set_emergency_call_in_progress(self.emergency_call_in_progress);
-        frame.set_fault_check_recall_request(self.fault_recall_request);
         frame.set_trip_computer_secondary_trip_reset_request(
             self.trip_computer_secondary_trip_reset_request,
         );
         frame.set_trip_computer_primary_trip_reset_request(
             self.trip_computer_primary_trip_reset_request,
         );
-        frame.set_pre_conditioning_time(self.pre_conditioning_time * 5);
+        frame.set_adaptive_cruise_control_button_state(self.adaptive_cruise_control_button_state);
+        frame.set_auto_parking_mode(self.automatic_parking_mode);
         frame.set_telematics_enabled(self.telematics_enabled);
         frame.set_black_panel_enabled(self.black_panel_enabled);
-        frame.set_indirect_under_inflation_reset_request(
-            self.indirect_under_inflation_reset_request,
-        );
-        frame.set_pre_conditioning_request(self.pre_conditioning_request);
-        frame.set_total_trip_distance(self.total_trip_distance / 2);
         frame.set_interactive_message(self.interactive_message);
         frame.set_stop_check_request(self.stop_check_request);
-        frame.set_popup_id_ack(self.popup_id_acknowledge);
-        frame.set_selected_menu(self.selected_menu);
-        frame.set_wifi_parameters_ack(self.wifi_parameters_acknowledge);
-        frame.set_user_action_on_mfd(self.user_action_on_mfd);
+        frame.set_cruise_control_custom_speed_mem_request(
+            self.cruise_control_custom_speed_memorization_request,
+        );
+        frame.set_available_space_measurement_button_state(
+            self.available_space_measurement_button_state,
+        );
+        frame.set_parking_sensors_button_state(self.parking_sensors_button_state);
+        frame.set_auto_main_beam_button_state(self.auto_main_beam_button_state);
+        frame.set_lane_centering_button_state(self.lane_centering_button_state);
+        frame.set_blind_spot_monitoring_button_state(self.blind_spot_monitoring_button_state);
+        frame.set_adaptive_cruise_control_plus_button_state(
+            self.adaptive_cruise_control_plus_button_state,
+        );
+        frame.set_adaptive_cruise_control_minus_button_state(
+            self.adaptive_cruise_control_minus_button_state,
+        );
+        frame.set_cruise_control_speed_instruction(self.cruise_control_speed_instruction);
+        frame.set_indirect_under_inflation_button_state(self.indirect_under_inflation_button_state);
+        frame.set_auto_parking_state_change_request(self.automatic_parking_state_change_request);
+        frame.set_collision_alert_failure_display_request(
+            self.collision_alert_failure_display_request,
+        );
+        frame.set_cruise_control_spd_setting_instruction_pos(
+            self.cruise_control_speed_setting_instruction_position,
+        );
+        frame.set_fault_check_request(self.fault_check_request);
+        frame.set_telematic_screen_lighting_level(self.telematic_screen_lighting_level);
+        frame.set_telematic_unit_life_state(self.telematic_unit_life_state);
+        frame.set_stop_start_button_state(self.stop_start_button_state);
+        frame.set_visual_parking_assistance_button_state(
+            self.visual_parking_assistance_button_state,
+        );
+        frame.set_cruise_control_spd_instruction_val_request(
+            self.cruise_control_speed_instruction_value_request,
+        );
+        frame.set_visual_parking_assistance_panoramic_view_button_state(
+            self.visual_parking_assistance_panoramic_view_button_state,
+        );
+        frame.set_front_visual_parking_assistance_button_state(
+            self.front_visual_parking_assistance_button_state,
+        );
+        frame.set_rear_visual_parking_assistance_button_state(
+            self.rear_visual_parking_assistance_button_state,
+        );
+        frame.set_visual_parking_assistance_activation_request(
+            self.visual_parking_assistance_activation_request,
+        );
     }
 }
 
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
+        writeln!(
             f,
-            "x1a9 mfd trip computer page={}",
-            self.mfd_trip_computer_page
-        )?;
-        write!(
-            f,
-            " maintenance reset request={}",
-            self.maintenance_reset_request
-        )?;
-        write!(
-            f,
-            " emergency call in progress={}",
-            self.emergency_call_in_progress
-        )?;
-        write!(f, " fault recall request={}", self.fault_recall_request)?;
-        write!(
-            f,
-            " trip computer secondary trip reset_request={}",
+            "x1a9 trip_computer_secondary_trip_reset_request={}",
             self.trip_computer_secondary_trip_reset_request
         )?;
-        write!(
+        writeln!(
             f,
-            " trip computer primary trip reset_request={}",
+            " trip_computer_primary_trip_reset_request={}",
             self.trip_computer_primary_trip_reset_request
         )?;
-        write!(f, " preconditioning time={}", self.pre_conditioning_time)?;
-        write!(f, " telematics enabled={}", self.telematics_enabled)?;
-        write!(f, " black panel enabled={}", self.black_panel_enabled)?;
-        write!(
+        writeln!(
             f,
-            " indirect under inflation reset_request={}",
-            self.indirect_under_inflation_reset_request
+            " adaptive_cruise_control_button_state={}",
+            self.adaptive_cruise_control_button_state
         )?;
-        write!(
+        writeln!(f, " automatic_parking_mode={}", self.automatic_parking_mode)?;
+        writeln!(f, " telematics_enabled={}", self.telematics_enabled)?;
+        writeln!(f, " black_panel_enabled={}", self.black_panel_enabled)?;
+        writeln!(f, " interactive_message={}", self.interactive_message)?;
+        writeln!(f, " stop_check_request={}", self.stop_check_request)?;
+        writeln!(
             f,
-            " pre conditioning request={}",
-            self.pre_conditioning_request
+            " cruise_control_custom_speed_memorization_request={}",
+            self.cruise_control_custom_speed_memorization_request
         )?;
-        write!(f, " total trip distance={}", self.total_trip_distance)?;
-        write!(f, " interactive message={}", self.interactive_message)?;
-        write!(f, " stop check request={}", self.stop_check_request)?;
-        write!(f, " popup id acknowledge={}", self.popup_id_acknowledge)?;
-        write!(f, " selected menu={}", self.selected_menu)?;
-        write!(
+        writeln!(
             f,
-            " wifi parameters acknowledge={}",
-            self.wifi_parameters_acknowledge
+            " available_space_measurement_button_state={}",
+            self.available_space_measurement_button_state
         )?;
-        write!(f, " user_action on mfd={}", self.user_action_on_mfd)
+        writeln!(
+            f,
+            " parking_sensors_button_state={}",
+            self.parking_sensors_button_state
+        )?;
+        writeln!(
+            f,
+            " auto_main_beam_button_state={}",
+            self.auto_main_beam_button_state
+        )?;
+        writeln!(
+            f,
+            " lane_centering_button_state={}",
+            self.lane_centering_button_state
+        )?;
+        writeln!(
+            f,
+            " blind_spot_monitoring_button_state={}",
+            self.blind_spot_monitoring_button_state
+        )?;
+        writeln!(
+            f,
+            " adaptive_cruise_control_plus_button_state={}",
+            self.adaptive_cruise_control_plus_button_state
+        )?;
+        writeln!(
+            f,
+            " adaptive_cruise_control_minus_button_state={}",
+            self.adaptive_cruise_control_minus_button_state
+        )?;
+        writeln!(
+            f,
+            " cruise_control_speed_instruction={}",
+            self.cruise_control_speed_instruction
+        )?;
+        writeln!(
+            f,
+            " indirect_under_inflation_button_state={}",
+            self.indirect_under_inflation_button_state
+        )?;
+        writeln!(
+            f,
+            " automatic_parking_state_change_request={}",
+            self.automatic_parking_state_change_request
+        )?;
+        writeln!(
+            f,
+            " collision_alert_failure_display_request={}",
+            self.collision_alert_failure_display_request
+        )?;
+        writeln!(
+            f,
+            " cruise_control_speed_setting_instruction_position={}",
+            self.cruise_control_speed_setting_instruction_position
+        )?;
+        writeln!(f, " fault_check_request={}", self.fault_check_request)?;
+        writeln!(
+            f,
+            " telematic_screen_lighting_level={}",
+            self.telematic_screen_lighting_level
+        )?;
+        writeln!(
+            f,
+            " telematic_unit_life_state={}",
+            self.telematic_unit_life_state
+        )?;
+        writeln!(
+            f,
+            " stop_start_button_state={}",
+            self.stop_start_button_state
+        )?;
+        writeln!(
+            f,
+            " visual_parking_assistance_button_state={}",
+            self.visual_parking_assistance_button_state
+        )?;
+        writeln!(
+            f,
+            " cruise_control_speed_instruction_value_request={}",
+            self.cruise_control_speed_instruction_value_request
+        )?;
+        writeln!(
+            f,
+            " visual_parking_assistance_panoramic_view_button_state={}",
+            self.visual_parking_assistance_panoramic_view_button_state
+        )?;
+        writeln!(
+            f,
+            " front_visual_parking_assistance_button_state={}",
+            self.front_visual_parking_assistance_button_state
+        )?;
+        writeln!(
+            f,
+            " rear_visual_parking_assistance_button_state={}",
+            self.rear_visual_parking_assistance_button_state
+        )?;
+        writeln!(
+            f,
+            " visual_parking_assistance_activation_request={}",
+            self.visual_parking_assistance_activation_request
+        )
     }
 }
 
@@ -576,47 +976,11 @@ mod test {
 
     fn frame_1_repr() -> Repr {
         Repr {
-            mfd_trip_computer_page: TripComputerPage::Nothing,
-            maintenance_reset_request: false,
-            emergency_call_in_progress: false,
-            fault_recall_request: false,
-            trip_computer_secondary_trip_reset_request: false,
-            trip_computer_primary_trip_reset_request: false,
-            pre_conditioning_time: 0,
-            telematics_enabled: false,
-            black_panel_enabled: false,
-            indirect_under_inflation_reset_request: false,
-            pre_conditioning_request: false,
-            total_trip_distance: 0,
-            interactive_message: 32767,
-            stop_check_request: false,
-            popup_id_acknowledge: Popup::NoDisplay,
-            selected_menu: Menu::WifiSettings,
-            wifi_parameters_acknowledge: false,
-            user_action_on_mfd: UserAction2010::NoAction,
         }
     }
 
     fn frame_2_repr() -> Repr {
         Repr {
-            mfd_trip_computer_page: TripComputerPage::Nothing,
-            maintenance_reset_request: false,
-            emergency_call_in_progress: false,
-            fault_recall_request: false,
-            trip_computer_secondary_trip_reset_request: false,
-            trip_computer_primary_trip_reset_request: false,
-            pre_conditioning_time: 0,
-            telematics_enabled: true,
-            black_panel_enabled: false,
-            indirect_under_inflation_reset_request: false,
-            pre_conditioning_request: false,
-            total_trip_distance: 0,
-            interactive_message: 32767,
-            stop_check_request: true,
-            popup_id_acknowledge: Popup::ConnectedEmergencyCall,
-            selected_menu: Menu::PrivacySettings,
-            wifi_parameters_acknowledge: true,
-            user_action_on_mfd: UserAction2010::Yes,
         }
     }
 

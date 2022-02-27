@@ -445,3 +445,58 @@ impl fmt::Display for VolumeLevelOrigin {
         }
     }
 }
+
+enum_with_unknown! {
+   /// Automatic parking mode.
+   pub enum AutomaticParkingMode (u8) {
+       /// SCP 6 mode.
+       SCP6 = 0,
+       /// SCP 9 mode.
+       SCP9 = 1,
+   }
+}
+
+impl fmt::Display for AutomaticParkingMode {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            AutomaticParkingMode::SCP6 => write!(f, "SCP 6"),
+            AutomaticParkingMode::SCP9 => write!(f, "SCP 9"),
+            AutomaticParkingMode::Unknown(mode) => write!(f, "0x{:02x}", mode),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// Automatic parking mode.
+   pub enum CruiseControlCustomSettingPosition (u8) {
+       /// No setting.
+       None = 0,
+       /// Position 1 cruise-control setting.
+       Position1 = 1,
+       /// Position 2 cruise-control setting.
+       Position2 = 2,
+        /// Position 3 cruise-control setting.
+       Position3 = 3,
+       /// Position 4 cruise-control setting.
+       Position4 = 4,
+       /// Position 5 cruise-control setting.
+       Position5 = 5,
+       /// Position 6 cruise-control setting.
+       Position6 = 6,
+   }
+}
+
+impl fmt::Display for CruiseControlCustomSettingPosition {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            CruiseControlCustomSettingPosition::None => write!(f, "none"),
+            CruiseControlCustomSettingPosition::Position1 => write!(f, "position 1"),
+            CruiseControlCustomSettingPosition::Position2 => write!(f, "position 2"),
+            CruiseControlCustomSettingPosition::Position3 => write!(f, "position 3"),
+            CruiseControlCustomSettingPosition::Position4 => write!(f, "position 4"),
+            CruiseControlCustomSettingPosition::Position5 => write!(f, "position 5"),
+            CruiseControlCustomSettingPosition::Position6 => write!(f, "position 6"),
+            CruiseControlCustomSettingPosition::Unknown(pos) => write!(f, "0x{:02x}", pos),
+        }
+    }
+}
