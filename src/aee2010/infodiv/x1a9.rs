@@ -1,4 +1,4 @@
-use core::fmt;
+use core::{fmt, time::Duration};
 
 use byteorder::{ByteOrder, NetworkEndian};
 
@@ -15,8 +15,8 @@ pub struct Frame<T: AsRef<[u8]>> {
 }
 
 /*
-1A9 DEMANDES_IVI_APPUI_PUSH_DETECTE_HS4_1A9
-1A9 DEMANDES_IVI_APP_URG_HS4_1A9
+1A9 DEMANDES_IVI_APPUI_PUSH_DETECTE_HS4_1A9         // NOPE
+1A9 DEMANDES_IVI_APP_URG_HS4_1A9                    // NOPE
 1A9 DEMANDES_IVI_CGT_XVV_CONS_MEMO_CLOSE_HS4_1A9    // OK
 1A9 DEMANDES_IVI_DEFAUT_AFF_ARC_HS4_1A9             // OK
 1A9 DEMANDES_IVI_DMD_CHG_ET_SCP_SEC_HS4_1A9         // OK
@@ -98,6 +98,9 @@ mod field {
 
 /// Length of a x1a9 CAN frame.
 pub const FRAME_LEN: usize = field::REQ_4 + 1;
+
+/// Periodicity of a x1a9 CAN frame.
+pub const PERIODICITY: Duration = Duration::from_millis(200);
 
 impl<T: AsRef<[u8]>> Frame<T> {
     /// Create a raw octet buffer with a CAN frame structure.
