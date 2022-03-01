@@ -764,135 +764,135 @@ impl Repr {
 
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "x361 profile number={}", self.profile_number)?;
-        write!(f, " profile change allowed={}", self.profile_change_allowed)?;
-        write!(
+        writeln!(f, "x361 profile_number={}", self.profile_number)?;
+        writeln!(f, " profile_change_allowed={}", self.profile_change_allowed)?;
+        writeln!(
             f,
-            " boot permanent locking present={}",
+            " boot_permanent_locking_present={}",
             self.boot_permanent_locking_present
         )?;
-        write!(
+        writeln!(
             f,
-            " partial window opening present={}",
+            " partial_window_opening_present={}",
             self.partial_window_opening_present
         )?;
-        write!(
+        writeln!(
             f,
-            " welcome function present={}",
+            " welcome_function_present={}",
             self.welcome_function_present
         )?;
-        write!(f, " securoscope present={}", self.securoscope_present)?;
-        write!(
+        writeln!(f, " securoscope_present={}", self.securoscope_present)?;
+        writeln!(
             f,
-            " configurable key present={}",
+            " configurable_key_present={}",
             self.configurable_key_present
         )?;
-        write!(
+        writeln!(
             f,
-            " automatic headlamps present={}",
+            " automatic_headlamps_present={}",
             self.automatic_headlamps_present
         )?;
-        write!(
+        writeln!(
             f,
-            " gear efficiency indicator present={}",
+            " gear_efficiency_indicator_present={}",
             self.gear_efficiency_indicator_present
         )?;
-        write!(
+        writeln!(
             f,
-            " automatic electric parking brake application present={}",
+            " automatic_electric_parking_brake_application_present={}",
             self.automatic_electric_parking_brake_application_present
         )?;
-        write!(
+        writeln!(
             f,
-            " welcome lighting present={}",
+            " welcome_lighting_present={}",
             self.welcome_lighting_present
         )?;
-        write!(f, " follow-me-home present={}", self.follow_me_home_present)?;
-        write!(
+        writeln!(f, " follow_me_home_present={}", self.follow_me_home_present)?;
+        writeln!(
             f,
-            " locking mode on coe present={}",
+            " locking_mode_on_coe_present={}",
             self.locking_mode_on_coe_present
         )?;
-        write!(
+        writeln!(
             f,
-            " automatic door locking when leaving present={}",
+            " automatic_door_locking_when_leaving_present={}",
             self.automatic_door_locking_when_leaving_present
         )?;
-        write!(
+        writeln!(
             f,
-            " selective unlocking present={}",
+            " selective_unlocking_present={}",
             self.selective_unlocking_present
         )?;
-        write!(
+        writeln!(
             f,
-            " rear wiper in reverse gear present={}",
+            " rear_wiper_in_reverse_gear_present={}",
             self.rear_wiper_in_reverse_gear_present
         )?;
-        write!(
+        writeln!(
             f,
-            " daytime running lamps present={}",
+            " daytime_running_lamps_present={}",
             self.daytime_running_lamps_present
         )?;
-        write!(f, " adaptive lamps present={}", self.adaptive_lamps_present)?;
-        write!(
+        writeln!(f, " adaptive_lamps_present={}", self.adaptive_lamps_present)?;
+        writeln!(
             f,
-            " blind spot monitoring inhibition present={}",
+            " blind_spot_monitoring_inhibition_present={}",
             self.blind_spot_monitoring_inhibition_present
         )?;
-        write!(
+        writeln!(
             f,
-            " blind spot monitoring present={}",
+            " blind_spot_monitoring_present={}",
             self.blind_spot_monitoring_present
         )?;
-        write!(f, " mood lighting present={}", self.mood_lighting_present)?;
-        write!(
+        writeln!(f, " mood_lighting_present={}", self.mood_lighting_present)?;
+        writeln!(
             f,
-            " motorway lighting present={}",
+            " motorway_lighting_present={}",
             self.motorway_lighting_present
         )?;
-        write!(
+        writeln!(
             f,
-            " multi function display present={}",
+            " multi_function_display_present={}",
             self.multi_function_display_present
         )?;
-        write!(
+        writeln!(
             f,
-            " parking sensors inhibition present={}",
+            " parking_sensors_inhibition_present={}",
             self.parking_sensors_inhibition_present
         )?;
-        write!(
+        writeln!(
             f,
-            " parking sensors audible assistance present={}",
+            " parking_sensors_audible_assistance_present={}",
             self.parking_sensors_audible_assistance_present
         )?;
-        write!(
+        writeln!(
             f,
-            " parking sensors visual assistance presence={}",
+            " parking_sensors_visual_assistance_presence={}",
             self.parking_sensors_visual_assistance_presence
         )?;
-        write!(
+        writeln!(
             f,
-            " automatic emergency braking presence={}",
+            " automatic_emergency_braking_presence={}",
             self.automatic_emergency_braking_presence
         )?;
-        write!(
+        writeln!(
             f,
-            " under inflation detection reset menu present={}",
+            " under_inflation_detection_reset_menu_present={}",
             self.under_inflation_detection_reset_menu_present
         )?;
-        write!(
+        writeln!(
             f,
-            " seat belt status lamps present={}",
+            " seat_belt_status_lamps_present={}",
             self.seat_belt_status_lamps_present
         )?;
-        write!(
+        writeln!(
             f,
-            " under inflation detection={}",
+            " under_inflation_detection={}",
             self.under_inflation_detection
         )?;
-        write!(
+        writeln!(
             f,
-            " blind spot audible assistance present={}",
+            " blind_spot_audible_assistance_present={}",
             self.blind_spot_audible_assistance_present
         )
     }

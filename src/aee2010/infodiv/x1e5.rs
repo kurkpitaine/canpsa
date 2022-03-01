@@ -667,61 +667,61 @@ impl Repr {
 
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "x1e5 balance opt={}", self.balance_opt)?;
-        write!(f, " balance level={}", self.balance_level)?;
-        write!(f, " balance under adj={}", self.balance_under_adj)?;
-        write!(f, " fader opt={}", self.fader_opt)?;
-        write!(f, " fader level={}", self.fader_level)?;
-        write!(f, " fader under adj={}", self.fader_under_adj)?;
-        write!(f, " bass opt={}", self.bass_opt)?;
-        write!(f, " bass level={}", self.bass_level)?;
-        write!(f, " bass under adj={}", self.bass_under_adj)?;
-        write!(f, " treble opt={}", self.treble_opt)?;
-        write!(f, " treble level={}", self.treble_level)?;
-        write!(f, " treble under adj={}", self.treble_under_adj)?;
-        write!(
+        writeln!(f, "x1e5 balance opt={}", self.balance_opt)?;
+        writeln!(f, " balance_level={}", self.balance_level)?;
+        writeln!(f, " balance_under_adj={}", self.balance_under_adj)?;
+        writeln!(f, " fader_opt={}", self.fader_opt)?;
+        writeln!(f, " fader_level={}", self.fader_level)?;
+        writeln!(f, " fader_under_adj={}", self.fader_under_adj)?;
+        writeln!(f, " bass_opt={}", self.bass_opt)?;
+        writeln!(f, " bass_level={}", self.bass_level)?;
+        writeln!(f, " bass_under_adj={}", self.bass_under_adj)?;
+        writeln!(f, " treble_opt={}", self.treble_opt)?;
+        writeln!(f, " treble_level={}", self.treble_level)?;
+        writeln!(f, " treble_under_adj={}", self.treble_under_adj)?;
+        writeln!(
             f,
-            " speed dependent volume opt={}",
+            " speed_dependent_volume_opt={}",
             self.speed_dependent_volume_opt
         )?;
-        write!(
+        writeln!(
             f,
-            " speed dependent volume enabled={}",
+            " speed_dependent_volume_enabled={}",
             self.speed_dependent_volume_enabled
         )?;
-        write!(
+        writeln!(
             f,
-            " speed dependent volume under adj={}",
+            " speed_dependent_volume_under_adj={}",
             self.speed_dependent_volume_under_adj
         )?;
-        write!(f, " loudness opt={}", self.loudness_opt)?;
-        write!(f, " loudness enabled={}", self.loudness_enabled)?;
-        write!(f, " loudness under adj={}", self.loudness_under_adj)?;
-        write!(f, " musical ambiance opt={}", self.musical_ambiance_opt)?;
-        write!(f, " musical ambiance={}", self.musical_ambiance)?;
-        write!(
+        writeln!(f, " loudness_opt={}", self.loudness_opt)?;
+        writeln!(f, " loudness_enabled={}", self.loudness_enabled)?;
+        writeln!(f, " loudness_under_adj={}", self.loudness_under_adj)?;
+        writeln!(f, " musical_ambiance_opt={}", self.musical_ambiance_opt)?;
+        writeln!(f, " musical_ambiance={}", self.musical_ambiance)?;
+        writeln!(
             f,
-            " musical ambiance under adj={}",
+            " musical_ambiance_under_adj={}",
             self.musical_ambiance_under_adj
         )?;
-        write!(f, " sound repartition opt={}", self.sound_repartition_opt)?;
-        write!(f, " sound repartition ={}", self.sound_repartition)?;
-        write!(
+        writeln!(f, " sound_repartition_opt={}", self.sound_repartition_opt)?;
+        writeln!(f, " sound_repartition ={}", self.sound_repartition)?;
+        writeln!(
             f,
-            " sound repartition under adj={}",
+            " sound_repartition_under_adj={}",
             self.sound_repartition_under_adj
         )?;
-        write!(
+        writeln!(
             f,
-            " spatial sound under adj={}",
+            " spatial_sound_under_adj={}",
             self.spatial_sound_under_adj
         )?;
-        write!(
+        writeln!(
             f,
-            " spectral sound under adj={}",
+            " spectral_sound_under_adj={}",
             self.spectral_sound_under_adj
         )?;
-        write!(f, " impossible setting={}", self.impossible_setting)
+        writeln!(f, " impossible_setting={}", self.impossible_setting)
     }
 }
 

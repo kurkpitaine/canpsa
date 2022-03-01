@@ -16,41 +16,41 @@ pub struct Frame<T: AsRef<[u8]>> {
 }
 
 /*
-036 COMMANDES_VSM_ACTIVATION_DYN_HS4_036             // OK
-036 COMMANDES_VSM_ADD_SPEED_OFFSET_HS4_036           ////// NOPE
-036 COMMANDES_VSM_BCK_PNL_HS4_036                    // OK
-036 COMMANDES_VSM_CDE_APC_HS4_036                    ////// NOPE
-036 COMMANDES_VSM_COM_DIAG_INT_AUTOR_HS4_036         ////// NOPE
-036 COMMANDES_VSM_DEM_EFFAC_DEF_HS4_036              // OK
-036 COMMANDES_VSM_DIAG_MUX_ON_HS4_036                // OK
-036 COMMANDES_VSM_DIAG_MUX_ON_PWT_HS4_036            ////// NOPE
-036 COMMANDES_VSM_DMD_EXTINCTION_MEDIA_HS4_036       // OK
-036 COMMANDES_VSM_ETAT_ACTIVATION_AVR_HS4_036        // OK
-036 COMMANDES_VSM_ETAT_GMP_HY_HS4_036                // OK
-036 COMMANDES_VSM_ETAT_JN_HS4_036                    // OK
-036 COMMANDES_VSM_ETAT_JOUR_NUIT_HS4_036             ////// NOPE
-036 COMMANDES_VSM_ETH_SUPV_ACTIVATION_HS4_036        // OK
-036 COMMANDES_VSM_INTERD_MEMO_DEF_HS4_036            // OK
-036 COMMANDES_VSM_INVIOLABILITE_AUDIO_HS4_036        // OK
-036 COMMANDES_VSM_LUMINOSITE_HS4_036                 // OK
-036 COMMANDES_VSM_MISE_MEM_C_HS4_036                 // OK
-036 COMMANDES_VSM_MODE_ECO_HS4_036                   // OK
-036 COMMANDES_VSM_MODE_HY_HS4_036                    // OK
-036 COMMANDES_VSM_NIV_AMB_FMUX_HS4_036               // OK
-036 COMMANDES_VSM_NUM_MEM_C_HS4_036                  // OK
-036 COMMANDES_VSM_ON_OFF_RAD_HS4_036                 // OK
-036 COMMANDES_VSM_PHASE_VIE_HS4_036                  // OK
-036 COMMANDES_VSM_POSITION_TE_HS4_036                // OK
-036 COMMANDES_VSM_PRES_MENU_PRECOND_HS4_036          // OK
-036 COMMANDES_VSM_RAPP_MEM_C_HS4_036                 // OK
-036 COMMANDES_VSM_RESYNC_HS4_036                     // OK
-036 COMMANDES_VSM_SECU_ETAT_SEV_HS4_036              // OK
-036 COMMANDES_VSM_SENS_ROULAGE_HS4_036               // OK
-036 COMMANDES_VSM_SYNC_ON_OFF_RAD_HS4_036            // OK
-036 COMMANDES_VSM_TYPE_RHEOS_HS4_036                 // OK
-036 COMMANDES_VSM_UB_ETAT_GMP_HY_HS4_036             // OK
-036 COMMANDES_VSM_UB_MODE_HY_HS4_036                 // OK
-036 COMMANDES_VSM_VALID_CAFR_HS4_036                 // OK
+036 COMMANDES_VSM_ACTIVATION_DYN_HS7_036             // OK
+036 COMMANDES_VSM_ADD_SPEED_OFFSET_HS7_036           ////// NOPE
+036 COMMANDES_VSM_BCK_PNL_HS7_036                    // OK
+036 COMMANDES_VSM_CDE_APC_HS7_036                    ////// NOPE
+036 COMMANDES_VSM_COM_DIAG_INT_AUTOR_HS7_036         ////// NOPE
+036 COMMANDES_VSM_DEM_EFFAC_DEF_HS7_036              // OK
+036 COMMANDES_VSM_DIAG_MUX_ON_HS7_036                // OK
+036 COMMANDES_VSM_DIAG_MUX_ON_PWT_HS7_036            ////// NOPE
+036 COMMANDES_VSM_DMD_EXTINCTION_MEDIA_HS7_036       // OK
+036 COMMANDES_VSM_ETAT_ACTIVATION_AVR_HS7_036        // OK
+036 COMMANDES_VSM_ETAT_GMP_HY_HS7_036                // OK
+036 COMMANDES_VSM_ETAT_JN_HS7_036                    // OK
+036 COMMANDES_VSM_ETAT_JOUR_NUIT_HS7_036             ////// NOPE
+036 COMMANDES_VSM_ETH_SUPV_ACTIVATION_HS7_036        // OK
+036 COMMANDES_VSM_INTERD_MEMO_DEF_HS7_036            // OK
+036 COMMANDES_VSM_INVIOLABILITE_AUDIO_HS7_036        // OK
+036 COMMANDES_VSM_LUMINOSITE_HS7_036                 // OK
+036 COMMANDES_VSM_MISE_MEM_C_HS7_036                 // OK
+036 COMMANDES_VSM_MODE_ECO_HS7_036                   // OK
+036 COMMANDES_VSM_MODE_HY_HS7_036                    // OK
+036 COMMANDES_VSM_NIV_AMB_FMUX_HS7_036               // OK
+036 COMMANDES_VSM_NUM_MEM_C_HS7_036                  // OK
+036 COMMANDES_VSM_ON_OFF_RAD_HS7_036                 // OK
+036 COMMANDES_VSM_PHASE_VIE_HS7_036                  // OK
+036 COMMANDES_VSM_POSITION_TE_HS7_036                // OK
+036 COMMANDES_VSM_PRES_MENU_PRECOND_HS7_036          // OK
+036 COMMANDES_VSM_RAPP_MEM_C_HS7_036                 // OK
+036 COMMANDES_VSM_RESYNC_HS7_036                     // OK
+036 COMMANDES_VSM_SECU_ETAT_SEV_HS7_036              // OK
+036 COMMANDES_VSM_SENS_ROULAGE_HS7_036               // OK
+036 COMMANDES_VSM_SYNC_ON_OFF_RAD_HS7_036            // OK
+036 COMMANDES_VSM_TYPE_RHEOS_HS7_036                 // OK
+036 COMMANDES_VSM_UB_ETAT_GMP_HY_HS7_036             // OK
+036 COMMANDES_VSM_UB_MODE_HY_HS7_036                 // OK
+036 COMMANDES_VSM_VALID_CAFR_HS7_036                 // OK
 */
 
 mod field {
@@ -757,99 +757,99 @@ impl Repr {
 
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
+        writeln!(
             f,
             "x036 driver_memory_setting={}",
             self.driver_memory_setting
         )?;
-        write!(
+        writeln!(
             f,
             " driver_memory_setting_write={}",
             self.driver_memory_setting_write
         )?;
-        write!(
+        writeln!(
             f,
             " driver_memory_setting_recall={}",
             self.driver_memory_setting_recall
         )?;
-        write!(
+        writeln!(
             f,
             " vehicle_driving_direction={}",
             self.vehicle_driving_direction
         )?;
-        write!(f, " unknown={}", self.unknown)?;
-        write!(
+        writeln!(f, " unknown={}", self.unknown)?;
+        writeln!(
             f,
             " mux_panel_lighting_level={}",
             self.mux_panel_lighting_level
         )?;
-        write!(f, " economy_mode_enabled={}", self.economy_mode_enabled)?;
-        write!(f, " lighting_level={}", self.lighting_level)?;
-        write!(f, " black_panel_enabled={}", self.black_panel_enabled)?;
-        write!(f, " day_night={}", self.day_night)?;
-        write!(f, " rheostat_mode={}", self.rheostat_mode)?;
-        write!(
+        writeln!(f, " economy_mode_enabled={}", self.economy_mode_enabled)?;
+        writeln!(f, " lighting_level={}", self.lighting_level)?;
+        writeln!(f, " black_panel_enabled={}", self.black_panel_enabled)?;
+        writeln!(f, " day_night={}", self.day_night)?;
+        writeln!(f, " rheostat_mode={}", self.rheostat_mode)?;
+        writeln!(
             f,
             " lighting_reset_to_reference_level_request={}",
             self.lighting_reset_to_reference_level_request
         )?;
-        write!(f, " network_state={}", self.network_state)?;
-        write!(
+        writeln!(f, " network_state={}", self.network_state)?;
+        writeln!(
             f,
             " fault_logging_forbidden={}",
             self.fault_logging_forbidden
         )?;
-        write!(
+        writeln!(
             f,
             " network_supervision_authorization={}",
             self.network_supervision_authorization
         )?;
-        write!(f, " fault_erase_request={}", self.fault_erase_request)?;
-        write!(f, " sport_mode_enable={}", self.sport_mode_enable)?;
-        write!(
+        writeln!(f, " fault_erase_request={}", self.fault_erase_request)?;
+        writeln!(f, " sport_mode_enable={}", self.sport_mode_enable)?;
+        writeln!(
             f,
             " hybrid_powertrain_mode_updated_data={}",
             self.hybrid_powertrain_mode_updated_data
         )?;
-        write!(f, " hybrid_powertrain_mode={}", self.hybrid_powertrain_mode)?;
-        write!(
+        writeln!(f, " hybrid_powertrain_mode={}", self.hybrid_powertrain_mode)?;
+        writeln!(
             f,
             " hybrid_powertrain_state_updated_data={}",
             self.hybrid_powertrain_state_updated_data
         )?;
-        write!(
+        writeln!(
             f,
             " hybrid_powertrain_state={}",
             self.hybrid_powertrain_state
         )?;
-        write!(
+        writeln!(
             f,
             " radio_on_off_synchronization={}",
             self.radio_on_off_synchronization
         )?;
-        write!(f, " radio_on_off_toggle={}", self.radio_on_off_toggle)?;
-        write!(
+        writeln!(f, " radio_on_off_toggle={}", self.radio_on_off_toggle)?;
+        writeln!(
             f,
             " preconditioning_menu_presence={}",
             self.preconditioning_menu_presence
         )?;
-        write!(
+        writeln!(
             f,
             " visual_parking_assistance_enable={}",
             self.visual_parking_assistance_enable
         )?;
-        write!(f, " media_shutdown_request={}", self.media_shutdown_request)?;
-        write!(
+        writeln!(f, " media_shutdown_request={}", self.media_shutdown_request)?;
+        writeln!(
             f,
             " convertible_roof_position={}",
             self.convertible_roof_position
         )?;
-        write!(
+        writeln!(
             f,
             " audio_inviolability_request={}",
             self.audio_inviolability_request
         )?;
-        write!(
+        writeln!(
             f,
             " vehicle_main_status_validity={}",
             self.vehicle_main_status_validity

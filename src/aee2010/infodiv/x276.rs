@@ -15,17 +15,42 @@ pub struct Frame<T: AsRef<[u8]>> {
     buffer: T,
 }
 
+/*
+276 DONNEES_VSM_LENTES_3_AFFICHAGE_HORLOGE_HS7_276          // OK
+276 DONNEES_VSM_LENTES_3_ANNEE_HORLOGE_HS7_276              // OK
+276 DONNEES_VSM_LENTES_3_AUTONOMIE_UREE_HS7_276             // OK
+276 DONNEES_VSM_LENTES_3_DMD_AFF_AUTON_UREE_HS7_276         // OK
+276 DONNEES_VSM_LENTES_3_ETAT_CONDA_COFFRE_HS7_276
+276 DONNEES_VSM_LENTES_3_ETAT_CONDA_HS7_276
+276 DONNEES_VSM_LENTES_3_ETAT_CONDA_OUV_AR_HS7_276
+276 DONNEES_VSM_LENTES_3_ETAT_SELECTIVITE_CAB_ZC_HS7_276
+276 DONNEES_VSM_LENTES_3_ETAT_SELECTIVITE_COND_HS7_276
+276 DONNEES_VSM_LENTES_3_ETAT_SELECTIVITE_HS7_276
+276 DONNEES_VSM_LENTES_3_ETAT_SELECTIVITE_OUV_AR_HS7_276
+276 DONNEES_VSM_LENTES_3_HEURE_HORLOGE_HS7_276              // OK
+276 DONNEES_VSM_LENTES_3_JOUR_HORLOGE_HS7_276               // OK
+276 DONNEES_VSM_LENTES_3_MINUTE_HORLOGE_HS7_276             // OK
+276 DONNEES_VSM_LENTES_3_MODE_HEURE_CLIENT_HS7_276          // OK
+276 DONNEES_VSM_LENTES_3_MOIS_HORLOGE_HS7_276               // OK
+*/
+
 mod field {
     use crate::field::*;
-    /// 7-bit clock year, 1-bit clock format
+    /// 7-bit clock year,
+    /// 1-bit clock format.
     pub const YEAR_CLK_FMT: usize = 0;
-    /// 4-bit clock month, 1-bit clock display mode, 3-bit empty
+    /// 4-bit clock month,
+    /// 1-bit clock display mode,
+    /// 3-bit empty.
     pub const MONTH_CLOCK_DISP_MODE: usize = 1;
-    /// 6-bit clock day, 2-bit empty
+    /// 6-bit clock day,
+    /// 2-bit empty.
     pub const DAY: usize = 2;
-    /// 5-bit clock hour, 3-bit empty
+    /// 5-bit clock hour,
+    /// 3-bit empty.
     pub const HOUR: usize = 3;
-    /// 6-bit clock minute, 2-bit empty
+    /// 6-bit clock minute,
+    /// 2-bit empty.
     pub const MINUTE: usize = 4;
     /// 14-bit AdBlue autonomy,
     /// 1-bit empty,
@@ -323,10 +348,14 @@ impl Repr {
 
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
+        writeln!(f, "x276 clock_format={}", self.clock_format)?;
+        writeln!(f, " clock_disp_mode={}", self.clock_disp_mode)?;
+        writeln!(f, " utc_datetime={}", self.utc_datetime)?;
+        writeln!(f, " adblue_autonomy={}", self.adblue_autonomy)?;
+        writeln!(
             f,
-            "x276 utc_datetime={} adblue_autonomy={} adblue_autonomy_disp_req={}",
-            self.utc_datetime, self.adblue_autonomy, self.adblue_autonomy_display_request
+            " adblue_autonomy_display_request={}",
+            self.adblue_autonomy_display_request
         )
     }
 }

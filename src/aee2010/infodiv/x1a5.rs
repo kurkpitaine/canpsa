@@ -151,7 +151,8 @@ impl Repr {
 
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "x1a5 volume={} origin={}", self.volume, self.origin)
+        writeln!(f, "x1a5 volume={}", self.volume)?;
+        writeln!(f, " origin={}", self.origin)
     }
 }
 

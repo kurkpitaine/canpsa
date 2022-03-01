@@ -9,6 +9,67 @@ pub struct Frame<T: AsRef<[u8]>> {
     buffer: T,
 }
 
+/*
+361 VSM_INF_CFG_AAS_INHIB_HS7_361                       // OK
+361 VSM_INF_CFG_AFF_MENU_ARC_SENS_HS7_361               // OK
+361 VSM_INF_CFG_AFF_MENU_CLIM_PRECOND_HS7_361
+361 VSM_INF_CFG_AFF_MENU_CMD_VTH_HS7_361
+361 VSM_INF_CFG_AFF_MENU_DRIVEPLUS_FUNCTION_HS7_361
+361 VSM_INF_CFG_AFF_MENU_ECLI_PPC_BLOC2_HS7_361
+361 VSM_INF_CFG_AFF_MENU_ECLX_WELCOME_HS7_361
+361 VSM_INF_CFG_AFF_MENU_GAV_BUZZER_HS7_361
+361 VSM_INF_CFG_AFF_MENU_RCTA_HS7_361
+361 VSM_INF_CFG_AFF_MENU_RTAB_RECHARGE_HS7_361
+361 VSM_INF_CFG_AFF_MENU_VIT_XVV_HS7_361                // OK
+361 VSM_INF_CFG_DISPO_INFO_MENU_HS7_361                 // OK
+361 VSM_INF_CFG_DMD_INHIB_WLC_HS7_361
+361 VSM_INF_CFG_ECL_ADAPT_O_HS7_361                     // OK
+361 VSM_INF_CFG_ESSUI_MAR_HS7_361                       // OK
+361 VSM_INF_CFG_FARC_FA_HS7_361                         // OK
+361 VSM_INF_CFG_FEUX_DIURN_O_HS7_361                    // OK
+361 VSM_INF_CFG_FOLLOW_HS7_361                          // OK
+361 VSM_INF_CFG_PHARE_AUTO_HS7_361                      // OK
+361 VSM_INF_CFG_PRES_ACCUEIL_HS7_361                    // OK
+361 VSM_INF_CFG_PRES_AMBIANCE_HS7_361                   // OK
+361 VSM_INF_CFG_PRES_AUTOROUTE_HS7_361                  // OK
+361 VSM_INF_CFG_PRES_BAA_LOCK_HS7_361                   // OK
+361 VSM_INF_CFG_PRES_BOIT_TNB_HS7_361                   // OK
+361 VSM_INF_CFG_PRES_CFC_HS7_361                        // OK
+361 VSM_INF_CFG_PRES_DAA_ACTIV_HS7_361                  // OK
+361 VSM_INF_CFG_PRES_DAE_4WD_HS7_361
+361 VSM_INF_CFG_PRES_DAE_HS7_361
+361 VSM_INF_CFG_PRES_DSG_HS7_361                        // OK
+361 VSM_INF_CFG_PRES_DSG_IND_HS7_361                    // OK
+361 VSM_INF_CFG_PRES_ECL_CALAND_HS7_361                 // OK
+361 VSM_INF_CFG_PRES_ECL_DECONDA_HS7_361                // OK
+361 VSM_INF_CFG_PRES_ECLI_PPC_BLOC_HS7_361
+361 VSM_INF_CFG_PRES_ECLX_AFS_HS7_361
+361 VSM_INF_CFG_PRES_ECLX_ARS_HS7_361
+361 VSM_INF_CFG_PRES_ECLX_ECL_CAFR_HS7_361              // OK
+361 VSM_INF_CFG_PRES_ECS_MODE_HS7_361                   // OK
+361 VSM_INF_CFG_PRES_ETSR_HS7_361                       // OK
+361 VSM_INF_CFG_PRES_GAV_AMLA_HS7_361
+361 VSM_INF_CFG_PRES_HARMONIE_SON_HS7_361               // OK
+361 VSM_INF_CFG_PRES_ILV_ILV_HS7_361                    // OK
+361 VSM_INF_CFG_PRES_IMA_HS7_361                        // OK
+361 VSM_INF_CFG_PRES_INVIO_ADSD_HS7_361
+361 VSM_INF_CFG_PRES_IRC_HS7_361                        // OK
+361 VSM_INF_CFG_PRES_MOT_VOL_HS7_361                    // OK
+361 VSM_INF_CFG_PRES_PPC_ANIM_HS7_361
+361 VSM_INF_CFG_PRES_PPC_HS7_361
+361 VSM_INF_CFG_PRES_PRIVACY_MODE_HS7_361
+361 VSM_INF_CFG_PRES_SAM_HS7_361                        // OK
+361 VSM_INF_CFG_PRES_SER_FSE_AUTO_HS7_361               // OK
+361 VSM_INF_CFG_PRES_TCFG_HS7_361                       // OK
+361 VSM_INF_CFG_PRES_USER_PROFIL_HS7_361
+361 VSM_INF_CFG_PRES_VAM_BAA_HS7_361                    // OK
+361 VSM_INF_CFG_PRES_VTOR_IRV_HS7_361                   // OK
+361 VSM_INF_CFG_PRES_XVV_HS7_361                        // OK
+361 VSM_INF_CFG_SELEC_OUV_AR_HS7_361                    // OK
+361 VSM_INF_CFG_SELEC_OUV_CAB_HS7_361                   // OK
+361 VSM_INF_CFG_SELEC_OUV_CLE_HS7_361                   // OK
+*/
+
 mod field {
     /// 1-bit daytime running lamps option presence flag,
     /// 1-bit automatic headlamps option presence flag,
@@ -52,7 +113,7 @@ mod field {
     /// 1-bit 'CFC' option presence flag,
     /// 2-bit empty.
     pub const OPT_4: usize = 4;
-    /// 1-bit 'IRV' option presence flag (maybe InfraRed Vision?),
+    /// 1-bit automatic mirrors folding inhibition option presence flag,
     /// 4-bit empty,
     /// 1-bit automatic main beam option presence flag,
     /// 1-bit electric child lock security option presence flag,
@@ -353,9 +414,9 @@ impl<T: AsRef<[u8]>> Frame<T> {
         data[field::OPT_4] & 0x20 != 0
     }
 
-    /// Return the 'IRV' option presence flag (maybe InfraRed Vision).
+    /// Return the automatic mirrors folding option presence flag.
     #[inline]
-    pub fn irv_presence(&self) -> bool {
+    pub fn auto_mirrors_folding_inhibit_presence(&self) -> bool {
         let data = self.buffer.as_ref();
         data[field::OPT_5] & 0x01 != 0
     }
@@ -689,9 +750,9 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
         data[field::OPT_4] = raw;
     }
 
-    /// Set the 'IRV' option presence flag (maybe InfraRed Vision).
+    /// Set the automatic mirrors folding inhibition option presence flag.
     #[inline]
-    pub fn set_irv_presence(&mut self, value: bool) {
+    pub fn set_auto_mirrors_folding_inhibit_presence(&mut self, value: bool) {
         let data = self.buffer.as_mut();
         let raw = data[field::OPT_5] & !0x01;
         let raw = if value { raw | 0x01 } else { raw & !0x01 };
@@ -782,9 +843,9 @@ pub struct Repr {
     pub speed_limit_recognition_present: bool,
     pub radiator_grill_lamps_present: bool,
     pub cfc_present: bool,
-    pub irv_present: bool,
+    pub automatic_mirrors_folding_inhibit_present: bool,
     pub automatic_main_beam_present: bool,
-    pub electric_child_security_presence: bool,
+    pub electric_child_security_present: bool,
     pub driver_alert_assist_present: bool,
 }
 
@@ -833,9 +894,10 @@ impl Repr {
             speed_limit_recognition_present: frame.speed_limit_recognition_presence(),
             radiator_grill_lamps_present: frame.radiator_grill_lamps_presence(),
             cfc_present: frame.cfc_presence(),
-            irv_present: frame.irv_presence(),
+            automatic_mirrors_folding_inhibit_present: frame
+                .auto_mirrors_folding_inhibit_presence(),
             automatic_main_beam_present: frame.automatic_main_beam_presence(),
-            electric_child_security_presence: frame.electric_child_security_presence(),
+            electric_child_security_present: frame.electric_child_security_presence(),
             driver_alert_assist_present: frame.driver_alert_assist_presence(),
         })
     }
@@ -893,177 +955,183 @@ impl Repr {
         frame.set_speed_limit_recognition_presence(self.speed_limit_recognition_present);
         frame.set_radiator_grill_lamps_presence(self.radiator_grill_lamps_present);
         frame.set_cfc_presence(self.cfc_present);
-        frame.set_irv_presence(self.irv_present);
+        frame.set_auto_mirrors_folding_inhibit_presence(
+            self.automatic_mirrors_folding_inhibit_present,
+        );
         frame.set_automatic_main_beam_presence(self.automatic_main_beam_present);
-        frame.set_electric_child_security_presence(self.electric_child_security_presence);
+        frame.set_electric_child_security_presence(self.electric_child_security_present);
         frame.set_driver_alert_assist_presence(self.driver_alert_assist_present);
     }
 }
 
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
+        writeln!(
             f,
             "x361 daytime_running_lamps_present={}",
             self.daytime_running_lamps_present
         )?;
-        write!(
+        writeln!(
             f,
             " automatic_headlamps_present={}",
             self.automatic_headlamps_present
         )?;
-        write!(f, " mood_lighting_present={}", self.mood_lighting_present)?;
-        write!(
+        writeln!(f, " mood_lighting_present={}", self.mood_lighting_present)?;
+        writeln!(
             f,
             " blind_spot_monitoring_present={}",
             self.blind_spot_monitoring_present
         )?;
-        write!(f, " adaptive_lamps_present={}", self.adaptive_lamps_present)?;
-        write!(
+        writeln!(f, " adaptive_lamps_present={}", self.adaptive_lamps_present)?;
+        writeln!(
             f,
             " welcome_lighting_present={}",
             self.welcome_lighting_present
         )?;
-        write!(
+        writeln!(
             f,
             " motorway_lighting_present={}",
             self.motorway_lighting_present
         )?;
-        write!(
+        writeln!(
             f,
             " config_menu_info_available={}",
             self.config_menu_info_available
         )?;
-        write!(
+        writeln!(
             f,
             " selective_unlocking_present={}",
             self.selective_unlocking_present
         )?;
-        write!(
+        writeln!(
             f,
             " key_selective_unlocking_present={}",
             self.key_selective_unlocking_present
         )?;
-        write!(
+        writeln!(
             f,
             " boot_selective_unlocking_present={}",
             self.boot_selective_unlocking_present
         )?;
-        write!(
+        writeln!(
             f,
             " motorized_tailgate_present={}",
             self.motorized_tailgate_present
         )?;
-        write!(
+        writeln!(
             f,
             " welcome_function_present={}",
             self.welcome_function_present
         )?;
-        write!(f, " follow_me_home_present={}", self.follow_me_home_present)?;
-        write!(
+        writeln!(f, " follow_me_home_present={}", self.follow_me_home_present)?;
+        writeln!(
             f,
             " rear_wiper_in_reverse_gear_present={}",
             self.rear_wiper_in_reverse_gear_present
         )?;
-        write!(
+        writeln!(
             f,
             " parking_sensors_inhibition_present={}",
             self.parking_sensors_inhibition_present
         )?;
-        write!(
+        writeln!(
             f,
             " extended_traffic_sign_recognition_present={}",
             self.extended_traffic_sign_recognition_present
         )?;
-        write!(
+        writeln!(
             f,
             " mirror_tilt_in_reverse_present={}",
             self.mirror_tilt_in_reverse_present
         )?;
-        write!(f, " sound_harmony_present={}", self.sound_harmony_present)?;
-        write!(
+        writeln!(f, " sound_harmony_present={}", self.sound_harmony_present)?;
+        writeln!(
             f,
             " automatic_electric_parking_brake_application_present={}",
             self.automatic_electric_parking_brake_application_present
         )?;
-        write!(
+        writeln!(
             f,
             " configurable_key_present={}",
             self.configurable_key_present
         )?;
-        write!(
+        writeln!(
             f,
             "cruise_control_custom_limits_present={}",
             self.cruise_control_custom_limits_present
         )?;
-        write!(
+        writeln!(
             f,
             " seat_belt_status_lamps_present={}",
             self.seat_belt_status_lamps_present
         )?;
-        write!(
+        writeln!(
             f,
             " under_inflation_detection={}",
             self.under_inflation_detection
         )?;
-        write!(
+        writeln!(
             f,
             " gear_efficiency_indicator_present={}",
             self.gear_efficiency_indicator_present
         )?;
-        write!(
+        writeln!(
             f,
             " cruise_control_custom_limits_menu_present={}",
             self.cruise_control_custom_limits_menu_present
         )?;
-        write!(
+        writeln!(
             f,
             " collision_alert_sensibility_menu_present={}",
             self.collision_alert_sensibility_menu_present
         )?;
-        write!(
+        writeln!(
             f,
             " automatic_emergency_braking_present={}",
             self.automatic_emergency_braking_present
         )?;
-        write!(
+        writeln!(
             f,
             " under_inflation_detection_reset_menu_present={}",
             self.under_inflation_detection_reset_menu_present
         )?;
-        write!(
+        writeln!(
             f,
             " hands_free_tailgate_auto_lock_menu_present={}",
             self.hands_free_tailgate_auto_lock_menu_present
         )?;
-        write!(
+        writeln!(
             f,
             " hands_free_tailgate_present={}",
             self.hands_free_tailgate_present
         )?;
-        write!(
+        writeln!(
             f,
             " speed_limit_recognition_present={}",
             self.speed_limit_recognition_present
         )?;
-        write!(
+        writeln!(
             f,
             " radiator_grill_lamps_present={}",
             self.radiator_grill_lamps_present
         )?;
-        write!(f, " 'CFC' present={}", self.cfc_present)?;
-        write!(f, " 'IRV' present={}", self.irv_present)?;
-        write!(
+        writeln!(f, " 'CFC' present={}", self.cfc_present)?;
+        writeln!(
+            f,
+            " automatic_mirrors_folding_inhibit_present={}",
+            self.automatic_mirrors_folding_inhibit_present
+        )?;
+        writeln!(
             f,
             " automatic_main_beam_present={}",
             self.automatic_main_beam_present
         )?;
-        write!(
+        writeln!(
             f,
             " electric_child_security_presence present={}",
-            self.electric_child_security_presence
+            self.electric_child_security_present
         )?;
-        write!(
+        writeln!(
             f,
             " driver_alert_assist_present={}",
             self.driver_alert_assist_present
@@ -1115,9 +1183,9 @@ mod test {
             speed_limit_recognition_present: false,
             radiator_grill_lamps_present: true,
             cfc_present: false,
-            irv_present: true,
+            automatic_mirrors_folding_inhibit_present: true,
             automatic_main_beam_present: false,
-            electric_child_security_presence: true,
+            electric_child_security_present: true,
             driver_alert_assist_present: false,
         }
     }
@@ -1158,9 +1226,9 @@ mod test {
             speed_limit_recognition_present: true,
             radiator_grill_lamps_present: false,
             cfc_present: true,
-            irv_present: false,
+            automatic_mirrors_folding_inhibit_present: false,
             automatic_main_beam_present: true,
-            electric_child_security_presence: false,
+            electric_child_security_present: false,
             driver_alert_assist_present: true,
         }
     }
@@ -1206,7 +1274,7 @@ mod test {
         assert_eq!(frame.speed_limit_recognition_presence(), false);
         assert_eq!(frame.radiator_grill_lamps_presence(), true);
         assert_eq!(frame.cfc_presence(), false);
-        assert_eq!(frame.irv_presence(), true);
+        assert_eq!(frame.auto_mirrors_folding_inhibit_presence(), true);
         assert_eq!(frame.automatic_main_beam_presence(), false);
         assert_eq!(frame.electric_child_security_presence(), true);
         assert_eq!(frame.driver_alert_assist_presence(), false);
@@ -1253,7 +1321,7 @@ mod test {
         assert_eq!(frame.speed_limit_recognition_presence(), true);
         assert_eq!(frame.radiator_grill_lamps_presence(), false);
         assert_eq!(frame.cfc_presence(), true);
-        assert_eq!(frame.irv_presence(), false);
+        assert_eq!(frame.auto_mirrors_folding_inhibit_presence(), false);
         assert_eq!(frame.automatic_main_beam_presence(), true);
         assert_eq!(frame.electric_child_security_presence(), false);
         assert_eq!(frame.driver_alert_assist_presence(), true);
@@ -1298,7 +1366,7 @@ mod test {
         frame.set_speed_limit_recognition_presence(false);
         frame.set_radiator_grill_lamps_presence(true);
         frame.set_cfc_presence(false);
-        frame.set_irv_presence(true);
+        frame.set_auto_mirrors_folding_inhibit_presence(true);
         frame.set_automatic_main_beam_presence(false);
         frame.set_electric_child_security_presence(true);
         frame.set_driver_alert_assist_presence(false);
@@ -1347,7 +1415,7 @@ mod test {
         frame.set_speed_limit_recognition_presence(true);
         frame.set_radiator_grill_lamps_presence(false);
         frame.set_cfc_presence(true);
-        frame.set_irv_presence(false);
+        frame.set_auto_mirrors_folding_inhibit_presence(false);
         frame.set_automatic_main_beam_presence(true);
         frame.set_electric_child_security_presence(false);
         frame.set_driver_alert_assist_presence(true);

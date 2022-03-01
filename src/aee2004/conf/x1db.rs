@@ -735,119 +735,119 @@ impl Repr {
 
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "x1db profile_number={}", self.profile_number)?;
-        write!(f, " parameters_validity={}", self.parameters_validity)?;
-        write!(
+        writeln!(f, "x1db profile_number={}", self.profile_number)?;
+        writeln!(f, " parameters_validity={}", self.parameters_validity)?;
+        writeln!(
             f,
             " auto_elec_parking_brake_application_enabled={}",
             self.auto_elec_parking_brake_application_enabled
         )?;
-        write!(
+        writeln!(
             f,
             " welcome_function_enabled={}",
             self.welcome_function_enabled
         )?;
-        write!(
+        writeln!(
             f,
             " partial_window_opening_enabled={}",
             self.partial_window_opening_enabled
         )?;
-        write!(
+        writeln!(
             f,
             " locking_mode_on_coe_enabled={}",
             self.locking_mode_on_coe_enabled
         )?;
-        write!(
+        writeln!(
             f,
             " auto_door_locking_when_leaving_enabled={}",
             self.auto_door_locking_when_leaving_enabled
         )?;
-        write!(
+        writeln!(
             f,
             " boot_permanent_locking_enabled={}",
             self.boot_permanent_locking_enabled
         )?;
-        write!(
+        writeln!(
             f,
             " auto_door_locking_when_driving_enabled={}",
             self.auto_door_locking_when_driving_enabled
         )?;
-        write!(
+        writeln!(
             f,
             " selective_unlocking_enabled={}",
             self.selective_unlocking_enabled
         )?;
-        write!(
+        writeln!(
             f,
             " follow_me_home_lighting_duration={}",
             self.follow_me_home_lighting_duration
         )?;
-        write!(
+        writeln!(
             f,
             " automatic_headlamps_enabled={}",
             self.automatic_headlamps_enabled
         )?;
-        write!(f, " follow_me_home_enabled={}", self.follow_me_home_enabled)?;
-        write!(
+        writeln!(f, " follow_me_home_enabled={}", self.follow_me_home_enabled)?;
+        writeln!(
             f,
             " motorway_lighting_enabled={}",
             self.motorway_lighting_enabled
         )?;
-        write!(f, " adaptive_lamps_enabled={}", self.adaptive_lamps_enabled)?;
-        write!(
+        writeln!(f, " adaptive_lamps_enabled={}", self.adaptive_lamps_enabled)?;
+        writeln!(
             f,
             " ceiling_light_out_delay={}",
             self.ceiling_light_out_delay
         )?;
-        write!(
+        writeln!(
             f,
             " daytime_running_lamps_enabled={}",
             self.daytime_running_lamps_enabled
         )?;
-        write!(
+        writeln!(
             f,
             " low_fuel_level_alert_enabled={}",
             self.low_fuel_level_alert_enabled
         )?;
-        write!(
+        writeln!(
             f,
             " key_left_in_car_alert_enabled={}",
             self.key_left_in_car_alert_enabled
         )?;
-        write!(
+        writeln!(
             f,
             " lighting_left_on_alert_enabled={}",
             self.lighting_left_on_alert_enabled
         )?;
-        write!(f, " alt_gen_enabled={}", self.alt_gen_enabled)?;
-        write!(
+        writeln!(f, " alt_gen_enabled={}", self.alt_gen_enabled)?;
+        writeln!(
             f,
             " esp_in_regulation_alert_enabled={}",
             self.esp_in_regulation_alert_enabled
         )?;
-        write!(
+        writeln!(
             f,
             " auto_mirrors_folding_enabled={}",
             self.auto_mirrors_folding_enabled
         )?;
-        write!(
+        writeln!(
             f,
             " rear_wiper_in_reverse_gear_enabled={}",
             self.rear_wiper_in_reverse_gear_enabled
         )?;
-        write!(
+        writeln!(
             f,
             " mirrors_tilting_in_reverse_gear_enabled={}",
             self.mirrors_tilting_in_reverse_gear_enabled
         )?;
-        write!(f, " park_sensors_status={}", self.park_sensors_status)?;
-        write!(
+        writeln!(f, " park_sensors_status={}", self.park_sensors_status)?;
+        writeln!(
             f,
             " blind_spot_monitoring_status={}",
             self.blind_spot_monitoring_status
         )?;
-        write!(f, " secu_enabled={}", self.secu_enabled)?;
-        write!(f, " configurable_key_mode={}", self.configurable_key_mode)
+        writeln!(f, " secu_enabled={}", self.secu_enabled)?;
+        writeln!(f, " configurable_key_mode={}", self.configurable_key_mode)
     }
 }
 

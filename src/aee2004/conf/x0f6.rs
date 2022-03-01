@@ -400,32 +400,32 @@ impl Repr {
 
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "x0f6 powertrain_status={}", self.powertrain_status)?;
-        write!(f, " generator_working={}", self.generator_working)?;
-        write!(f, " vehicle_main_status={}", self.vehicle_main_status)?;
-        write!(f, " factory_park_enabled={}", self.factory_park_enabled)?;
-        write!(f, " vsm_config_mode={}", self.vsm_config_mode)?;
-        write!(f, " coolant_temperature={}", self.coolant_temperature)?;
-        write!(f, " odometer={}", self.odometer)?;
-        write!(f, " external_temperature={}", self.external_temperature)?;
-        write!(
+        writeln!(f, "x0f6 powertrain_status={}", self.powertrain_status)?;
+        writeln!(f, " generator_working={}", self.generator_working)?;
+        writeln!(f, " vehicle_main_status={}", self.vehicle_main_status)?;
+        writeln!(f, " factory_park_enabled={}", self.factory_park_enabled)?;
+        writeln!(f, " vsm_config_mode={}", self.vsm_config_mode)?;
+        writeln!(f, " coolant_temperature={}", self.coolant_temperature)?;
+        writeln!(f, " odometer={}", self.odometer)?;
+        writeln!(f, " external_temperature={}", self.external_temperature)?;
+        writeln!(
             f,
             " external_temperature_filtered={}",
             self.external_temperature_filtered
         )?;
-        write!(f, " blinkers_status={}", self.blinkers_status)?;
-        write!(f, " cluster_lights_test={}", self.cluster_lights_test)?;
-        write!(
+        writeln!(f, " blinkers_status={}", self.blinkers_status)?;
+        writeln!(f, " cluster_lights_test={}", self.cluster_lights_test)?;
+        writeln!(
             f,
             " steering_wheel_position={}",
             self.steering_wheel_position
         )?;
-        write!(
+        writeln!(
             f,
             " front_wiping_acknowledge={}",
             self.front_wiping_acknowledge
         )?;
-        write!(f, " reverse_gear_engaged={}", self.reverse_gear_engaged)
+        writeln!(f, " reverse_gear_engaged={}", self.reverse_gear_engaged)
     }
 }
 

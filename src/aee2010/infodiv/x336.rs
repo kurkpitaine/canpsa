@@ -11,6 +11,12 @@ pub struct Frame<T: AsRef<[u8]>> {
     buffer: T,
 }
 
+/*
+336 VIN_WMI_WMI_1_HS7_336   // OK
+336 VIN_WMI_WMI_2_HS7_336   // OK
+336 VIN_WMI_WMI_3_HS7_336   // OK
+*/
+
 mod field {
     /// 8-bit WMI first char.
     pub const WMI_1: usize = 0;
@@ -172,7 +178,7 @@ impl Repr {
 
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "x336 wmi={}", self.wmi)
+        writeln!(f, "x336 wmi={}", self.wmi)
     }
 }
 

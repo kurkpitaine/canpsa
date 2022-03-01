@@ -223,7 +223,7 @@ impl Repr {
 
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "x3b6 vds={}", self.vds)
+        writeln!(f, "x3b6 vds={}", self.vds)
     }
 }
 

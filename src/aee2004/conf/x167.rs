@@ -490,64 +490,64 @@ impl Repr {
 
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
+        writeln!(
             f,
             "x167 mfd trip computer page={}",
             self.mfd_trip_computer_page
         )?;
-        write!(
+        writeln!(
             f,
             " maintenance reset request={}",
             self.maintenance_reset_request
         )?;
-        write!(
+        writeln!(
             f,
             " emergency call in progress={}",
             self.emergency_call_in_progress
         )?;
-        write!(f, "fault recall request={}", self.fault_recall_request)?;
-        write!(
+        writeln!(f, "fault recall request={}", self.fault_recall_request)?;
+        writeln!(
             f,
             " trip computer secondary trip reset_request={}",
             self.trip_computer_secondary_trip_reset_request
         )?;
-        write!(
+        writeln!(
             f,
             " trip computer primary trip reset_request={}",
             self.trip_computer_primary_trip_reset_request
         )?;
-        write!(f, " preconditioning time={}", self.pre_conditioning_time)?;
-        write!(f, " telematics enabled={}", self.telematics_enabled)?;
-        write!(f, " black panel enabled={}", self.black_panel_enabled)?;
-        write!(
+        writeln!(f, " preconditioning time={}", self.pre_conditioning_time)?;
+        writeln!(f, " telematics enabled={}", self.telematics_enabled)?;
+        writeln!(f, " black panel enabled={}", self.black_panel_enabled)?;
+        writeln!(
             f,
             " indirect under inflation reset_request={}",
             self.indirect_under_inflation_reset_request
         )?;
-        write!(
+        writeln!(
             f,
             " pre conditioning request={}",
             self.pre_conditioning_request
         )?;
-        write!(f, " total trip distance={}", self.total_trip_distance)?;
-        write!(f, " interactive message={}", self.interactive_message)?;
-        write!(
+        writeln!(f, " total trip distance={}", self.total_trip_distance)?;
+        writeln!(f, " interactive message={}", self.interactive_message)?;
+        writeln!(
             f,
             " stop and start button state={}",
             self.stop_and_start_button_state
         )?;
-        write!(
+        writeln!(
             f,
             " lane centering button state={}",
             self.lane_centering_button_state
         )?;
-        write!(
+        writeln!(
             f,
             " parking sensors button state={}",
             self.parking_sensors_button_state
         )?;
-        write!(f, " user_action on mfd={}", self.user_action_on_mfd)?;
-        write!(f, " user value={}", self.user_value)
+        writeln!(f, " user_action on mfd={}", self.user_action_on_mfd)?;
+        writeln!(f, " user value={}", self.user_value)
     }
 }
 

@@ -386,20 +386,20 @@ impl Repr {
 
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
+        writeln!(
             f,
-            "x3f6 running duration={}",
+            "x3f6 running _duration={}",
             self.running_duration.whole_seconds()
         )?;
-        write!(f, " distance unit={}", self.distance_unit)?;
-        write!(f, " volume unit={}", self.volume_unit)?;
-        write!(f, " consumption unit={}", self.consumption_unit)?;
-        write!(f, " pressure unit={}", self.pressure_unit)?;
-        write!(f, " display charset={}", self.display_charset)?;
-        write!(f, " temperature unit={}", self.temperature_unit)?;
-        write!(f, " display mode={}", self.display_mode)?;
-        write!(f, " time format={}", self.clock_format)?;
-        write!(f, " language={}", self.language)
+        writeln!(f, " distance_unit={}", self.distance_unit)?;
+        writeln!(f, " volume_unit={}", self.volume_unit)?;
+        writeln!(f, " consumption_unit={}", self.consumption_unit)?;
+        writeln!(f, " pressure_unit={}", self.pressure_unit)?;
+        writeln!(f, " display_charset={}", self.display_charset)?;
+        writeln!(f, " temperature_unit={}", self.temperature_unit)?;
+        writeln!(f, " display_mode={}", self.display_mode)?;
+        writeln!(f, " time_format={}", self.clock_format)?;
+        writeln!(f, " language={}", self.language)
     }
 }
 

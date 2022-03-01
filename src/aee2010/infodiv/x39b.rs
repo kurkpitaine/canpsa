@@ -10,6 +10,15 @@ pub struct Frame<T: AsRef<[u8]>> {
     buffer: T,
 }
 
+/*
+39B DMD_MAJ_DATE_HEURE_ANNEE_HORLOGE_HS7_39B        // OK
+39B DMD_MAJ_DATE_HEURE_HEURE_HORLOGE_HS7_39B        // OK
+39B DMD_MAJ_DATE_HEURE_JOUR_HORLOGE_HS7_39B         // OK
+39B DMD_MAJ_DATE_HEURE_MINUTE_HORLOGE_HS7_39B       // OK
+39B DMD_MAJ_DATE_HEURE_MODE_HEURE_CLIENT_HS7_39B    // OK
+39B DMD_MAJ_DATE_HEURE_MOIS_HORLOGE_HS7_39B         // OK
+*/
+
 mod field {
     /// 7-bit clock year, 1-bit clock format
     pub const YEAR_CLK_FMT: usize = 0;
@@ -247,11 +256,8 @@ impl Repr {
 
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "x39b utc_datetime={} clock_format={}",
-            self.utc_datetime, self.clock_format
-        )
+        writeln!(f, "x39b utc_datetime={}", self.utc_datetime)?;
+        writeln!(f, " clock_format={}", self.clock_format)
     }
 }
 

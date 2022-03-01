@@ -15,6 +15,57 @@ pub struct Frame<T: AsRef<[u8]>> {
     buffer: T,
 }
 
+/*
+15B ECRAN_INFO_PROFILS_AAS_STATUS_HS7_15B                 // OK
+15B ECRAN_INFO_PROFILS_ACCUEIL_COND_HS7_15B               // OK
+15B ECRAN_INFO_PROFILS_ARC_SENS_HS7_15B                   // OK
+15B ECRAN_INFO_PROFILS_ARC_SENS_NIV_HS7_15B               // OK
+15B ECRAN_INFO_PROFILS_DISPO_PARAM_HS7_15B                // OK
+15B ECRAN_INFO_PROFILS_DISPO_UNITES_LANGUE_HS7_15B        // OK
+15B ECRAN_INFO_PROFILS_DMD_INIT_DSG_HS7_15B               // OK
+15B ECRAN_INFO_PROFILS_DMD_MENU_BAA_LOCK_HS7_15B          // OK
+15B ECRAN_INFO_PROFILS_DMD_MENU_DAA_ACTIV_HS7_15B         // OK
+15B ECRAN_INFO_PROFILS_DMD_MENU_ECLX_AFS_HS7_15B          //
+15B ECRAN_INFO_PROFILS_DMD_MENU_ECLX_ARS_HS7_15B          //
+15B ECRAN_INFO_PROFILS_DMD_MENU_ECS_MODE_HS7_15B          // OK
+15B ECRAN_INFO_PROFILS_DMD_MENU_GAV_AMLA_HS7_15B          //
+15B ECRAN_INFO_PROFILS_DMD_MENU_ILV_ETSR_HS7_15B          // OK
+15B ECRAN_INFO_PROFILS_DMD_MENU_TYPAGE_DAE_4WD_HS7_15B    //
+15B ECRAN_INFO_PROFILS_DMD_MENU_TYPAGE_DAE_HS7_15B        //
+15B ECRAN_INFO_PROFILS_DMD_MENU_VAM_BAA_HS7_15B           // OK
+15B ECRAN_INFO_PROFILS_DMD_MENU_VTOR_IRV_HS7_15B          // OK
+15B ECRAN_INFO_PROFILS_ECL_ADAPT_HS7_15B                  // OK
+15B ECRAN_INFO_PROFILS_ECLAI_AMBI_HS7_15B                 // OK
+15B ECRAN_INFO_PROFILS_ECLAIRAGE_ACCOM_HS7_15B            // OK
+15B ECRAN_INFO_PROFILS_ECLAIRAGE_AUTO_HS7_15B             // OK
+15B ECRAN_INFO_PROFILS_ECL_AUTOROUTE_HS7_15B              // OK
+15B ECRAN_INFO_PROFILS_ECL_DECONDA_HS7_15B                // OK
+15B ECRAN_INFO_PROFILS_ESSUI_VIT_MAR_HS7_15B              // OK
+15B ECRAN_INFO_PROFILS_FCT_ECL_CALAND_HS7_15B             // OK
+15B ECRAN_INFO_PROFILS_FCT_ECLX_ECL_CAFR_HS7_15B          // OK
+15B ECRAN_INFO_PROFILS_FCT_FEUX_DIURN_O_HS7_15B           // OK
+15B ECRAN_INFO_PROFILS_FCT_ILV_ILV_HS7_15B                // OK
+15B ECRAN_INFO_PROFILS_FCT_MOT_VOL_AR_HS7_15B             // OK
+15B ECRAN_INFO_PROFILS_FCT_TCFG_HS7_15B                   // OK
+15B ECRAN_INFO_PROFILS_FCT_USER_PROFIL_HS7_15B
+15B ECRAN_INFO_PROFILS_FCT_VTOR_IMA_HS7_15B               // OK
+15B ECRAN_INFO_PROFILS_HARMONIE_SON_HS7_15B               // OK
+15B ECRAN_INFO_PROFILS_LANGUE_VHL_HS7_15B                 // OK
+15B ECRAN_INFO_PROFILS_NIV_AMBIANCE_HS7_15B               // OK
+15B ECRAN_INFO_PROFILS_SAM_STATUS_HS7_15B                 // OK
+15B ECRAN_INFO_PROFILS_SELEC_ARRIERE_HS7_15B              // OK
+15B ECRAN_INFO_PROFILS_SELEC_CABINE_HS7_15B               // OK
+15B ECRAN_INFO_PROFILS_SELEC_FARC_FA_HS7_15B              // OK
+15B ECRAN_INFO_PROFILS_SELEC_OUV_PLIP_HS7_15B             // OK
+15B ECRAN_INFO_PROFILS_SER_FSE_AUTO_HS7_15B               // OK
+15B ECRAN_INFO_PROFILS_TEMPO_ECL_DECONDA_HS7_15B          // OK
+15B ECRAN_INFO_PROFILS_TEMPO_EXT_PHARE_HS7_15B            // OK
+15B ECRAN_INFO_PROFILS_UNITE_CONSO_HS7_15B                // OK
+15B ECRAN_INFO_PROFILS_UNITE_DISTANCE_HS7_15B             // OK
+15B ECRAN_INFO_PROFILS_UNITE_TEMPERATURE_HS7_15B          // OK
+15B ECRAN_INFO_PROFILS_UNITE_VOLUME_HS7_15B               // OK
+*/
+
 mod field {
     /// 1-bit consumption unit field,
     /// 1-bit distance unit field,
@@ -65,9 +116,8 @@ mod field {
     /// 1-bit automatic main beam enable flag,
     /// 2-bit empty.
     pub const OPT_6: usize = 6;
-    /// 2-bit empty,
-    /// 1-bit 'IRV' enable flag (maybe InfraRed Vision?),
-    /// 1-bit automatic mirrors folding enable flag, logic is inverted here, 0 means enabled,
+    /// 3-bit empty,
+    /// 1-bit automatic mirrors folding inhibition enable flag,
     /// 4-bit empty.
     pub const OPT_7: usize = 7;
 }
@@ -421,18 +471,11 @@ impl<T: AsRef<[u8]>> Frame<T> {
         data[field::OPT_6] & 0x20 != 0
     }
 
-    /// Return the 'IRV' enable flag (maybe InfraRed Vision).
+    /// Return automatic mirrors folding inhibit enable flag.
     #[inline]
-    pub fn irv_enable(&self) -> bool {
+    pub fn auto_mirrors_folding_inhibit(&self) -> bool {
         let data = self.buffer.as_ref();
-        data[field::OPT_7] & 0x04 != 0
-    }
-
-    /// Return automatic mirrors folding enable flag, logic is inverted here, 0 means enabled.
-    #[inline]
-    pub fn auto_mirrors_folding_enable(&self) -> bool {
-        let data = self.buffer.as_ref();
-        !(data[field::OPT_7] & 0x08 != 0)
+        data[field::OPT_7] & 0x08 != 0
     }
 }
 
@@ -842,21 +885,12 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
         data[field::OPT_6] = raw;
     }
 
-    /// Set the 'IRV' enable flag (maybe InfraRed Vision).
+    /// Set the automatic mirrors folding inhibit enable flag.
     #[inline]
-    pub fn set_irv_enable(&mut self, value: bool) {
-        let data = self.buffer.as_mut();
-        let raw = data[field::OPT_7] & !0x04;
-        let raw = if value { raw | 0x04 } else { raw & !0x04 };
-        data[field::OPT_7] = raw;
-    }
-
-    /// Set the automatic mirrors folding enable flag, logic is inverted here, 0 means enabled.
-    #[inline]
-    pub fn set_auto_mirrors_folding_enable(&mut self, value: bool) {
+    pub fn set_auto_mirrors_folding_inhibit(&mut self, value: bool) {
         let data = self.buffer.as_mut();
         let raw = data[field::OPT_7] & !0x08;
-        let raw = if !value { raw | 0x08 } else { raw & !0x08 };
+        let raw = if value { raw | 0x08 } else { raw & !0x08 };
         data[field::OPT_7] = raw;
     }
 }
@@ -924,8 +958,7 @@ pub struct Repr {
     pub hands_free_tailgate_auto_lock_enabled: bool,
     pub extended_traffic_sign_recognition_enabled: bool,
     pub electric_child_security_temp_disabled: bool,
-    pub irv_enabled: bool,
-    pub auto_mirrors_folding_enabled: bool,
+    pub auto_mirrors_folding_inhibit: bool,
 }
 
 impl Repr {
@@ -976,8 +1009,7 @@ impl Repr {
             extended_traffic_sign_recognition_enabled: frame
                 .extended_traffic_sign_recognition_enable(),
             electric_child_security_temp_disabled: frame.electric_child_security_tempo_disable(),
-            irv_enabled: frame.irv_enable(),
-            auto_mirrors_folding_enabled: frame.auto_mirrors_folding_enable(),
+            auto_mirrors_folding_inhibit: frame.auto_mirrors_folding_inhibit(),
         })
     }
 
@@ -1035,8 +1067,7 @@ impl Repr {
             self.extended_traffic_sign_recognition_enabled,
         );
         frame.set_electric_child_security_tempo_disable(self.electric_child_security_temp_disabled);
-        frame.set_irv_enable(self.irv_enabled);
-        frame.set_auto_mirrors_folding_enable(self.auto_mirrors_folding_enabled);
+        frame.set_auto_mirrors_folding_inhibit(self.auto_mirrors_folding_inhibit);
     }
 }
 
@@ -1196,11 +1227,10 @@ impl fmt::Display for Repr {
             " electric_child_security_temp_disabled={}",
             self.electric_child_security_temp_disabled
         )?;
-        writeln!(f, " irv_enabled={}", self.irv_enabled)?;
         writeln!(
             f,
-            " auto_mirrors_folding_enabled={}",
-            self.auto_mirrors_folding_enabled
+            " auto_mirrors_folding_inhibit={}",
+            self.auto_mirrors_folding_inhibit
         )
     }
 }
@@ -1218,7 +1248,7 @@ mod test {
     };
 
     static REPR_FRAME_BYTES_1: [u8; 8] = [0x01, 0x00, 0xab, 0xaa, 0xa3, 0xaa, 0x2a, 0x00];
-    static REPR_FRAME_BYTES_2: [u8; 8] = [0x86, 0xef, 0x54, 0x55, 0x50, 0x75, 0x15, 0x0c];
+    static REPR_FRAME_BYTES_2: [u8; 8] = [0x86, 0xef, 0x54, 0x55, 0x50, 0x75, 0x15, 0x08];
 
     fn frame_1_repr() -> Repr {
         Repr {
@@ -1263,8 +1293,7 @@ mod test {
             hands_free_tailgate_auto_lock_enabled: true,
             extended_traffic_sign_recognition_enabled: false,
             electric_child_security_temp_disabled: true,
-            irv_enabled: false,
-            auto_mirrors_folding_enabled: true,
+            auto_mirrors_folding_inhibit: false,
         }
     }
 
@@ -1311,8 +1340,7 @@ mod test {
             hands_free_tailgate_auto_lock_enabled: false,
             extended_traffic_sign_recognition_enabled: true,
             electric_child_security_temp_disabled: false,
-            irv_enabled: true,
-            auto_mirrors_folding_enabled: false,
+            auto_mirrors_folding_inhibit: true,
         }
     }
 
@@ -1372,8 +1400,7 @@ mod test {
         assert_eq!(frame.hands_free_tailgate_auto_lock_enable(), true);
         assert_eq!(frame.extended_traffic_sign_recognition_enable(), false);
         assert_eq!(frame.electric_child_security_tempo_disable(), true);
-        assert_eq!(frame.irv_enable(), false);
-        assert_eq!(frame.auto_mirrors_folding_enable(), true);
+        assert_eq!(frame.auto_mirrors_folding_inhibit(), false);
     }
 
     #[test]
@@ -1432,8 +1459,7 @@ mod test {
         assert_eq!(frame.hands_free_tailgate_auto_lock_enable(), false);
         assert_eq!(frame.extended_traffic_sign_recognition_enable(), true);
         assert_eq!(frame.electric_child_security_tempo_disable(), false);
-        assert_eq!(frame.irv_enable(), true);
-        assert_eq!(frame.auto_mirrors_folding_enable(), false);
+        assert_eq!(frame.auto_mirrors_folding_inhibit(), true);
     }
 
     #[test]
@@ -1482,8 +1508,7 @@ mod test {
         frame.set_hands_free_tailgate_auto_lock_enable(true);
         frame.set_extended_traffic_sign_recognition_enable(false);
         frame.set_electric_child_security_tempo_disable(true);
-        frame.set_irv_enable(false);
-        frame.set_auto_mirrors_folding_enable(true);
+        frame.set_auto_mirrors_folding_inhibit(false);
 
         assert_eq!(frame.into_inner(), &REPR_FRAME_BYTES_1);
     }
@@ -1534,8 +1559,7 @@ mod test {
         frame.set_hands_free_tailgate_auto_lock_enable(false);
         frame.set_extended_traffic_sign_recognition_enable(true);
         frame.set_electric_child_security_tempo_disable(false);
-        frame.set_irv_enable(true);
-        frame.set_auto_mirrors_folding_enable(false);
+        frame.set_auto_mirrors_folding_inhibit(true);
 
         assert_eq!(frame.into_inner(), &REPR_FRAME_BYTES_2);
     }

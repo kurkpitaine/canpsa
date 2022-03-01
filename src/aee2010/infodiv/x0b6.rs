@@ -12,12 +12,12 @@ pub struct Frame<T: AsRef<[u8]>> {
 }
 
 /*
-0B6 DONNEES_VSM_RAPIDES_CONSO_HS4_0B6           // OK
-0B6 DONNEES_VSM_RAPIDES_DIST_HS4_0B6            // OK
-0B6 DONNEES_VSM_RAPIDES_SECU_VITESSE_HS4_0B6    // OK
-0B6 DONNEES_VSM_RAPIDES_SECU_VITV_HS4_0B6       // OK
-0B6 DONNEES_VSM_RAPIDES_VITM_HS4_0B6            // OK
-0B6 DONNEES_VSM_RAPIDES_VITV_HS4_0B6            // OK
+0B6 DONNEES_VSM_RAPIDES_CONSO_HS7_0B6           // OK
+0B6 DONNEES_VSM_RAPIDES_DIST_HS7_0B6            // OK
+0B6 DONNEES_VSM_RAPIDES_SECU_VITESSE_HS7_0B6    // OK
+0B6 DONNEES_VSM_RAPIDES_SECU_VITV_HS7_0B6       // OK
+0B6 DONNEES_VSM_RAPIDES_VITM_HS7_0B6            // OK
+0B6 DONNEES_VSM_RAPIDES_VITV_HS7_0B6            // OK
 */
 
 mod field {
@@ -244,16 +244,16 @@ impl Repr {
 
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "x0b6 engine_rpm={}", self.engine_rpm)?;
-        write!(
+        writeln!(f, "x0b6 engine_rpm={}", self.engine_rpm)?;
+        writeln!(
             f,
             " vehicle_immediate_speed={}",
             self.vehicle_immediate_speed
         )?;
-        write!(f, " trip_odometer={}", self.trip_odometer)?;
-        write!(f, " trip_fuel_consumption={}", self.trip_fuel_consumption)?;
-        write!(f, " speed_validity={}", self.speed_validity)?;
-        write!(
+        writeln!(f, " trip_odometer={}", self.trip_odometer)?;
+        writeln!(f, " trip_fuel_consumption={}", self.trip_fuel_consumption)?;
+        writeln!(f, " speed_validity={}", self.speed_validity)?;
+        writeln!(
             f,
             " immediate_speed_validity={}",
             self.immediate_speed_validity

@@ -14,6 +14,27 @@ pub struct Frame<T: AsRef<[u8]>> {
     buffer: T,
 }
 
+/*
+167 DEMANDES_EMF_APP_URG_HS7_167                    // OK
+167 DEMANDES_EMF_CHECK_DDES_EMF_HS7_167             // OK
+167 DEMANDES_EMF_DDE_PRECOND_CLIM_HS7_167           // OK
+167 DEMANDES_EMF_DELAI_HS7_167                      // OK
+167 DEMANDES_EMF_DMD_RAZ_HS7_167                    // OK
+167 DEMANDES_EMF_ETAT_BP_DARK_HS7_167               // OK
+167 DEMANDES_EMF_HMI_POP_UP_ID_ACK_HS7_167          // OK
+167 DEMANDES_EMF_HMI_USER_ACTION_HS7_167            // OK
+167 DEMANDES_EMF_HMI_WIFI_SETTING_UPD_ACK_HS7_167   // OK
+167 DEMANDES_EMF_KM_TOT_PARC_HS7_167                // OK
+167 DEMANDES_EMF_MAIN_MENU_SELECTION_HS7_167        // OK
+167 DEMANDES_EMF_POINT_MESS_INTERACTIF_HS7_167      // OK
+167 DEMANDES_EMF_RAZ_CUMT1_DDES_EMF_HS7_167         // OK
+167 DEMANDES_EMF_RAZ_CUMT2_DDES_EMF_HS7_167         // OK
+167 DEMANDES_EMF_S_FCT_TELE_HS7_167                 // OK
+167 DEMANDES_EMF_STATE_HMI_SALC_AUTH_HS7_167
+167 DEMANDES_EMF_STATE_HMI_SALC_CONFIRM_HS7_167
+167 DEMANDES_EMF_STOP_CHECK_EMF_HS7_167             // OK
+*/
+
 mod field {
     use crate::field::*;
     /// 3-bit multi-function display trip computer displayed page,
@@ -493,56 +514,56 @@ impl Repr {
 
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
+        writeln!(
             f,
-            "x167 mfd trip computer page={}",
+            "x167 mfd_trip_computer_page={}",
             self.mfd_trip_computer_page
         )?;
-        write!(
+        writeln!(
             f,
-            " maintenance reset request={}",
+            " maintenance_reset_request={}",
             self.maintenance_reset_request
         )?;
-        write!(
+        writeln!(
             f,
-            " emergency call in progress={}",
+            " emergency_call_in_progress={}",
             self.emergency_call_in_progress
         )?;
-        write!(f, " fault recall request={}", self.fault_recall_request)?;
-        write!(
+        writeln!(f, " fault_recall_request={}", self.fault_recall_request)?;
+        writeln!(
             f,
-            " trip computer secondary trip reset_request={}",
+            " trip_computer_secondary_trip_reset_request={}",
             self.trip_computer_secondary_trip_reset_request
         )?;
-        write!(
+        writeln!(
             f,
-            " trip computer primary trip reset_request={}",
+            " trip_computer_primary_trip_reset_request={}",
             self.trip_computer_primary_trip_reset_request
         )?;
-        write!(f, " preconditioning time={}", self.pre_conditioning_time)?;
-        write!(f, " telematics enabled={}", self.telematics_enabled)?;
-        write!(f, " black panel enabled={}", self.black_panel_enabled)?;
-        write!(
+        writeln!(f, " preconditioning_time={}", self.pre_conditioning_time)?;
+        writeln!(f, " telematics_enabled={}", self.telematics_enabled)?;
+        writeln!(f, " black_panel_enabled={}", self.black_panel_enabled)?;
+        writeln!(
             f,
-            " indirect under inflation reset_request={}",
+            " indirect_under_inflation_reset_request={}",
             self.indirect_under_inflation_reset_request
         )?;
-        write!(
+        writeln!(
             f,
-            " pre conditioning request={}",
+            " pre_conditioning_request={}",
             self.pre_conditioning_request
         )?;
-        write!(f, " total trip distance={}", self.total_trip_distance)?;
-        write!(f, " interactive message={}", self.interactive_message)?;
-        write!(f, " stop check request={}", self.stop_check_request)?;
-        write!(f, " popup id acknowledge={}", self.popup_id_acknowledge)?;
-        write!(f, " selected menu={}", self.selected_menu)?;
-        write!(
+        writeln!(f, " total_trip_distance={}", self.total_trip_distance)?;
+        writeln!(f, " interactive_message={}", self.interactive_message)?;
+        writeln!(f, " stopcheck_request={}", self.stop_check_request)?;
+        writeln!(f, " popup_id_acknowledge={}", self.popup_id_acknowledge)?;
+        writeln!(f, " selected_menu={}", self.selected_menu)?;
+        writeln!(
             f,
-            " wifi parameters acknowledge={}",
+            " wifi_parameters_acknowledge={}",
             self.wifi_parameters_acknowledge
         )?;
-        write!(f, " user_action on mfd={}", self.user_action_on_mfd)
+        writeln!(f, " user_action_on_mfd={}", self.user_action_on_mfd)
     }
 }
 

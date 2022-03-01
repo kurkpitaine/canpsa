@@ -169,7 +169,7 @@ impl Repr {
 
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "x336 wmi={}", self.wmi)
+        writeln!(f, "x336 wmi={}", self.wmi)
     }
 }
 

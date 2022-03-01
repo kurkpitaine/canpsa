@@ -11,6 +11,15 @@ pub struct Frame<T: AsRef<[u8]>> {
     buffer: T,
 }
 
+/*
+3B6 VIN_VDS_VDS_1_HS7_3B6   // OK
+3B6 VIN_VDS_VDS_2_HS7_3B6   // OK
+3B6 VIN_VDS_VDS_3_HS7_3B6   // OK
+3B6 VIN_VDS_VDS_4_HS7_3B6   // OK
+3B6 VIN_VDS_VDS_5_HS7_3B6   // OK
+3B6 VIN_VDS_VDS_6_HS7_3B6   // OK
+*/
+
 mod field {
     /// 8-bit VDS first char.
     pub const VDS_1: usize = 0;
@@ -226,7 +235,7 @@ impl Repr {
 
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "x3b6 vds={}", self.vds)
+        writeln!(f, "x3b6 vds={}", self.vds)
     }
 }
 

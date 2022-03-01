@@ -1,5 +1,5 @@
-use core::{fmt, time::Duration};
 use crate::{Error, Result};
+use core::{fmt, time::Duration};
 
 /// A read/write wrapper around an CAN frame buffer.
 #[derive(Debug, PartialEq, Clone)]

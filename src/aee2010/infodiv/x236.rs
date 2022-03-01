@@ -15,22 +15,22 @@ pub struct Frame<T: AsRef<[u8]>> {
 }
 
 /*
-236 DONNEES_VSM_LENTES_2_COMPTEUR_RAZ_GCT_HS4_236      // OK
-236 DONNEES_VSM_LENTES_2_CONF_STT_DRIVER_INHIB_HS4_236 // NOPE
-236 DONNEES_VSM_LENTES_2_CONTACT_FREIN1_HS4_236        // NOPE
-236 DONNEES_VSM_LENTES_2_CPT_TEMPOREL_HS4_236          // OK
-236 DONNEES_VSM_LENTES_2_CTX_JDD_HS4_236               // OK
-236 DONNEES_VSM_LENTES_2_ETAT_COFFRE_HS4_236           // OK
-236 DONNEES_VSM_LENTES_2_ETAT_CPO_ARD_HS4_236          // NOPE
-236 DONNEES_VSM_LENTES_2_ETAT_CPO_ARG_HS4_236          // NOPE
-236 DONNEES_VSM_LENTES_2_ETAT_CPO_COND_HS4_236         // OK
-236 DONNEES_VSM_LENTES_2_ETAT_CPO_COND_REPLI_HS4_236   // NOPE
-236 DONNEES_VSM_LENTES_2_ETAT_CPO_LUNETTE_HS4_236      // NOPE
-236 DONNEES_VSM_LENTES_2_ETAT_CPO_PASS_HS4_236         // NOPE
-236 DONNEES_VSM_LENTES_2_ETAT_RESEAU_ELEC_HS4_236      // OK
-236 DONNEES_VSM_LENTES_2_MODE_CONFIG_VHL_HS4_236       // OK
-236 DONNEES_VSM_LENTES_2_ON_REFUSE_HS4_236             // OK
-236 DONNEES_VSM_LENTES_2_PRESENCE_CRT_HS4_236          // NOPE
+236 DONNEES_VSM_LENTES_2_COMPTEUR_RAZ_GCT_HS7_236      // OK
+236 DONNEES_VSM_LENTES_2_CONF_STT_DRIVER_INHIB_HS7_236 // NOPE
+236 DONNEES_VSM_LENTES_2_CONTACT_FREIN1_HS7_236        // NOPE
+236 DONNEES_VSM_LENTES_2_CPT_TEMPOREL_HS7_236          // OK
+236 DONNEES_VSM_LENTES_2_CTX_JDD_HS7_236               // OK
+236 DONNEES_VSM_LENTES_2_ETAT_COFFRE_HS7_236           // OK
+236 DONNEES_VSM_LENTES_2_ETAT_CPO_ARD_HS7_236          // NOPE
+236 DONNEES_VSM_LENTES_2_ETAT_CPO_ARG_HS7_236          // NOPE
+236 DONNEES_VSM_LENTES_2_ETAT_CPO_COND_HS7_236         // OK
+236 DONNEES_VSM_LENTES_2_ETAT_CPO_COND_REPLI_HS7_236   // NOPE
+236 DONNEES_VSM_LENTES_2_ETAT_CPO_LUNETTE_HS7_236      // NOPE
+236 DONNEES_VSM_LENTES_2_ETAT_CPO_PASS_HS7_236         // NOPE
+236 DONNEES_VSM_LENTES_2_ETAT_RESEAU_ELEC_HS7_236      // OK
+236 DONNEES_VSM_LENTES_2_MODE_CONFIG_VHL_HS7_236       // OK
+236 DONNEES_VSM_LENTES_2_ON_REFUSE_HS7_236             // OK
+236 DONNEES_VSM_LENTES_2_PRESENCE_CRT_HS7_236          // NOPE
 */
 
 mod field {
@@ -303,18 +303,18 @@ impl Repr {
 
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "x236 vehicle_config_mode={}", self.vehicle_config_mode)?;
-        write!(
+        writeln!(f, "x236 vehicle_config_mode={}", self.vehicle_config_mode)?;
+        writeln!(
             f,
             " electrical_network_status={}",
             self.electrical_network_status
         )?;
-        write!(f, " vsm_temporal_counter={}", self.vsm_temporal_counter)?;
-        write!(f, " jdd_context={}", self.jdd_context)?;
-        write!(f, " driver_door_open_evt={}", self.driver_door_open_evt)?;
-        write!(f, " boot_open={}", self.boot_open)?;
-        write!(f, " gct_reset_counter={}", self.gct_reset_counter)?;
-        write!(f, " power_on_req_denied={}", self.power_on_req_denied)
+        writeln!(f, " vsm_temporal_counter={}", self.vsm_temporal_counter)?;
+        writeln!(f, " jdd_context={}", self.jdd_context)?;
+        writeln!(f, " driver_door_open_evt={}", self.driver_door_open_evt)?;
+        writeln!(f, " boot_open={}", self.boot_open)?;
+        writeln!(f, " gct_reset_counter={}", self.gct_reset_counter)?;
+        writeln!(f, " power_on_req_denied={}", self.power_on_req_denied)
     }
 }
 

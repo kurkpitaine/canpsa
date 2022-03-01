@@ -156,7 +156,7 @@ impl Repr {
 
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "x228 time={}", self.time)
+        writeln!(f, "x228 time={}", self.time)
     }
 }
 

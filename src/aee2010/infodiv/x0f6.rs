@@ -14,6 +14,24 @@ pub struct Frame<T: AsRef<[u8]>> {
     buffer: T,
 }
 
+/*
+0F6 DONNEES_VSM_LENTES_CDE_ECL_CONNECT_HS7_0F6
+0F6 DONNEES_VSM_LENTES_ESSUYAGE_HS7_0F6            // OK
+0F6 DONNEES_VSM_LENTES_ETAT_CLIGNOTANTS_HS7_0F6    // OK
+0F6 DONNEES_VSM_LENTES_ETAT_GEN_HS7_0F6            // OK
+0F6 DONNEES_VSM_LENTES_ETAT_GMP_HS7_0F6            // OK
+0F6 DONNEES_VSM_LENTES_ETAT_MA_HS7_0F6             // OK
+0F6 DONNEES_VSM_LENTES_ETAT_PRINCIP_SEV_HS7_0F6    // OK
+0F6 DONNEES_VSM_LENTES_KM_TOTAL_HS7_0F6            // OK
+0F6 DONNEES_VSM_LENTES_MDE_CFG_HS7_0F6             // OK
+0F6 DONNEES_VSM_LENTES_PARC_USINE_HS7_0F6          // OK
+0F6 DONNEES_VSM_LENTES_TEAU_HS7_0F6                // OK
+0F6 DONNEES_VSM_LENTES_TEST_VOY_CMB_HS7_0F6        // OK
+0F6 DONNEES_VSM_LENTES_T_EXT_FILT_HS7_0F6          // OK
+0F6 DONNEES_VSM_LENTES_T_EXT_HS7_0F6               // Ok
+0F6 DONNEES_VSM_LENTES_TYPE_DIR_HS7_0F6            // OK
+*/
+
 mod field {
     use crate::field::*;
     /// 2-bit powertrain status,
@@ -403,32 +421,32 @@ impl Repr {
 
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "x0f6 powertrain_status={}", self.powertrain_status)?;
-        write!(f, " generator_working={}", self.generator_working)?;
-        write!(f, " vehicle_main_status={}", self.vehicle_main_status)?;
-        write!(f, " factory_park_enabled={}", self.factory_park_enabled)?;
-        write!(f, " vsm_config_mode={}", self.vsm_config_mode)?;
-        write!(f, " coolant_temperature={}", self.coolant_temperature)?;
-        write!(f, " odometer={}", self.odometer)?;
-        write!(f, " external_temperature={}", self.external_temperature)?;
-        write!(
+        writeln!(f, "x0f6 powertrain_status={}", self.powertrain_status)?;
+        writeln!(f, " generator_working={}", self.generator_working)?;
+        writeln!(f, " vehicle_main_status={}", self.vehicle_main_status)?;
+        writeln!(f, " factory_park_enabled={}", self.factory_park_enabled)?;
+        writeln!(f, " vsm_config_mode={}", self.vsm_config_mode)?;
+        writeln!(f, " coolant_temperature={}", self.coolant_temperature)?;
+        writeln!(f, " odometer={}", self.odometer)?;
+        writeln!(f, " external_temperature={}", self.external_temperature)?;
+        writeln!(
             f,
             " external_temperature_filtered={}",
             self.external_temperature_filtered
         )?;
-        write!(f, " blinkers_status={}", self.blinkers_status)?;
-        write!(f, " cluster_lights_test={}", self.cluster_lights_test)?;
-        write!(
+        writeln!(f, " blinkers_status={}", self.blinkers_status)?;
+        writeln!(f, " cluster_lights_test={}", self.cluster_lights_test)?;
+        writeln!(
             f,
             " steering_wheel_position={}",
             self.steering_wheel_position
         )?;
-        write!(
+        writeln!(
             f,
             " front_wiping_acknowledge={}",
             self.front_wiping_acknowledge
         )?;
-        write!(f, " reverse_gear_engaged={}", self.reverse_gear_engaged)
+        writeln!(f, " reverse_gear_engaged={}", self.reverse_gear_engaged)
     }
 }
 
