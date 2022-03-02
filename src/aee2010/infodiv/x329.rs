@@ -59,7 +59,7 @@ mod field {
     /// 2-bit massage intensity request field,
     /// 4-bit massage type field.
     pub const REQ_2: usize = 2;
-    /// 1-bit anti-slip regulation inhibit request flag,
+    /// 1-bit traction control inhibit request flag,
     /// 2-bit consumption history zoomed value field,
     /// 2-bit dynamic mode selected mode value field,
     /// 3-bit unknown.
@@ -189,7 +189,7 @@ impl<T: AsRef<[u8]>> Frame<T> {
         (data[field::REQ_2] & 0xf0) >> 4
     }
 
-    /// Return the anti-slip regulation inhibit request flag.
+    /// Return the traction control inhibit request flag.
     #[inline]
     pub fn asr_inhibit(&self) -> bool {
         let data = self.buffer.as_ref();
@@ -293,7 +293,7 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
         data[field::REQ_2] = raw;
     }
 
-    /// Set the anti-slip regulation inhibit request flag.
+    /// Set the traction control inhibit request flag.
     #[inline]
     pub fn set_asr_inhibit(&mut self, value: bool) {
         let data = self.buffer.as_mut();

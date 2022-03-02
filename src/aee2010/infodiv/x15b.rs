@@ -1347,6 +1347,7 @@ mod test {
     #[test]
     fn test_frame_1_deconstruction() {
         let frame = Frame::new_unchecked(&REPR_FRAME_BYTES_1);
+        assert_eq!(frame.check_len(), Ok(()));
         assert_eq!(frame.consumption_unit(), ConsumptionUnit::DistancePerVolume);
         assert_eq!(frame.distance_unit(), DistanceUnit::Kilometer);
         assert_eq!(frame.language(), Language::French);
@@ -1406,6 +1407,7 @@ mod test {
     #[test]
     fn test_frame_2_deconstruction() {
         let frame = Frame::new_unchecked(&REPR_FRAME_BYTES_2);
+        assert_eq!(frame.check_len(), Ok(()));
         assert_eq!(frame.consumption_unit(), ConsumptionUnit::VolumePerDistance);
         assert_eq!(frame.distance_unit(), DistanceUnit::Mile);
         assert_eq!(frame.language(), Language::English);

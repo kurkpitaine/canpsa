@@ -34,6 +34,9 @@ pub use x276 as ID_DONNEES_BSI_LENTES_3;
 pub mod x2b6;
 pub use x2b6 as ID_VIN_VIS;
 
+pub mod x2e1;
+pub use x2e1 as ID_ETAT_FONCTIONS;
+
 pub mod x329;
 pub use x329 as ID_DEMANDES_BTEL_2;
 

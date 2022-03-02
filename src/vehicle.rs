@@ -1,6 +1,29 @@
 use core::fmt;
 
 enum_with_unknown! {
+   /// Generic function state. Describes a vehicle function state.
+   pub enum FunctionState(u8) {
+       /// Function is absent on vehicle.
+       Absent = 0,
+       /// Function is disabled.
+       Disabled = 1,
+       /// Function is enabled.
+       Enabled = 3,
+   }
+}
+
+impl fmt::Display for FunctionState {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            FunctionState::Absent => write!(f, "absent"),
+            FunctionState::Disabled => write!(f, "disabled"),
+            FunctionState::Enabled => write!(f, "enabled"),
+            FunctionState::Unknown(state) => write!(f, "0x{:02x}", state),
+        }
+    }
+}
+
+enum_with_unknown! {
    /// Vehicle Supervision Module configuration mode.
    pub enum VsmConfigMode(u8) {
        /// Vehicle is configured in factory mode.
@@ -497,6 +520,157 @@ impl fmt::Display for CruiseControlCustomSettingPosition {
             CruiseControlCustomSettingPosition::Position5 => write!(f, "position 5"),
             CruiseControlCustomSettingPosition::Position6 => write!(f, "position 6"),
             CruiseControlCustomSettingPosition::Unknown(pos) => write!(f, "0x{:02x}", pos),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// Boot and convertible roof position.
+   pub enum BootAndConvertibleRoofPosition (u8) {
+       /// No display of this, ie: vehicle is not convertible.
+       None = 0,
+       /// Vehicle is in coupe, ie: convertible roof and boot are closed.
+       Coupe = 1,
+       /// Vehicle has boot and roof opened.
+       OpenBootAndOpenRoof = 2,
+       /// Vehicle has boot opened and roof is retracted inside boot.
+       OpenBootAndRoofInsideBoot = 3,
+       /// Vehicle is in convertible mode.
+       Convertible = 4,
+       /// Vehicle has boot opened and roof closed.
+       OpenBootAndRoofClosed = 5,
+   }
+}
+
+impl fmt::Display for BootAndConvertibleRoofPosition {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            BootAndConvertibleRoofPosition::None => write!(f, "none"),
+            BootAndConvertibleRoofPosition::Coupe => write!(f, "coupe"),
+            BootAndConvertibleRoofPosition::OpenBootAndOpenRoof => {
+                write!(f, "open boot and open roof")
+            }
+            BootAndConvertibleRoofPosition::OpenBootAndRoofInsideBoot => {
+                write!(f, "open boot and roof inside boot")
+            }
+            BootAndConvertibleRoofPosition::Convertible => write!(f, "convertible"),
+            BootAndConvertibleRoofPosition::OpenBootAndRoofClosed => {
+                write!(f, "open boot and roof closed")
+            }
+            BootAndConvertibleRoofPosition::Unknown(pos) => write!(f, "0x{:02x}", pos),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// Vehicle suspension mode.
+   pub enum SuspensionMode(u8) {
+       /// Settable suspension mode is not mounted on vehicle.
+       Absent = 0,
+       /// Sport suspension mode.
+       Sport = 1,
+       /// Normal suspension mode.
+       Normal = 2,
+   }
+}
+
+impl fmt::Display for SuspensionMode {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            SuspensionMode::Absent => write!(f, "absent"),
+            SuspensionMode::Sport => write!(f, "sport"),
+            SuspensionMode::Normal => write!(f, "normal"),
+            SuspensionMode::Unknown(mode) => write!(f, "0x{:02x}", mode),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// Vehicle settable suspension position.
+   pub enum SuspensionPosition (u8) {
+       /// Vehicle suspension is in normal position.
+       Normal = 0,
+       /// Vehicle suspension is in mid-high position.
+       MidHigh = 1,
+       /// Vehicle suspension is in low position.
+       Low = 2,
+       /// Vehicle suspension is in high position.
+       High = 3,
+       /// Vehicle suspension is not displayable.
+       None = 7,
+   }
+}
+
+impl fmt::Display for SuspensionPosition {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            SuspensionPosition::Normal => write!(f, "normal"),
+            SuspensionPosition::MidHigh => write!(f, "mid-high"),
+            SuspensionPosition::Low => write!(f, "low"),
+            SuspensionPosition::High => write!(f, "high"),
+            SuspensionPosition::None => write!(f, "none"),
+            SuspensionPosition::Unknown(pos) => write!(f, "0x{:02x}", pos),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// Vehicle settable suspension movement.
+   pub enum SuspensionMovement (u8) {
+       /// Suspension is immobile.
+       Immobile = 0,
+       /// Vehicle suspension ascending, ie: from low to high position.
+       Ascent = 1,
+       /// Vehicle suspension descending, ie: from high to low position.
+       Descent = 2,
+       /// Vehicle suspension movement request denied.
+       Denied = 3,
+   }
+}
+
+impl fmt::Display for SuspensionMovement {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            SuspensionMovement::Immobile => write!(f, "immobile"),
+            SuspensionMovement::Ascent => write!(f, "ascent"),
+            SuspensionMovement::Descent => write!(f, "descent"),
+            SuspensionMovement::Denied => write!(f, "denied"),
+            SuspensionMovement::Unknown(mov) => write!(f, "0x{:02x}", mov),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// Enhanced traction control mode.
+   pub enum EnhancedTractionControlMode (u8) {
+       /// Enhanced traction control ESP is off.
+       EspOff = 0,
+       /// Enhanced traction control is in normal mode.
+       Normal = 1,
+       /// Enhanced traction control is in snow mode.
+       Snow = 2,
+        /// Enhanced traction control is in mud mode.
+       Mud = 3,
+       /// Enhanced traction control is in sand mode.
+       Sand = 4,
+       /// Enhanced traction control mode selector fault.
+       ModeSelectorFault = 6,
+       /// Enhanced traction control system fault.
+       SystemFault = 7,
+   }
+}
+
+impl fmt::Display for EnhancedTractionControlMode {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            EnhancedTractionControlMode::EspOff => write!(f, "esp off"),
+            EnhancedTractionControlMode::Normal => write!(f, "normal"),
+            EnhancedTractionControlMode::Snow => write!(f, "snow"),
+            EnhancedTractionControlMode::Mud => write!(f, "mud"),
+            EnhancedTractionControlMode::Sand => write!(f, "sand"),
+            EnhancedTractionControlMode::ModeSelectorFault => write!(f, "mode selector fault"),
+            EnhancedTractionControlMode::SystemFault => write!(f, "system fault"),
+            EnhancedTractionControlMode::Unknown(mode) => write!(f, "0x{:02x}", mode),
         }
     }
 }
