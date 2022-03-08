@@ -54,3 +54,6 @@ pub use x39b as ID_DMD_MAJ_DATE_HEURE;
 
 pub mod x3b6;
 pub use x3b6 as ID_VIN_VDS;
+
+pub mod x3e1;
+pub use x3e1 as ID_INFOS_STT_ET_HY;

@@ -24,6 +24,75 @@ impl fmt::Display for FunctionState {
 }
 
 enum_with_unknown! {
+   /// Stop & Start system state.
+   pub enum StopAndStartSystemState(u8) {
+       /// Stop & Start system is unavailable.
+       Unavailable = 0,
+       /// Stop & Start system is enabled.
+       Enabled = 1,
+       /// Stop & Start system is disabled.
+       Disabled = 2,
+   }
+}
+
+impl fmt::Display for StopAndStartSystemState {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            StopAndStartSystemState::Unavailable => write!(f, "unavailable"),
+            StopAndStartSystemState::Enabled => write!(f, "enabled"),
+            StopAndStartSystemState::Disabled => write!(f, "disabled"),
+            StopAndStartSystemState::Unknown(state) => write!(f, "0x{:02x}", state),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// Generic engine state.
+   pub enum EngineState(u8) {
+       /// Engine is disabled.
+       Disabled = 0,
+       /// Engine driving.
+       Driving = 1,
+       /// Engine braking.
+       Braking = 2,
+   }
+}
+
+impl fmt::Display for EngineState {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            EngineState::Disabled => write!(f, "disabled"),
+            EngineState::Driving => write!(f, "driving"),
+            EngineState::Braking => write!(f, "braking"),
+            EngineState::Unknown(state) => write!(f, "0x{:02x}", state),
+        }
+    }
+}
+
+enum_with_unknown! {
+/// Traction battery charge state.
+pub enum TractionBatteryChargeState(u8) {
+    /// Engine is disabled.
+    Disabled = 0,
+    /// Engine driving.
+    Recharge = 1,
+    /// Engine braking.
+    Discharge = 2,
+}
+}
+
+impl fmt::Display for TractionBatteryChargeState {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            TractionBatteryChargeState::Disabled => write!(f, "disabled"),
+            TractionBatteryChargeState::Recharge => write!(f, "recharge"),
+            TractionBatteryChargeState::Discharge => write!(f, "discharge"),
+            TractionBatteryChargeState::Unknown(state) => write!(f, "0x{:02x}", state),
+        }
+    }
+}
+
+enum_with_unknown! {
    /// Vehicle Supervision Module configuration mode.
    pub enum VsmConfigMode(u8) {
        /// Vehicle is configured in factory mode.

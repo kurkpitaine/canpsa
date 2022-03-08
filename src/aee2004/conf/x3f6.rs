@@ -388,7 +388,7 @@ impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(
             f,
-            "x3f6 running _duration={}",
+            "x3f6 running_duration={}",
             self.running_duration.whole_seconds()
         )?;
         writeln!(f, " distance_unit={}", self.distance_unit)?;
