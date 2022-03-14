@@ -25,6 +25,9 @@ pub use x1a9 as ID_DEMANDES_BTEL;
 pub mod x1e5;
 pub use x1e5 as ID_ETAT_RADIO_GEN_AUD;
 
+pub mod x227;
+pub use x227 as ID_CDE_LED_PUSH;
+
 pub mod x236;
 pub use x236 as ID_DONNEES_BSI_LENTES_2;
 

@@ -743,3 +743,26 @@ impl fmt::Display for EnhancedTractionControlMode {
         }
     }
 }
+
+enum_with_unknown! {
+   /// Push button LED state.
+   pub enum PushButtonLedState (u8) {
+       /// LED is off.
+       Off = 0,
+       /// LED is on with a steady light.
+       Steady = 1,
+       /// LED is on with a blinking light.
+       Blinking = 2,
+   }
+}
+
+impl fmt::Display for PushButtonLedState {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            PushButtonLedState::Off => write!(f, "off"),
+            PushButtonLedState::Steady => write!(f, "steady"),
+            PushButtonLedState::Blinking => write!(f, "blinking"),
+            PushButtonLedState::Unknown(led) => write!(f, "0x{:02x}", led),
+        }
+    }
+}

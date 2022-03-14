@@ -96,10 +96,10 @@ mod field {
     pub const FLAGS_MAIN_STATE: usize = 7;
 }
 
-/// Length of a x0f6 CAN frame.
+/// Length of a x036 CAN frame.
 pub const FRAME_LEN: usize = field::FLAGS_MAIN_STATE + 1;
 
-/// Periodicity of a x0f6 CAN frame.
+/// Periodicity of a x036 CAN frame.
 pub const PERIODICITY: Duration = Duration::from_millis(100);
 
 impl<T: AsRef<[u8]>> Frame<T> {
@@ -628,7 +628,7 @@ impl<'a, T: AsRef<[u8]> + ?Sized> fmt::Display for Frame<&'a T> {
         match Repr::parse(self) {
             Ok(repr) => write!(f, "{}", repr),
             Err(err) => {
-                write!(f, "x0f6 ({})", err)?;
+                write!(f, "x036 ({})", err)?;
                 Ok(())
             }
         }
@@ -641,7 +641,7 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
     }
 }
 
-/// A high-level representation of a x0f6 CAN frame.
+/// A high-level representation of a x036 CAN frame.
 #[derive(Debug, PartialEq, Clone, Copy)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Repr {
@@ -719,7 +719,7 @@ impl Repr {
         FRAME_LEN
     }
 
-    /// Emit a high-level representation into a x0f6 CAN frame.
+    /// Emit a high-level representation into a x036 CAN frame.
     pub fn emit<T: AsRef<[u8]> + AsMut<[u8]>>(&self, frame: &mut Frame<T>) {
         frame.set_driver_memory_setting(self.driver_memory_setting);
         frame.set_driver_memory_setting_write(self.driver_memory_setting_write);
