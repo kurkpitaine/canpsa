@@ -766,3 +766,49 @@ impl fmt::Display for PushButtonLedState {
         }
     }
 }
+
+enum_with_unknown! {
+   /// Vehicle fuel type.
+   pub enum FuelType (u8) {
+       /// Petrol engine.
+       Petrol = 0,
+       /// Diesel engine.
+       Diesel = 1,
+   }
+}
+
+impl fmt::Display for FuelType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            FuelType::Petrol => write!(f, "petrol"),
+            FuelType::Diesel => write!(f, "diesel"),
+            FuelType::Unknown(led) => write!(f, "0x{:02x}", led),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// A/C air recirculation state.
+   pub enum ACRecirculationState (u8) {
+       /// Petrol engine.
+       ExteriorAir = 0,
+       /// Diesel engine.
+       PartialAirRecirculation = 1,
+       /// zefze
+       FullAirRecirculation = 2,
+       /// Stop
+       Stopped = 3,
+   }
+}
+
+impl fmt::Display for ACRecirculationState {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            ACRecirculationState::ExteriorAir => write!(f, "exterior air"),
+            ACRecirculationState::PartialAirRecirculation => write!(f, "partial air recirculation"),
+            ACRecirculationState::FullAirRecirculation => write!(f, "full air recirculation"),
+            ACRecirculationState::Stopped => write!(f, "stopped"),
+            ACRecirculationState::Unknown(led) => write!(f, "0x{:02x}", led),
+        }
+    }
+}
