@@ -19,6 +19,9 @@ pub use x1a5 as ETAT_RADIO_GEN_VOL;
 pub mod x1e5;
 pub use x1e5 as ETAT_RADIO_GEN_AUD;
 
+pub mod x221;
+pub use x221 as INFOS_GEN_ODB;
+
 pub mod x227;
 pub use x227 as CDE_LED_PUSH;
 

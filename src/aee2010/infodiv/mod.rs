@@ -25,6 +25,9 @@ pub use x1a9 as ID_DEMANDES_BTEL;
 pub mod x1e5;
 pub use x1e5 as ID_ETAT_RADIO_GEN_AUD;
 
+pub mod x221;
+pub use x221 as ID_INFOS_GEN_ODB;
+
 pub mod x227;
 pub use x227 as ID_CDE_LED_PUSH;
 
@@ -34,8 +37,14 @@ pub use x236 as ID_DONNEES_BSI_LENTES_2;
 pub mod x260;
 pub use x260 as ID_BSI_INF_PROFILS;
 
+pub mod x261;
+pub use x261 as ID_INFOS_TRAJET2_ODB;
+
 pub mod x276;
 pub use x276 as ID_DONNEES_BSI_LENTES_3;
+
+pub mod x2a1;
+pub use x2a1 as ID_INFOS_TRAJET1_ODB;
 
 pub mod x2b6;
 pub use x2b6 as ID_VIN_VIS;

@@ -1,4 +1,4 @@
-use core::fmt;
+use core::{fmt, time::Duration};
 
 use crate::{
     vehicle::{ACRecirculationState, FuelType, PushButtonLedState},
@@ -75,6 +75,9 @@ mod field {
 
 /// Length of a x227 CAN frame.
 pub const FRAME_LEN: usize = field::LED_4 + 1;
+
+/// Periodicity of a x227 CAN frame.
+pub const PERIODICITY: Duration = Duration::from_millis(500);
 
 impl<T: AsRef<[u8]>> Frame<T> {
     /// Create a raw octet buffer with a CAN frame structure.
