@@ -1,0 +1,458 @@
+use core::{fmt, time::Duration};
+
+use crate::{Error, Result};
+
+/// A read/write wrapper around an CAN frame buffer.
+#[derive(Debug, PartialEq, Clone)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub struct Frame<T: AsRef<[u8]>> {
+    buffer: T,
+}
+
+/*
+350 ETAT_CLIM_AV_ACTIVATE_LUCH_HS7_350
+350 ETAT_CLIM_AV_ACTIVATE_PBC_HS7_350
+350 ETAT_CLIM_AV_DEF_MOTEUR_PULS_AV_HS7_350
+350 ETAT_CLIM_AV_DISTRIBUTION_AVD_HS7_350       // OK
+350 ETAT_CLIM_AV_DISTRIBUTION_AVG_HS7_350       // OK
+350 ETAT_CLIM_AV_DMD_AC_HS7_350                 // OK
+350 ETAT_CLIM_AV_DMD_SIEGE_CHAUF_AVD_HS7_350    // OK
+350 ETAT_CLIM_AV_DMD_SIEGE_CHAUF_AVG_HS7_350    // OK
+350 ETAT_CLIM_AV_DMD_SIEGE_VENTIL_AVD_HS7_350   // OK
+350 ETAT_CLIM_AV_DMD_SIEGE_VENTIL_AVG_HS7_350   // OK
+350 ETAT_CLIM_AV_DMD_VISI_HS7_350
+350 ETAT_CLIM_AV_ENTREE_AIR_HS7_350             // OK
+350 ETAT_CLIM_AV_ETAT_AC_MAX_HS7_350            // OK
+350 ETAT_CLIM_AV_ETAT_AQS_HS7_350               // OK
+350 ETAT_CLIM_AV_ETAT_MONO_HS7_350              // OK
+350 ETAT_CLIM_AV_FLAG_RESTORE_HS7_350
+350 ETAT_CLIM_AV_MODE_ENERGY_SAVER_HS7_350      // OK
+350 ETAT_CLIM_AV_MODE_REST_HS7_350
+350 ETAT_CLIM_AV_PULS_AV_HS7_350                // OK
+350 ETAT_CLIM_AV_TEMP_SONDE_EVAPO_HS7_350
+350 ETAT_CLIM_AV_TYPAGE_HS7_350                 // OK
+350 ETAT_CLIM_AV_VAL_CONS_TEMP_AVD_HS7_350      // OK
+350 ETAT_CLIM_AV_VAL_CONS_TEMP_AVG_HS7_350      // OK
+*/
+
+mod field {
+    /// 2-bit 'typage' field,
+    /// 2-bit A/C request field,
+    /// 4-bit unknown.
+    pub const AC_0: usize = 0;
+    /// 8-bit unknown.
+    pub const AC_1: usize = 1;
+    /// 8-bit unknown.
+    pub const AC_2: usize = 2;
+    /// 5-bit front left temperature value instruction field,
+    /// 1-bit unknown,
+    /// 1-bit mono temperature mode flag,
+    /// 1-bit A/C max request flag.
+    pub const AC_3: usize = 3;
+    /// 5-bit front right temperature value instruction field,
+    /// 2-bit front left seat ventilation request field,
+    /// 1-bit unknown.
+    pub const AC_4: usize = 4;
+    /// 4-bit front fan speed value field,
+    /// 3-bit air intake mode value field,
+    /// 1-bit air quality system enable flag.
+    pub const AC_5: usize = 5;
+    /// 4-bit front right fan position value field,
+    /// 4-bit front left fan position value field.
+    pub const AC_6: usize = 6;
+    /// 1-bit unknown,
+    /// 2-bit front right seat ventilation request field,
+    /// 2-bit front left seat heating value request field,
+    /// 2-bit front right seat heating value request field,
+    /// 1-bit energy saver mode enable flag.
+    pub const AC_7: usize = 7;
+}
+
+/// Length of a x350 CAN frame.
+pub const FRAME_LEN: usize = AC_7 + 1;
+
+/// Periodicity of a x350 CAN frame.
+pub const PERIODICITY: Duration = Duration::from_millis(500);
+
+impl<T: AsRef<[u8]>> Frame<T> {
+    /// Create a raw octet buffer with a CAN frame structure.
+    #[inline]
+    pub fn new_unchecked(buffer: T) -> Frame<T> {
+        Frame { buffer }
+    }
+
+    /// Shorthand for a combination of [new_unchecked] and [check_len].
+    ///
+    /// [new_unchecked]: #method.new_unchecked
+    /// [check_len]: #method.check_len
+    #[inline]
+    pub fn new_checked(buffer: T) -> Result<Frame<T>> {
+        let packet = Self::new_unchecked(buffer);
+        packet.check_len()?;
+        Ok(packet)
+    }
+
+    /// Ensure that no accessor method will panic if called.
+    /// Returns `Err(Error::Truncated)` if the buffer is too short.
+    ///
+    /// The result of this check is invalidated by calling [set_payload_len].
+    ///
+    /// [set_payload_len]: #method.set_payload_len
+    #[inline]
+    pub fn check_len(&self) -> Result<()> {
+        let len = self.buffer.as_ref().len();
+        if len < (FRAME_LEN) {
+            Err(Error::Truncated)
+        } else if len > (FRAME_LEN) {
+            Err(Error::Overlong)
+        } else {
+            Ok(())
+        }
+    }
+
+    /// Consume the frame, returning the underlying buffer.
+    #[inline]
+    pub fn into_inner(self) -> T {
+        self.buffer
+    }
+
+    /// Return the frame length.
+    #[inline]
+    pub fn frame_len(&self) -> usize {
+        FRAME_LEN
+    }
+
+    /// Return the clock format field.
+    #[inline]
+    pub fn clock_format(&self) -> ClockFormat {
+        let data = self.buffer.as_ref();
+        let raw = (data[field::YEAR_CLK_FMT] & 0x80) >> 7;
+        ClockFormat::from(raw)
+    }
+
+    /// Return the year field.
+    #[inline]
+    pub fn year(&self) -> u8 {
+        let data = self.buffer.as_ref();
+        data[field::YEAR_CLK_FMT] & 0x7f
+    }
+
+    /// Return the month field.
+    #[inline]
+    pub fn month(&self) -> u8 {
+        let data = self.buffer.as_ref();
+        data[field::MONTH_CLOCK_DISP_MODE] & 0x0f
+    }
+
+    /// Return the clock display mode field.
+    #[inline]
+    pub fn clock_display_mode(&self) -> ClockDisplayMode {
+        let data = self.buffer.as_ref();
+        let raw = (data[field::MONTH_CLOCK_DISP_MODE] & 0x10) >> 4;
+        ClockDisplayMode::from(raw)
+    }
+
+    /// Return the day field.
+    #[inline]
+    pub fn day(&self) -> u8 {
+        let data = self.buffer.as_ref();
+        data[field::DAY] & 0x3f
+    }
+
+    /// Return the hour field.
+    #[inline]
+    pub fn hour(&self) -> u8 {
+        let data = self.buffer.as_ref();
+        data[field::HOUR] & 0x1f
+    }
+
+    /// Return the minute field.
+    #[inline]
+    pub fn minute(&self) -> u8 {
+        let data = self.buffer.as_ref();
+        data[field::MINUTE] & 0x3f
+    }
+
+    /// Return the Adblue autonomy field.
+    #[inline]
+    pub fn adblue_autonomy(&self) -> u16 {
+        let data = self.buffer.as_ref();
+        NetworkEndian::read_u16(&data[field::FLAGS_ADBLUE_AUTONOMY]) & 0x3fff
+    }
+
+    /// Return the AdBlue autonomy display request field.
+    #[inline]
+    pub fn adblue_autonomy_display_request(&self) -> bool {
+        let data = self.buffer.as_ref();
+        let raw = NetworkEndian::read_u16(&data[field::FLAGS_ADBLUE_AUTONOMY]);
+        raw & !0x7fff != 0
+    }
+}
+
+impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
+    /// Set the clock format field.
+    #[inline]
+    pub fn set_clock_format(&mut self, value: ClockFormat) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::YEAR_CLK_FMT] & !0x80;
+        let raw = raw | (u8::from(value) << 7);
+        data[field::YEAR_CLK_FMT] = raw;
+    }
+
+    /// Set the year field.
+    #[inline]
+    pub fn set_year(&mut self, value: u8) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::YEAR_CLK_FMT] & !0x7f;
+        let raw = raw | (value & 0x7f);
+        data[field::YEAR_CLK_FMT] = raw
+    }
+
+    /// Set the month field.
+    #[inline]
+    pub fn set_month(&mut self, value: u8) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::MONTH_CLOCK_DISP_MODE] & !0x0f;
+        let raw = raw | value & 0x0f;
+        data[field::MONTH_CLOCK_DISP_MODE] = raw;
+    }
+
+    /// Set the clock display mode field.
+    #[inline]
+    pub fn set_clock_display_mode(&mut self, value: ClockDisplayMode) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::MONTH_CLOCK_DISP_MODE] & !0x10;
+        let raw = raw | ((u8::from(value) << 4) & 0x10);
+        data[field::MONTH_CLOCK_DISP_MODE] = raw;
+    }
+
+    /// Set the day field.
+    #[inline]
+    pub fn set_day(&mut self, value: u8) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::DAY] & !0x3f;
+        let raw = raw | value & 0x3f;
+        data[field::DAY] = raw;
+    }
+
+    /// Set the hour field.
+    #[inline]
+    pub fn set_hour(&mut self, value: u8) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::HOUR] & !0x1f;
+        let raw = raw | value & 0x1f;
+        data[field::HOUR] = raw;
+    }
+
+    /// Set the minute field.
+    #[inline]
+    pub fn set_minute(&mut self, value: u8) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::MINUTE] & !0x3f;
+        let raw = raw | value & 0x3f;
+        data[field::MINUTE] = raw;
+    }
+
+    /// Set the Adblue autonomy field.
+    #[inline]
+    pub fn set_adblue_autonomy(&mut self, value: u16) {
+        let data = self.buffer.as_mut();
+        let raw = NetworkEndian::read_u16(&data[field::FLAGS_ADBLUE_AUTONOMY]);
+        let raw = raw | (value & 0x3fff);
+        NetworkEndian::write_u16(&mut data[field::FLAGS_ADBLUE_AUTONOMY], raw);
+    }
+
+    /// Set the AdBlue autonomy display request field.
+    #[inline]
+    pub fn set_adblue_autonomy_display_request(&mut self, value: bool) {
+        let data = self.buffer.as_mut();
+        let raw = NetworkEndian::read_u16(&data[field::FLAGS_ADBLUE_AUTONOMY]);
+        let raw = if value { raw | 0x8000 } else { raw & !0x8000 };
+        NetworkEndian::write_u16(&mut data[field::FLAGS_ADBLUE_AUTONOMY], raw);
+    }
+}
+
+impl<'a, T: AsRef<[u8]> + ?Sized> fmt::Display for Frame<&'a T> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match Repr::parse(self) {
+            Ok(repr) => write!(f, "{}", repr),
+            Err(err) => {
+                write!(f, "x350 ({})", err)?;
+                Ok(())
+            }
+        }
+    }
+}
+
+impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
+    fn as_ref(&self) -> &[u8] {
+        self.buffer.as_ref()
+    }
+}
+
+/// A high-level representation of a x350 CAN frame.
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub struct Repr {
+    pub clock_format: ClockFormat,
+    pub clock_disp_mode: ClockDisplayMode,
+    pub utc_datetime: PrimitiveDateTime,
+    pub adblue_autonomy: u16,
+    pub adblue_autonomy_display_request: bool,
+}
+
+impl Repr {
+    pub fn parse<T: AsRef<[u8]> + ?Sized>(frame: &Frame<&T>) -> Result<Repr> {
+        frame.check_len()?;
+
+        // month values:
+        //  - 0x00 and 0x0d are not used
+        //  - 0x0e means unavailable
+        //  - 0x0f means invalid value.
+        if frame.month() < 1
+            || frame.month() > 12
+            || frame.day() < 1
+            || frame.day() > 31
+            || frame.hour() > 23
+            || frame.minute() > 59
+        {
+            Err(Error::Illegal)
+        } else {
+            Ok(Repr {
+                clock_format: frame.clock_format(),
+                clock_disp_mode: frame.clock_display_mode(),
+                utc_datetime: PrimitiveDateTime::new(
+                    Date::from_calendar_date(
+                        YEAR_OFFSET + (frame.year() as i32),
+                        Month::try_from(frame.month()).unwrap(),
+                        frame.day(),
+                    )
+                    .unwrap(),
+                    Time::from_hms(frame.hour(), frame.minute(), 0).unwrap(),
+                ),
+                adblue_autonomy: frame.adblue_autonomy(),
+                adblue_autonomy_display_request: frame.adblue_autonomy_display_request(),
+            })
+        }
+    }
+
+    /// Return the length of a frame that will be emitted from this high-level representation.
+    pub fn buffer_len(&self) -> usize {
+        FRAME_LEN
+    }
+
+    /// Emit a high-level representation into a x350 CAN frame.
+    pub fn emit<T: AsRef<[u8]> + AsMut<[u8]>>(&self, frame: &mut Frame<T>) {
+        let can_year = self.utc_datetime.year() - YEAR_OFFSET;
+        frame.set_clock_format(self.clock_format);
+        frame.set_year(can_year as u8);
+        frame.set_month(self.utc_datetime.month().into());
+        frame.set_clock_display_mode(self.clock_disp_mode);
+        frame.set_day(self.utc_datetime.day());
+        frame.set_hour(self.utc_datetime.hour());
+        frame.set_minute(self.utc_datetime.minute());
+        frame.set_adblue_autonomy(self.adblue_autonomy);
+        frame.set_adblue_autonomy_display_request(self.adblue_autonomy_display_request);
+    }
+}
+
+impl fmt::Display for Repr {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        writeln!(f, "x350 clock_format={}", self.clock_format)?;
+        writeln!(f, " clock_disp_mode={}", self.clock_disp_mode)?;
+        writeln!(f, " utc_datetime={}", self.utc_datetime)?;
+        writeln!(f, " adblue_autonomy={}", self.adblue_autonomy)?;
+        writeln!(
+            f,
+            " adblue_autonomy_display_request={}",
+            self.adblue_autonomy_display_request
+        )
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::{Frame, Repr};
+    use crate::{
+        config::{ClockDisplayMode, ClockFormat},
+        Error,
+    };
+
+    use time::macros::datetime;
+
+    static REPR_FRAME_BYTES: [u8; 7] = [0x96, 0x11, 0x0a, 0x0f, 0x1d, 0x3f, 0xfe];
+
+    fn frame_repr() -> Repr {
+        Repr {
+            clock_format: ClockFormat::H24,
+            clock_disp_mode: ClockDisplayMode::Blinking,
+            utc_datetime: datetime!(2022-01-10 15:29),
+            adblue_autonomy: 16382,
+            adblue_autonomy_display_request: false,
+        }
+    }
+
+    #[test]
+    fn test_frame_deconstruction() {
+        let frame = Frame::new_unchecked(&REPR_FRAME_BYTES);
+        assert_eq!(frame.check_len(), Ok(()));
+        assert_eq!(frame.clock_format(), ClockFormat::H24);
+        assert_eq!(frame.year(), 0x16);
+        assert_eq!(frame.month(), 0x01);
+        assert_eq!(frame.clock_display_mode(), ClockDisplayMode::Blinking);
+        assert_eq!(frame.day(), 0x0a);
+        assert_eq!(frame.hour(), 0x0f);
+        assert_eq!(frame.minute(), 0x1d);
+        assert_eq!(frame.adblue_autonomy(), 0x3ffe);
+        assert_eq!(frame.adblue_autonomy_display_request(), false);
+    }
+
+    #[test]
+    fn test_frame_construction() {
+        let mut bytes = [0u8; 7];
+        let mut frame = Frame::new_unchecked(&mut bytes);
+
+        frame.set_clock_format(ClockFormat::H24);
+        frame.set_year(0x16);
+        frame.set_month(0x01);
+        frame.set_clock_display_mode(ClockDisplayMode::Blinking);
+        frame.set_day(0x0a);
+        frame.set_hour(0x0f);
+        frame.set_minute(0x1d);
+        frame.set_adblue_autonomy(0x3ffe);
+        frame.set_adblue_autonomy_display_request(false);
+
+        assert_eq!(frame.into_inner(), &REPR_FRAME_BYTES);
+    }
+
+    #[test]
+    fn test_overlong() {
+        let bytes: [u8; 8] = [0x96, 0x11, 0x0a, 0x0f, 0x1d, 0x3f, 0xfe, 0xff];
+        assert_eq!(
+            Frame::new_unchecked(&bytes).check_len().unwrap_err(),
+            Error::Overlong
+        );
+    }
+
+    #[test]
+    fn test_underlong() {
+        let bytes: [u8; 5] = [0x96, 0x11, 0x0a, 0x0f, 0x1d];
+        assert_eq!(Frame::new_checked(&bytes).unwrap_err(), Error::Truncated);
+    }
+
+    #[test]
+    fn test_repr_parse_valid() {
+        let frame = Frame::new_unchecked(&REPR_FRAME_BYTES);
+        let repr = Repr::parse(&frame).unwrap();
+        assert_eq!(repr, frame_repr());
+    }
+
+    #[test]
+    fn test_basic_repr_emit() {
+        let mut buf = [0u8; 7];
+        let mut frame = Frame::new_unchecked(&mut buf);
+        let repr = frame_repr();
+        repr.emit(&mut frame);
+        assert_eq!(frame.into_inner(), &REPR_FRAME_BYTES);
+    }
+}

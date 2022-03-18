@@ -58,6 +58,9 @@ pub use x329 as ID_DEMANDES_BTEL_2;
 pub mod x336;
 pub use x336 as ID_VIN_WMI;
 
+pub mod x350;
+pub use x350 as ID_ETAT_CLIM_AV;
+
 pub mod x361;
 pub use x361 as ID_BSI_INF_CFG;
 
