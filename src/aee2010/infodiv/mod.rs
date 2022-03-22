@@ -31,6 +31,9 @@ pub use x221 as ID_INFOS_GEN_ODB;
 pub mod x227;
 pub use x227 as ID_CDE_LED_PUSH;
 
+pub mod x228;
+pub use x228 as ID_ACC_XVV_IHM_ETAT;
+
 pub mod x236;
 pub use x236 as ID_DONNEES_BSI_LENTES_2;
 

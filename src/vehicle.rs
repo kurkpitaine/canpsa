@@ -790,13 +790,13 @@ impl fmt::Display for FuelType {
 enum_with_unknown! {
    /// A/C air recirculation state.
    pub enum ACRecirculationState (u8) {
-       /// Petrol engine.
+       /// Exterior air source.
        ExteriorAir = 0,
-       /// Diesel engine.
+       /// Partial air recirculation.
        PartialAirRecirculation = 1,
-       /// zefze
+       /// Full air recirculation.
        FullAirRecirculation = 2,
-       /// Stop
+       /// Stopped.
        Stopped = 3,
    }
 }
@@ -809,6 +809,145 @@ impl fmt::Display for ACRecirculationState {
             ACRecirculationState::FullAirRecirculation => write!(f, "full air recirculation"),
             ACRecirculationState::Stopped => write!(f, "stopped"),
             ACRecirculationState::Unknown(led) => write!(f, "0x{:02x}", led),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// Cruise-control/speed-limiter/acc mode.
+   pub enum SpeedRegulationMode (u8) {
+       /// Off mode.
+       Off = 0,
+       /// Cruise-control mode.
+       CruiseControl = 1,
+       /// Speed limiter mode.
+       SpeedLimiter = 2,
+       /// Adaptive cruise-control mode.
+       AdaptiveCruiseControl = 3,
+   }
+}
+
+impl fmt::Display for SpeedRegulationMode {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            SpeedRegulationMode::Off => write!(f, "off"),
+            SpeedRegulationMode::CruiseControl => write!(f, "cruise-control"),
+            SpeedRegulationMode::SpeedLimiter => write!(f, "speed limiter"),
+            SpeedRegulationMode::AdaptiveCruiseControl => write!(f, "adaptive cruise-control"),
+            SpeedRegulationMode::Unknown(mode) => write!(f, "0x{:02x}", mode),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// Cruise-control/speed-limiter/acc function state.
+   pub enum SpeedRegulationFunctionState (u8) {
+       /// Function is in standby state.
+       Standby = 0,
+       /// Function is in up state.
+       Up = 1,
+       /// Speed limiter function is up and running, limiting speed.
+       LimiterUpAndRunning = 2,
+       /// Function is in up state, with overspeed from sloping.
+       UpOverspeed = 3,
+       /// Function is is up state, with overspeed from driver action.
+       UpOverspeedFromDriver = 4,
+       /// Function is forbidden.
+       ForbiddenFunction = 6,
+       /// Function is in failure state.
+       Failure = 7,
+   }
+}
+
+impl fmt::Display for SpeedRegulationFunctionState {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            SpeedRegulationFunctionState::Standby => write!(f, "standby"),
+            SpeedRegulationFunctionState::Up => write!(f, "up"),
+            SpeedRegulationFunctionState::LimiterUpAndRunning => {
+                write!(f, "limiter up and running")
+            }
+            SpeedRegulationFunctionState::UpOverspeed => write!(f, "up overspeed"),
+            SpeedRegulationFunctionState::UpOverspeedFromDriver => {
+                write!(f, "up overspeed from driver")
+            }
+            SpeedRegulationFunctionState::ForbiddenFunction => write!(f, "forbidden function"),
+            SpeedRegulationFunctionState::Failure => write!(f, "failure"),
+            SpeedRegulationFunctionState::Unknown(state) => write!(f, "0x{:02x}", state),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// Cruise-control/speed-limiter/acc setting page.
+   pub enum SpeedRegulationSettingPage (u8) {
+       /// Close page.
+       Close = 0,
+       /// Speed limiter page.
+       SpeedLimiter = 1,
+       /// Cruise-control page.
+       CruiseControl = 2,
+   }
+}
+
+impl fmt::Display for SpeedRegulationSettingPage {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            SpeedRegulationSettingPage::Close => write!(f, "Close"),
+            SpeedRegulationSettingPage::SpeedLimiter => write!(f, "speed limiter"),
+            SpeedRegulationSettingPage::CruiseControl => write!(f, "cruise-control"),
+            SpeedRegulationSettingPage::Unknown(page) => write!(f, "0x{:02x}", page),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// Adaptive cruise-control state.
+   pub enum AdaptiveCruiseControlState (u8) {
+       /// No speed adjustment.
+       NoAdjust = 0,
+       /// Speed adjustment in progress.
+       AdjustInProgress = 1,
+       /// Speed adjustment reached high limit.
+       HighLimit = 2,
+       /// Speed adjustment reached low limit.
+       LowLimit = 3,
+       /// Disable speed adjustment.
+       DisableSpeedAdjustment = 4,
+       /// Disable automatic adjustment.
+       DisableAutomaticAdjustment = 5,
+       /// Overspeed state.
+       Overspeed = 6,
+       /// Radar has a low visibility ahead.
+       RadarLowVisibility = 7,
+       /// Radar is learning target.
+       RadarLearning = 8,
+       /// Adaptive cruise control is disabled.
+       Disabled = 9,
+       /// Desired speed reached limit value.
+       AdjustmentLimit = 10,
+   }
+}
+
+impl fmt::Display for AdaptiveCruiseControlState {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            AdaptiveCruiseControlState::NoAdjust => write!(f, "no adjust"),
+            AdaptiveCruiseControlState::AdjustInProgress => write!(f, "adjust in progress"),
+            AdaptiveCruiseControlState::HighLimit => write!(f, "high limit"),
+            AdaptiveCruiseControlState::LowLimit => write!(f, "low limit"),
+            AdaptiveCruiseControlState::DisableSpeedAdjustment => {
+                write!(f, "disable speed adjustment")
+            }
+            AdaptiveCruiseControlState::DisableAutomaticAdjustment => {
+                write!(f, "disable automatic adjustment")
+            }
+            AdaptiveCruiseControlState::Overspeed => write!(f, "overspeed"),
+            AdaptiveCruiseControlState::RadarLowVisibility => write!(f, "radar low visibility"),
+            AdaptiveCruiseControlState::RadarLearning => write!(f, "radar learning"),
+            AdaptiveCruiseControlState::Disabled => write!(f, "disabled"),
+            AdaptiveCruiseControlState::AdjustmentLimit => write!(f, "adjustment limit"),
+            AdaptiveCruiseControlState::Unknown(state) => write!(f, "0x{:02x}", state),
         }
     }
 }
