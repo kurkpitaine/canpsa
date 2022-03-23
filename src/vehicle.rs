@@ -840,40 +840,40 @@ impl fmt::Display for SpeedRegulationMode {
 }
 
 enum_with_unknown! {
-   /// Cruise-control/speed-limiter/acc function state.
-   pub enum SpeedRegulationFunctionState (u8) {
-       /// Function is in standby state.
+   /// Cruise-control/speed-limiter/acc mode state.
+   pub enum SpeedRegulationModeState (u8) {
+       /// Mode is in standby state.
        Standby = 0,
-       /// Function is in up state.
+       /// Mode is in up state.
        Up = 1,
-       /// Speed limiter function is up and running, limiting speed.
+       /// Speed limiter mode is up and running, limiting speed.
        LimiterUpAndRunning = 2,
-       /// Function is in up state, with overspeed from sloping.
+       /// Mode is in up state, with overspeed from sloping.
        UpOverspeed = 3,
-       /// Function is is up state, with overspeed from driver action.
+       /// Mode is is up state, with overspeed from driver action.
        UpOverspeedFromDriver = 4,
-       /// Function is forbidden.
-       ForbiddenFunction = 6,
-       /// Function is in failure state.
+       /// Mode is forbidden.
+       ForbiddenMode = 6,
+       /// Mode is in failure state.
        Failure = 7,
    }
 }
 
-impl fmt::Display for SpeedRegulationFunctionState {
+impl fmt::Display for SpeedRegulationModeState {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            SpeedRegulationFunctionState::Standby => write!(f, "standby"),
-            SpeedRegulationFunctionState::Up => write!(f, "up"),
-            SpeedRegulationFunctionState::LimiterUpAndRunning => {
+            SpeedRegulationModeState::Standby => write!(f, "standby"),
+            SpeedRegulationModeState::Up => write!(f, "up"),
+            SpeedRegulationModeState::LimiterUpAndRunning => {
                 write!(f, "limiter up and running")
             }
-            SpeedRegulationFunctionState::UpOverspeed => write!(f, "up overspeed"),
-            SpeedRegulationFunctionState::UpOverspeedFromDriver => {
+            SpeedRegulationModeState::UpOverspeed => write!(f, "up overspeed"),
+            SpeedRegulationModeState::UpOverspeedFromDriver => {
                 write!(f, "up overspeed from driver")
             }
-            SpeedRegulationFunctionState::ForbiddenFunction => write!(f, "forbidden function"),
-            SpeedRegulationFunctionState::Failure => write!(f, "failure"),
-            SpeedRegulationFunctionState::Unknown(state) => write!(f, "0x{:02x}", state),
+            SpeedRegulationModeState::ForbiddenMode => write!(f, "forbidden mode"),
+            SpeedRegulationModeState::Failure => write!(f, "failure"),
+            SpeedRegulationModeState::Unknown(state) => write!(f, "0x{:02x}", state),
         }
     }
 }
