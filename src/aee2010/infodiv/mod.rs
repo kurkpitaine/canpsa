@@ -22,6 +22,9 @@ pub use x1a5 as ID_ETAT_RADIO_GEN_VOL;
 pub mod x1a9;
 pub use x1a9 as ID_DEMANDES_BTEL;
 
+pub mod x1d0;
+pub use x1d0 as ID_INFO_CLIM_INT_AR_2;
+
 pub mod x1e5;
 pub use x1e5 as ID_ETAT_RADIO_GEN_AUD;
 
