@@ -49,6 +49,12 @@ pub use x276 as ID_DONNEES_BSI_LENTES_3;
 pub mod x2a1;
 pub use x2a1 as ID_INFOS_TRAJET1_ODB;
 
+pub mod x2a8;
+pub use x2a8 as ID_ACC_XVV_IHM_ETAT_2;
+
+pub mod x2ad;
+pub use x2ad as ID_CDE_IHM_CLIM;
+
 pub mod x2b6;
 pub use x2b6 as ID_VIN_VIS;
 
