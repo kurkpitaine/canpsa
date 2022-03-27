@@ -1,3 +1,6 @@
+pub mod x036;
+pub use x036 as COMMANDES_BSI;
+
 pub mod x0f6;
 pub use x0f6 as DONNEES_BSI_LENTES;
 

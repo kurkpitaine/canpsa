@@ -1,9 +1,10 @@
 use core::{fmt, time::Duration};
 
 use crate::{
+    config::UserProfile,
     vehicle::{
-        ConvertibleRoofPosition, DayNightStatus, DrivingDirection, HybridPowertrainMode,
-        HybridPowertrainState, MainStatusValidity, NetworkState, RheostatMode,
+        ConvertibleRoofPosition, DayNightStatus, HybridPowertrainMode, HybridPowertrainState,
+        MainStatusValidity, NetworkState, RheostatMode,
     },
     Error, Result,
 };
@@ -15,55 +16,21 @@ pub struct Frame<T: AsRef<[u8]>> {
     buffer: T,
 }
 
-/*
-036 COMMANDES_VSM_ACTIVATION_DYN_HS7_036             // OK
-036 COMMANDES_VSM_ADD_SPEED_OFFSET_HS7_036           ////// NOPE
-036 COMMANDES_VSM_BCK_PNL_HS7_036                    // OK
-036 COMMANDES_VSM_CDE_APC_HS7_036                    ////// NOPE
-036 COMMANDES_VSM_COM_DIAG_INT_AUTOR_HS7_036         ////// NOPE
-036 COMMANDES_VSM_DEM_EFFAC_DEF_HS7_036              // OK
-036 COMMANDES_VSM_DIAG_MUX_ON_HS7_036                // OK
-036 COMMANDES_VSM_DIAG_MUX_ON_PWT_HS7_036            ////// NOPE
-036 COMMANDES_VSM_DMD_EXTINCTION_MEDIA_HS7_036       // OK
-036 COMMANDES_VSM_ETAT_ACTIVATION_AVR_HS7_036        // OK
-036 COMMANDES_VSM_ETAT_GMP_HY_HS7_036                // OK
-036 COMMANDES_VSM_ETAT_JN_HS7_036                    // OK
-036 COMMANDES_VSM_ETAT_JOUR_NUIT_HS7_036             ////// NOPE
-036 COMMANDES_VSM_ETH_SUPV_ACTIVATION_HS7_036        // OK
-036 COMMANDES_VSM_INTERD_MEMO_DEF_HS7_036            // OK
-036 COMMANDES_VSM_INVIOLABILITE_AUDIO_HS7_036        // OK
-036 COMMANDES_VSM_LUMINOSITE_HS7_036                 // OK
-036 COMMANDES_VSM_MISE_MEM_C_HS7_036                 // OK
-036 COMMANDES_VSM_MODE_ECO_HS7_036                   // OK
-036 COMMANDES_VSM_MODE_HY_HS7_036                    // OK
-036 COMMANDES_VSM_NIV_AMB_FMUX_HS7_036               // OK
-036 COMMANDES_VSM_NUM_MEM_C_HS7_036                  // OK
-036 COMMANDES_VSM_ON_OFF_RAD_HS7_036                 // OK
-036 COMMANDES_VSM_PHASE_VIE_HS7_036                  // OK
-036 COMMANDES_VSM_POSITION_TE_HS7_036                // OK
-036 COMMANDES_VSM_PRES_MENU_PRECOND_HS7_036          // OK
-036 COMMANDES_VSM_RAPP_MEM_C_HS7_036                 // OK
-036 COMMANDES_VSM_RESYNC_HS7_036                     // OK
-036 COMMANDES_VSM_SECU_ETAT_SEV_HS7_036              // OK
-036 COMMANDES_VSM_SENS_ROULAGE_HS7_036               // OK
-036 COMMANDES_VSM_SYNC_ON_OFF_RAD_HS7_036            // OK
-036 COMMANDES_VSM_TYPE_RHEOS_HS7_036                 // OK
-036 COMMANDES_VSM_UB_ETAT_GMP_HY_HS7_036             // OK
-036 COMMANDES_VSM_UB_MODE_HY_HS7_036                 // OK
-036 COMMANDES_VSM_VALID_CAFR_HS7_036                 // OK
-*/
-
 mod field {
     /// 4-bit driver memory setting number to apply field,
     /// 1-bit driver memory setting write to memory request flag,
     /// 1-bit driver memory setting recall request flag,
-    /// 2-bit vehicle driving direction field.
+    /// 2-bit driver profile number field.
     pub const DRIVER_MEM: usize = 0;
-    /// 8-bit unknown content.
-    pub const UNKNOWN: usize = 1;
-    /// 7-bit multiplexed panel lighting level field,
+    /// 4-bit passenger memory setting number to apply field,
+    /// 1-bit passenger memory setting write to memory request flag,
+    /// 1-bit passenger memory setting recall request flag,
+    /// 2-bit passenger profile number field.
+    pub const PASS_MEM: usize = 1;
+    /// 5-bit 'délestage' level field,
+    /// 2-bit empty,
     /// 1-bit economy mode enabled flag.
-    pub const MUXP_LEVEL_ECO: usize = 2;
+    pub const DELESTAGE_ECO: usize = 2;
     /// 4-bit lighting level field,
     /// 1-bit black panel enabled flag,
     /// 1-bit day/night status flag,
@@ -171,33 +138,55 @@ impl<T: AsRef<[u8]>> Frame<T> {
         data[field::DRIVER_MEM] & 0x20 != 0
     }
 
-    /// Return the vehicle driving direction field.
+    /// Return the driver profile number field.
     #[inline]
-    pub fn vehicle_driving_direction(&self) -> DrivingDirection {
+    pub fn driver_profile_number(&self) -> UserProfile {
         let data = self.buffer.as_ref();
-        let raw = (data[field::DRIVER_MEM] & 0xc0) >> 6;
-        DrivingDirection::from(raw)
+        let raw = data[field::DRIVER_MEM] >> 6;
+        UserProfile::from(raw)
     }
 
-    /// Return the unknown byte content.
+    /// Return the passenger memory setting number to apply field.
     #[inline]
-    pub fn unknown(&self) -> u8 {
+    pub fn passenger_memory_setting(&self) -> u8 {
         let data = self.buffer.as_ref();
-        data[field::UNKNOWN]
+        data[field::PASS_MEM] & 0x0f
     }
 
-    /// Return the multiplexed panel lighting level field.
+    /// Return the passenger memory setting write to memory request flag.
     #[inline]
-    pub fn mux_panel_lighting_level(&self) -> u8 {
+    pub fn passenger_memory_setting_write(&self) -> bool {
         let data = self.buffer.as_ref();
-        data[field::MUXP_LEVEL_ECO] & 0x7f
+        data[field::PASS_MEM] & 0x10 != 0
+    }
+
+    /// Return the passenger memory setting recall request flag.
+    #[inline]
+    pub fn passenger_memory_setting_recall(&self) -> bool {
+        let data = self.buffer.as_ref();
+        data[field::PASS_MEM] & 0x20 != 0
+    }
+
+    /// Return the passenger profile number field.
+    #[inline]
+    pub fn passenger_profile_number(&self) -> UserProfile {
+        let data = self.buffer.as_ref();
+        let raw = data[field::PASS_MEM] >> 6;
+        UserProfile::from(raw)
+    }
+
+    /// Return the 'délestage' level field.
+    #[inline]
+    pub fn delestage_level(&self) -> u8 {
+        let data = self.buffer.as_ref();
+        data[field::DELESTAGE_ECO] & 0x1f
     }
 
     /// Return the economy mode enabled flag.
     #[inline]
     pub fn economy_mode_enabled(&self) -> bool {
         let data = self.buffer.as_ref();
-        data[field::MUXP_LEVEL_ECO] & 0x80 != 0
+        data[field::DELESTAGE_ECO] & 0x80 != 0
     }
 
     /// Return the lighting level field.
@@ -390,38 +379,67 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
         data[field::DRIVER_MEM] = raw;
     }
 
-    /// Set the vehicle driving direction field.
+    /// Set the driver profile number field.
     #[inline]
-    pub fn set_vehicle_driving_direction(&mut self, value: DrivingDirection) {
+    pub fn set_driver_profile_number(&mut self, value: UserProfile) {
         let data = self.buffer.as_mut();
         let raw = data[field::DRIVER_MEM] & !0xc0;
-        let raw = raw | ((u8::from(value) << 6) & 0xc0);
+        let raw = raw | (u8::from(value) << 6);
         data[field::DRIVER_MEM] = raw;
     }
 
-    /// Set the unknown byte content.
+    /// Set the passenger memory setting number to apply field.
     #[inline]
-    pub fn set_unknown(&mut self, value: u8) {
+    pub fn set_passenger_memory_setting(&mut self, value: u8) {
         let data = self.buffer.as_mut();
-        data[field::UNKNOWN] = value;
+        let raw = data[field::PASS_MEM] & !0x0f;
+        let raw = raw | (value & 0x0f);
+        data[field::PASS_MEM] = raw;
     }
 
-    /// Set the multiplexed panel lighting level field.
+    /// Set the passenger memory setting write to memory request flag.
     #[inline]
-    pub fn set_mux_panel_lighting_level(&mut self, value: u8) {
+    pub fn set_passenger_memory_setting_write(&mut self, value: bool) {
         let data = self.buffer.as_mut();
-        let raw = data[field::MUXP_LEVEL_ECO] & !0x7f;
-        let raw = raw | (value & 0x7f);
-        data[field::MUXP_LEVEL_ECO] = raw;
+        let raw = data[field::PASS_MEM] & !0x10;
+        let raw = if value { raw | 0x10 } else { raw & !0x10 };
+        data[field::PASS_MEM] = raw;
+    }
+
+    /// Set the passenger memory setting recall to memory request flag.
+    #[inline]
+    pub fn set_passenger_memory_setting_recall(&mut self, value: bool) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::PASS_MEM] & !0x20;
+        let raw = if value { raw | 0x20 } else { raw & !0x20 };
+        data[field::PASS_MEM] = raw;
+    }
+
+    /// Set the passenger profile number field.
+    #[inline]
+    pub fn set_passenger_profile_number(&mut self, value: UserProfile) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::PASS_MEM] & !0xc0;
+        let raw = raw | (u8::from(value) << 6);
+        data[field::PASS_MEM] = raw;
+    }
+
+    /// Set the 'délestage' level field.
+    #[inline]
+    pub fn set_delestage_level(&mut self, value: u8) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::DELESTAGE_ECO] & !0x1f;
+        let raw = raw | (value & 0x1f);
+        data[field::DELESTAGE_ECO] = raw;
     }
 
     /// Set the economy mode enabled flag.
     #[inline]
     pub fn set_economy_mode_enabled(&mut self, value: bool) {
         let data = self.buffer.as_mut();
-        let raw = data[field::MUXP_LEVEL_ECO] & !0x80;
+        let raw = data[field::DELESTAGE_ECO] & !0x80;
         let raw = if value { raw | 0x80 } else { raw & !0x80 };
-        data[field::MUXP_LEVEL_ECO] = raw;
+        data[field::DELESTAGE_ECO] = raw;
     }
 
     /// Set the lighting level field.
@@ -648,9 +666,12 @@ pub struct Repr {
     pub driver_memory_setting: u8,
     pub driver_memory_setting_write: bool,
     pub driver_memory_setting_recall: bool,
-    pub vehicle_driving_direction: DrivingDirection,
-    pub unknown: u8,
-    pub mux_panel_lighting_level: u8,
+    pub driver_profile_number: UserProfile,
+    pub passenger_memory_setting: u8,
+    pub passenger_memory_setting_write: bool,
+    pub passenger_memory_setting_recall: bool,
+    pub passenger_profile_number: UserProfile,
+    pub delestage_level: u8,
     pub economy_mode_enabled: bool,
     pub lighting_level: u8,
     pub black_panel_enabled: bool,
@@ -684,9 +705,12 @@ impl Repr {
             driver_memory_setting: frame.driver_memory_setting(),
             driver_memory_setting_write: frame.driver_memory_setting_write(),
             driver_memory_setting_recall: frame.driver_memory_setting_recall(),
-            vehicle_driving_direction: frame.vehicle_driving_direction(),
-            unknown: frame.unknown(),
-            mux_panel_lighting_level: frame.mux_panel_lighting_level(),
+            driver_profile_number: frame.driver_profile_number(),
+            passenger_memory_setting: frame.passenger_memory_setting(),
+            passenger_memory_setting_write: frame.passenger_memory_setting_write(),
+            passenger_memory_setting_recall: frame.passenger_memory_setting_recall(),
+            passenger_profile_number: frame.passenger_profile_number(),
+            delestage_level: frame.delestage_level(),
             economy_mode_enabled: frame.economy_mode_enabled(),
             lighting_level: frame.lighting_level(),
             black_panel_enabled: frame.black_panel_enabled(),
@@ -724,9 +748,12 @@ impl Repr {
         frame.set_driver_memory_setting(self.driver_memory_setting);
         frame.set_driver_memory_setting_write(self.driver_memory_setting_write);
         frame.set_driver_memory_setting_recall(self.driver_memory_setting_recall);
-        frame.set_vehicle_driving_direction(self.vehicle_driving_direction);
-        frame.set_unknown(self.unknown);
-        frame.set_mux_panel_lighting_level(self.mux_panel_lighting_level);
+        frame.set_driver_profile_number(self.driver_profile_number);
+        frame.set_passenger_memory_setting(self.passenger_memory_setting);
+        frame.set_passenger_memory_setting_write(self.passenger_memory_setting_write);
+        frame.set_passenger_memory_setting_recall(self.passenger_memory_setting_recall);
+        frame.set_passenger_profile_number(self.passenger_profile_number);
+        frame.set_delestage_level(self.delestage_level);
         frame.set_economy_mode_enabled(self.economy_mode_enabled);
         frame.set_lighting_level(self.lighting_level);
         frame.set_black_panel_enabled(self.black_panel_enabled);
@@ -758,11 +785,7 @@ impl Repr {
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(f, "x036")?;
-        writeln!(
-            f,
-            " driver_memory_setting={}",
-            self.driver_memory_setting
-        )?;
+        writeln!(f, " driver_memory_setting={}", self.driver_memory_setting)?;
         writeln!(
             f,
             " driver_memory_setting_write={}",
@@ -773,17 +796,28 @@ impl fmt::Display for Repr {
             " driver_memory_setting_recall={}",
             self.driver_memory_setting_recall
         )?;
+        writeln!(f, " driver_profile_number={}", self.driver_profile_number)?;
         writeln!(
             f,
-            " vehicle_driving_direction={}",
-            self.vehicle_driving_direction
+            " passenger_memory_setting={}",
+            self.passenger_memory_setting
         )?;
-        writeln!(f, " unknown={}", self.unknown)?;
         writeln!(
             f,
-            " mux_panel_lighting_level={}",
-            self.mux_panel_lighting_level
+            " passenger_memory_setting_write={}",
+            self.driver_memory_setting_write
         )?;
+        writeln!(
+            f,
+            " passenger_memory_setting_recall={}",
+            self.passenger_memory_setting_recall
+        )?;
+        writeln!(
+            f,
+            " passenger_profile_number={}",
+            self.passenger_profile_number
+        )?;
+        writeln!(f, " delestage_level={}", self.delestage_level)?;
         writeln!(f, " economy_mode_enabled={}", self.economy_mode_enabled)?;
         writeln!(f, " lighting_level={}", self.lighting_level)?;
         writeln!(f, " black_panel_enabled={}", self.black_panel_enabled)?;
@@ -862,24 +896,28 @@ impl fmt::Display for Repr {
 mod test {
     use super::{Frame, Repr};
     use crate::{
+        config::UserProfile,
         vehicle::{
-            ConvertibleRoofPosition, DayNightStatus, DrivingDirection, HybridPowertrainMode,
-            HybridPowertrainState, MainStatusValidity, NetworkState, RheostatMode,
+            ConvertibleRoofPosition, DayNightStatus, HybridPowertrainMode, HybridPowertrainState,
+            MainStatusValidity, NetworkState, RheostatMode,
         },
         Error,
     };
 
-    static REPR_FRAME_BYTES_1: [u8; 8] = [0x51, 0xff, 0x88, 0xc8, 0xa1, 0xb0, 0x0a, 0xa2];
-    static REPR_FRAME_BYTES_2: [u8; 8] = [0xa3, 0xff, 0x08, 0x38, 0x4c, 0x83, 0x85, 0xa1];
+    static REPR_FRAME_BYTES_1: [u8; 8] = [0x51, 0x51, 0x88, 0xc8, 0xa1, 0xb0, 0x0a, 0xa2];
+    static REPR_FRAME_BYTES_2: [u8; 8] = [0xa3, 0xa3, 0x08, 0x38, 0x4c, 0x83, 0x85, 0xa1];
 
     fn frame_1_repr() -> Repr {
         Repr {
             driver_memory_setting: 1,
             driver_memory_setting_write: true,
             driver_memory_setting_recall: false,
-            vehicle_driving_direction: DrivingDirection::Forward,
-            unknown: 0xff,
-            mux_panel_lighting_level: 8,
+            driver_profile_number: UserProfile::Profile1,
+            passenger_memory_setting: 1,
+            passenger_memory_setting_write: true,
+            passenger_memory_setting_recall: false,
+            passenger_profile_number: UserProfile::Profile1,
+            delestage_level: 8,
             economy_mode_enabled: true,
             lighting_level: 8,
             black_panel_enabled: false,
@@ -911,9 +949,12 @@ mod test {
             driver_memory_setting: 3,
             driver_memory_setting_write: false,
             driver_memory_setting_recall: true,
-            vehicle_driving_direction: DrivingDirection::Reverse,
-            unknown: 0xff,
-            mux_panel_lighting_level: 8,
+            driver_profile_number: UserProfile::Profile2,
+            passenger_memory_setting: 3,
+            passenger_memory_setting_write: false,
+            passenger_memory_setting_recall: true,
+            passenger_profile_number: UserProfile::Profile2,
+            delestage_level: 8,
             economy_mode_enabled: false,
             lighting_level: 8,
             black_panel_enabled: true,
@@ -947,9 +988,12 @@ mod test {
         assert_eq!(frame.driver_memory_setting(), 1);
         assert_eq!(frame.driver_memory_setting_write(), true);
         assert_eq!(frame.driver_memory_setting_recall(), false);
-        assert_eq!(frame.vehicle_driving_direction(), DrivingDirection::Forward);
-        assert_eq!(frame.unknown(), 0xff);
-        assert_eq!(frame.mux_panel_lighting_level(), 8);
+        assert_eq!(frame.driver_profile_number(), UserProfile::Profile1);
+        assert_eq!(frame.passenger_memory_setting(), 1);
+        assert_eq!(frame.passenger_memory_setting_write(), true);
+        assert_eq!(frame.passenger_memory_setting_recall(), false);
+        assert_eq!(frame.passenger_profile_number(), UserProfile::Profile1);
+        assert_eq!(frame.delestage_level(), 8);
         assert_eq!(frame.economy_mode_enabled(), true);
         assert_eq!(frame.lighting_level(), 8);
         assert_eq!(frame.black_panel_enabled(), false);
@@ -994,9 +1038,12 @@ mod test {
         assert_eq!(frame.driver_memory_setting(), 3);
         assert_eq!(frame.driver_memory_setting_write(), false);
         assert_eq!(frame.driver_memory_setting_recall(), true);
-        assert_eq!(frame.vehicle_driving_direction(), DrivingDirection::Reverse);
-        assert_eq!(frame.unknown(), 0xff);
-        assert_eq!(frame.mux_panel_lighting_level(), 8);
+        assert_eq!(frame.driver_profile_number(), UserProfile::Profile2);
+        assert_eq!(frame.passenger_memory_setting(), 3);
+        assert_eq!(frame.passenger_memory_setting_write(), false);
+        assert_eq!(frame.passenger_memory_setting_recall(), true);
+        assert_eq!(frame.passenger_profile_number(), UserProfile::Profile2);
+        assert_eq!(frame.delestage_level(), 8);
         assert_eq!(frame.economy_mode_enabled(), false);
         assert_eq!(frame.lighting_level(), 8);
         assert_eq!(frame.black_panel_enabled(), true);
@@ -1039,9 +1086,12 @@ mod test {
         frame.set_driver_memory_setting(1);
         frame.set_driver_memory_setting_write(true);
         frame.set_driver_memory_setting_recall(false);
-        frame.set_vehicle_driving_direction(DrivingDirection::Forward);
-        frame.set_unknown(0xff);
-        frame.set_mux_panel_lighting_level(8);
+        frame.set_driver_profile_number(UserProfile::Profile1);
+        frame.set_passenger_memory_setting(1);
+        frame.set_passenger_memory_setting_write(true);
+        frame.set_passenger_memory_setting_recall(false);
+        frame.set_passenger_profile_number(UserProfile::Profile1);
+        frame.set_delestage_level(8);
         frame.set_economy_mode_enabled(true);
         frame.set_lighting_level(8);
         frame.set_black_panel_enabled(false);
@@ -1077,9 +1127,12 @@ mod test {
         frame.set_driver_memory_setting(3);
         frame.set_driver_memory_setting_write(false);
         frame.set_driver_memory_setting_recall(true);
-        frame.set_vehicle_driving_direction(DrivingDirection::Reverse);
-        frame.set_unknown(0xff);
-        frame.set_mux_panel_lighting_level(8);
+        frame.set_driver_profile_number(UserProfile::Profile2);
+        frame.set_passenger_memory_setting(3);
+        frame.set_passenger_memory_setting_write(false);
+        frame.set_passenger_memory_setting_recall(true);
+        frame.set_passenger_profile_number(UserProfile::Profile2);
+        frame.set_delestage_level(8);
         frame.set_economy_mode_enabled(false);
         frame.set_lighting_level(8);
         frame.set_black_panel_enabled(true);
