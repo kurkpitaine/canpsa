@@ -43,5 +43,8 @@ pub use x336 as VIN_WMI;
 pub mod x361;
 pub use x361 as BSI_INF_CFG;
 
+pub mod x3a7;
+pub use x3a7 as INFOS_MAINTENANCE;
+
 pub mod x3f6;
 pub use x3f6 as DATE_CONFIG;

@@ -258,7 +258,7 @@ impl fmt::Display for Language {
 }
 
 enum_with_unknown! {
-    /// Display mode.
+    /// Generic display mode.
     pub enum DisplayMode(u8) {
         /// Steady display mode.
         Steady = 0,
@@ -273,6 +273,49 @@ impl fmt::Display for DisplayMode {
             DisplayMode::Steady => write!(f, "steady"),
             DisplayMode::Blinking => write!(f, "blinking"),
             DisplayMode::Unknown(mode) => write!(f, "0x{:02x}", mode),
+        }
+    }
+}
+
+enum_with_unknown! {
+    /// Maintenance display mode. AEE 2004 only.
+    pub enum MaintenanceDisplayMode(u8) {
+        /// Off, no display.
+        Off = 0,
+        /// Steady display mode.
+        Steady = 1,
+        /// Blinking display mode.
+        Blinking = 2,
+    }
+}
+
+impl fmt::Display for MaintenanceDisplayMode {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            MaintenanceDisplayMode::Off => write!(f, "off"),
+            MaintenanceDisplayMode::Steady => write!(f, "steady"),
+            MaintenanceDisplayMode::Blinking => write!(f, "blinking"),
+            MaintenanceDisplayMode::Unknown(mode) => write!(f, "0x{:02x}", mode),
+        }
+    }
+}
+
+enum_with_unknown! {
+    /// Maintenance type.
+    pub enum MaintenanceType(u8) {
+        /// Maintenance deadline is from distance.
+        Distance = 0,
+        /// Maintenance deadline is from time.
+        Time = 1,
+    }
+}
+
+impl fmt::Display for MaintenanceType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            MaintenanceType::Distance => write!(f, "distance"),
+            MaintenanceType::Time => write!(f, "time"),
+            MaintenanceType::Unknown(mode) => write!(f, "0x{:02x}", mode),
         }
     }
 }

@@ -31,7 +31,7 @@ mod field {
     /// 2-bit unknown.
     pub const FLAGS: usize = 0;
     /// 3-bit unknown,
-    /// 11-bit maintenance remaining days counter field,
+    /// 11-bit maintenance remaining time counter field,
     /// 2-bit unknown.
     pub const MAINTENANCE_DAYS: Field = 1..3;
     /// 16-bit maintenance remaining distance counter field.
