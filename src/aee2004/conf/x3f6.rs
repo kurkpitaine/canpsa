@@ -146,10 +146,10 @@ impl<T: AsRef<[u8]>> Frame<T> {
 
     /// Return the display mode field.
     #[inline]
-    pub fn display_mode(&self) -> DisplayMode {
+    pub fn display_mode(&self) -> DisplayColorMode {
         let data = self.buffer.as_ref();
         let raw = (data[field::DISPLAY_CONFIG_FLAGS] & 0x40) >> 6;
-        DisplayMode::from(raw)
+        DisplayColorMode::from(raw)
     }
 
     /// Return the clock format field.
@@ -257,7 +257,7 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
 
     /// Set the display mode field.
     #[inline]
-    pub fn set_display_mode(&mut self, value: DisplayMode) {
+    pub fn set_display_mode(&mut self, value: DisplayColorMode) {
         let data = self.buffer.as_mut();
         let raw = data[field::DISPLAY_CONFIG_FLAGS] & !0x40;
         let raw = raw | (u8::from(value) << 6);
@@ -312,7 +312,7 @@ pub struct Repr {
     pub pressure_unit: PressureUnit,
     pub display_charset: DisplayCharset,
     pub temperature_unit: TemperatureUnit,
-    pub display_mode: DisplayMode,
+    pub display_mode: DisplayColorMode,
     pub clock_format: ClockFormat,
     pub language: Language,
 }
@@ -422,7 +422,7 @@ mod test {
             pressure_unit: PressureUnit::Bar,
             display_charset: DisplayCharset::ASCII,
             temperature_unit: TemperatureUnit::Celsius,
-            display_mode: DisplayMode::Negative,
+            display_mode: DisplayColorMode::Negative,
             clock_format: ClockFormat::H24,
             language: Language::Italian,
         }
@@ -437,7 +437,7 @@ mod test {
             pressure_unit: PressureUnit::PSI,
             display_charset: DisplayCharset::UTF8,
             temperature_unit: TemperatureUnit::Fahrenheit,
-            display_mode: DisplayMode::Positive,
+            display_mode: DisplayColorMode::Positive,
             clock_format: ClockFormat::H12,
             language: Language::English,
         }
@@ -456,7 +456,7 @@ mod test {
         assert_eq!(frame.pressure_unit(), PressureUnit::Bar);
         assert_eq!(frame.display_charset(), DisplayCharset::ASCII);
         assert_eq!(frame.temperature_unit(), TemperatureUnit::Celsius);
-        assert_eq!(frame.display_mode(), DisplayMode::Negative);
+        assert_eq!(frame.display_mode(), DisplayColorMode::Negative);
         assert_eq!(frame.clock_format(), ClockFormat::H24);
         assert_eq!(frame.language(), Language::Italian);
     }
@@ -474,7 +474,7 @@ mod test {
         assert_eq!(frame.pressure_unit(), PressureUnit::PSI);
         assert_eq!(frame.display_charset(), DisplayCharset::UTF8);
         assert_eq!(frame.temperature_unit(), TemperatureUnit::Fahrenheit);
-        assert_eq!(frame.display_mode(), DisplayMode::Positive);
+        assert_eq!(frame.display_mode(), DisplayColorMode::Positive);
         assert_eq!(frame.clock_format(), ClockFormat::H12);
         assert_eq!(frame.language(), Language::English);
     }
@@ -493,7 +493,7 @@ mod test {
         frame.set_pressure_unit(PressureUnit::Bar);
         frame.set_display_charset(DisplayCharset::ASCII);
         frame.set_temperature_unit(TemperatureUnit::Celsius);
-        frame.set_display_mode(DisplayMode::Negative);
+        frame.set_display_mode(DisplayColorMode::Negative);
         frame.set_clock_format(ClockFormat::H24);
         frame.set_language(Language::Italian);
 
@@ -514,7 +514,7 @@ mod test {
         frame.set_pressure_unit(PressureUnit::PSI);
         frame.set_display_charset(DisplayCharset::UTF8);
         frame.set_temperature_unit(TemperatureUnit::Fahrenheit);
-        frame.set_display_mode(DisplayMode::Positive);
+        frame.set_display_mode(DisplayColorMode::Positive);
         frame.set_clock_format(ClockFormat::H12);
         frame.set_language(Language::English);
 

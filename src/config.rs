@@ -145,8 +145,8 @@ impl fmt::Display for TemperatureUnit {
 }
 
 enum_with_unknown! {
-    /// Display mode.
-    pub enum DisplayMode(u8) {
+    /// Display color mode.
+    pub enum DisplayColorMode(u8) {
         /// Negative display mode, ie: clear characters
         /// on a dark background.
         Negative = 0,
@@ -156,12 +156,12 @@ enum_with_unknown! {
     }
 }
 
-impl fmt::Display for DisplayMode {
+impl fmt::Display for DisplayColorMode {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            DisplayMode::Negative => write!(f, "negative"),
-            DisplayMode::Positive => write!(f, "positive"),
-            DisplayMode::Unknown(mode) => write!(f, "0x{:02x}", mode),
+            DisplayColorMode::Negative => write!(f, "negative"),
+            DisplayColorMode::Positive => write!(f, "positive"),
+            DisplayColorMode::Unknown(mode) => write!(f, "0x{:02x}", mode),
         }
     }
 }
@@ -258,21 +258,21 @@ impl fmt::Display for Language {
 }
 
 enum_with_unknown! {
-    /// Clock display mode.
-    pub enum ClockDisplayMode(u8) {
-        /// Steady clock display mode.
+    /// Display mode.
+    pub enum DisplayMode(u8) {
+        /// Steady display mode.
         Steady = 0,
-        /// Blinking clock display mode.
+        /// Blinking display mode.
         Blinking = 1,
     }
 }
 
-impl fmt::Display for ClockDisplayMode {
+impl fmt::Display for DisplayMode {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            ClockDisplayMode::Steady => write!(f, "steady"),
-            ClockDisplayMode::Blinking => write!(f, "blinking"),
-            ClockDisplayMode::Unknown(mode) => write!(f, "0x{:02x}", mode),
+            DisplayMode::Steady => write!(f, "steady"),
+            DisplayMode::Blinking => write!(f, "blinking"),
+            DisplayMode::Unknown(mode) => write!(f, "0x{:02x}", mode),
         }
     }
 }

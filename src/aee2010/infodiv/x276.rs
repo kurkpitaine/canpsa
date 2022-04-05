@@ -4,7 +4,7 @@ use byteorder::{ByteOrder, NetworkEndian};
 use time::{Date, Month, PrimitiveDateTime, Time};
 
 use crate::{
-    config::{ClockDisplayMode, ClockFormat},
+    config::{DisplayMode, ClockFormat},
     Error, Result, YEAR_OFFSET,
 };
 
@@ -136,10 +136,10 @@ impl<T: AsRef<[u8]>> Frame<T> {
 
     /// Return the clock display mode field.
     #[inline]
-    pub fn clock_display_mode(&self) -> ClockDisplayMode {
+    pub fn clock_display_mode(&self) -> DisplayMode {
         let data = self.buffer.as_ref();
         let raw = (data[field::MONTH_CLOCK_DISP_MODE] & 0x10) >> 4;
-        ClockDisplayMode::from(raw)
+        DisplayMode::from(raw)
     }
 
     /// Return the day field.
@@ -209,7 +209,7 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
 
     /// Set the clock display mode field.
     #[inline]
-    pub fn set_clock_display_mode(&mut self, value: ClockDisplayMode) {
+    pub fn set_clock_display_mode(&mut self, value: DisplayMode) {
         let data = self.buffer.as_mut();
         let raw = data[field::MONTH_CLOCK_DISP_MODE] & !0x10;
         let raw = raw | ((u8::from(value) << 4) & 0x10);
@@ -285,7 +285,7 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Repr {
     pub clock_format: ClockFormat,
-    pub clock_disp_mode: ClockDisplayMode,
+    pub clock_disp_mode: DisplayMode,
     pub utc_datetime: PrimitiveDateTime,
     pub adblue_autonomy: u16,
     pub adblue_autonomy_display_request: bool,
@@ -364,7 +364,7 @@ impl fmt::Display for Repr {
 mod test {
     use super::{Frame, Repr};
     use crate::{
-        config::{ClockDisplayMode, ClockFormat},
+        config::{DisplayMode, ClockFormat},
         Error,
     };
 
@@ -375,7 +375,7 @@ mod test {
     fn frame_repr() -> Repr {
         Repr {
             clock_format: ClockFormat::H24,
-            clock_disp_mode: ClockDisplayMode::Blinking,
+            clock_disp_mode: DisplayMode::Blinking,
             utc_datetime: datetime!(2022-01-10 15:29),
             adblue_autonomy: 16382,
             adblue_autonomy_display_request: false,
@@ -389,7 +389,7 @@ mod test {
         assert_eq!(frame.clock_format(), ClockFormat::H24);
         assert_eq!(frame.year(), 0x16);
         assert_eq!(frame.month(), 0x01);
-        assert_eq!(frame.clock_display_mode(), ClockDisplayMode::Blinking);
+        assert_eq!(frame.clock_display_mode(), DisplayMode::Blinking);
         assert_eq!(frame.day(), 0x0a);
         assert_eq!(frame.hour(), 0x0f);
         assert_eq!(frame.minute(), 0x1d);
@@ -405,7 +405,7 @@ mod test {
         frame.set_clock_format(ClockFormat::H24);
         frame.set_year(0x16);
         frame.set_month(0x01);
-        frame.set_clock_display_mode(ClockDisplayMode::Blinking);
+        frame.set_clock_display_mode(DisplayMode::Blinking);
         frame.set_day(0x0a);
         frame.set_hour(0x0f);
         frame.set_minute(0x1d);

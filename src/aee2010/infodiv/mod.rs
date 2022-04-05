@@ -87,3 +87,6 @@ pub use x3d0 as ID_ETAT_CLIM_AR;
 
 pub mod x3e1;
 pub use x3e1 as ID_INFOS_STT_ET_HY;
+
+pub mod x3e7;
+pub use x3e7 as ID_INFOS_MAINTENANCE_EV;
