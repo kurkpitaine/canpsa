@@ -1,6 +1,9 @@
 pub mod x036;
 pub use x036 as COMMANDES_BSI;
 
+pub mod x0b6;
+pub use x0b6 as DONNEES_BSI_RAPIDES;
+
 pub mod x0f6;
 pub use x0f6 as DONNEES_BSI_LENTES;
 
@@ -19,6 +22,9 @@ pub use x167 as DEMANDES_EMF;
 pub mod x1a5;
 pub use x1a5 as ETAT_RADIO_GEN_VOL;
 
+pub mod x1e1;
+pub use x1e1 as DONNEES_ETAT_ROUES;
+
 pub mod x1e5;
 pub use x1e5 as ETAT_RADIO_GEN_AUD;
 
@@ -31,8 +37,17 @@ pub use x227 as CDE_LED_PUSH;
 pub mod x228;
 pub use x228 as CDE_HEURE;
 
+pub mod x261;
+pub use x261 as INFOS_TRAJET2_ODB;
+
+pub mod x2a1;
+pub use x2a1 as INFOS_TRAJET1_ODB;
+
 pub mod x2b6;
 pub use x2b6 as VIN_VIS;
+
+pub mod x2e1;
+pub use x2e1 as ETAT_FONCTIONS;
 
 pub mod x3b6;
 pub use x3b6 as VIN_VDS;
@@ -45,6 +60,9 @@ pub use x361 as BSI_INF_CFG;
 
 pub mod x3a7;
 pub use x3a7 as INFOS_MAINTENANCE;
+
+pub mod x3e1;
+pub use x3e1 as INFOS_STT_ET_HY;
 
 pub mod x3f6;
 pub use x3f6 as DATE_CONFIG;

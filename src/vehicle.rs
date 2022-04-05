@@ -951,3 +951,92 @@ impl fmt::Display for AdaptiveCruiseControlState {
         }
     }
 }
+
+enum_with_unknown! {
+   /// Wheel pressure state.
+   pub enum WheelState (u8) {
+       /// Wheel has a puncture.
+       Puncture = 1,
+       /// Lightly deflated wheel.
+       LightlyDeflated = 2,
+       /// Highly deflated wheel.
+       HighlyDeflated = 4,
+       /// Wheel is not monitored.
+       NotMonitored = 8,
+       /// Wheel is normal.
+       Normal = 16,
+   }
+}
+
+impl fmt::Display for WheelState {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            WheelState::Puncture => write!(f, "puncture"),
+            WheelState::LightlyDeflated => write!(f, "lightly deflated"),
+            WheelState::HighlyDeflated => write!(f, "highly deflated"),
+            WheelState::NotMonitored => write!(f, "not monitored"),
+            WheelState::Normal => write!(f, "normal"),
+            WheelState::Unknown(state) => write!(f, "0x{:02x}", state),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// PAX Wheel pressure state. AEE 2004 only.
+   /// PAX is a discontinued run-on-flat Michelin technology.
+   pub enum PAXWheelState (u8) {
+       /// Wheel is normal.
+       Normal = 0,
+       /// Wheel has a puncture.
+       Puncture = 1,
+       /// Unavailable wheel state.
+       Unavailable = 2,
+   }
+}
+
+impl fmt::Display for PAXWheelState {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            PAXWheelState::Normal => write!(f, "normal"),
+            PAXWheelState::Puncture => write!(f, "puncture"),
+            PAXWheelState::Unavailable => write!(f, "unavailable"),
+            PAXWheelState::Unknown(state) => write!(f, "0x{:02x}", state),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// Under-inflation system state.
+   pub enum UnderInflationSystemState (u8) {
+       /// Pressure is not monitored.
+       PressureNotMonitored = 0,
+       /// System failure.
+       SystemFailure = 1,
+       /// Unsuitable wheel pressure for vehicle load.
+       LoadUnsuitableWheelPressure = 2,
+       /// Unsuitable wheel pressure for vehicle speed.
+       SpeedUnsuitableWheelPressure = 3,
+       /// Measure in progress.
+       MeasureInProgress = 4,
+       /// Ok system state.
+       Ok = 7,
+   }
+}
+
+impl fmt::Display for UnderInflationSystemState {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            UnderInflationSystemState::PressureNotMonitored => write!(f, "pressure not monitored"),
+            UnderInflationSystemState::SystemFailure => write!(f, "system failure"),
+            UnderInflationSystemState::LoadUnsuitableWheelPressure => {
+                write!(f, "load unsuitable wheel pressure")
+            }
+            UnderInflationSystemState::SpeedUnsuitableWheelPressure => {
+                write!(f, "speed unsuitable wheel pressure")
+            }
+            UnderInflationSystemState::MeasureInProgress => write!(f, "measure in progress"),
+            UnderInflationSystemState::Ok => write!(f, "ok"),
+            UnderInflationSystemState::Unknown(state) => write!(f, "0x{:02x}", state),
+        }
+    }
+}
