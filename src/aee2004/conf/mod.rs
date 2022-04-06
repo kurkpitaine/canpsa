@@ -22,6 +22,9 @@ pub use x167 as DEMANDES_EMF;
 pub mod x1a5;
 pub use x1a5 as ETAT_RADIO_GEN_VOL;
 
+pub mod x1a8;
+pub use x1a8 as GESTION_VITESSE;
+
 pub mod x1e1;
 pub use x1e1 as DONNEES_ETAT_ROUES;
 

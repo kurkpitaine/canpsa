@@ -25,6 +25,26 @@ impl fmt::Display for ConfigOption {
 }
 
 enum_with_unknown! {
+    /// Speed unit.
+    pub enum SpeedUnit(u8) {
+        /// Kilometer per hour speed unit.
+        Kph = 0,
+        /// Mile per hour speed unit.
+        Mph = 1,
+    }
+}
+
+impl fmt::Display for SpeedUnit {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            SpeedUnit::Kph => write!(f, "kph"),
+            SpeedUnit::Mph => write!(f, "mph"),
+            SpeedUnit::Unknown(unit) => write!(f, "0x{:02x}", unit),
+        }
+    }
+}
+
+enum_with_unknown! {
     /// Distance unit.
     pub enum DistanceUnit(u8) {
         /// Kilometer distance unit.
