@@ -4,6 +4,9 @@ pub use x036 as COMMANDES_BSI;
 pub mod x0b6;
 pub use x0b6 as DONNEES_BSI_RAPIDES;
 
+pub mod x0e6;
+pub use x0e6 as IS_DAT_ABR;
+
 pub mod x0f6;
 pub use x0f6 as DONNEES_BSI_LENTES;
 

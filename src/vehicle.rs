@@ -540,7 +540,7 @@ impl fmt::Display for VolumeLevelOrigin {
 
 enum_with_unknown! {
    /// Automatic parking mode.
-   pub enum AutomaticParkingMode (u8) {
+   pub enum AutomaticParkingMode(u8) {
        /// SCP 6 mode.
        SCP6 = 0,
        /// SCP 9 mode.
@@ -560,7 +560,7 @@ impl fmt::Display for AutomaticParkingMode {
 
 enum_with_unknown! {
    /// Automatic parking mode.
-   pub enum CruiseControlCustomSettingPosition (u8) {
+   pub enum CruiseControlCustomSettingPosition(u8) {
        /// No setting.
        None = 0,
        /// Position 1 cruise-control setting.
@@ -595,7 +595,7 @@ impl fmt::Display for CruiseControlCustomSettingPosition {
 
 enum_with_unknown! {
    /// Boot and convertible roof position.
-   pub enum BootAndConvertibleRoofPosition (u8) {
+   pub enum BootAndConvertibleRoofPosition(u8) {
        /// No display of this, ie: vehicle is not convertible.
        None = 0,
        /// Vehicle is in coupe, ie: convertible roof and boot are closed.
@@ -656,7 +656,7 @@ impl fmt::Display for SuspensionMode {
 
 enum_with_unknown! {
    /// Vehicle settable suspension position.
-   pub enum SuspensionPosition (u8) {
+   pub enum SuspensionPosition(u8) {
        /// Vehicle suspension is in normal position.
        Normal = 0,
        /// Vehicle suspension is in mid-high position.
@@ -685,7 +685,7 @@ impl fmt::Display for SuspensionPosition {
 
 enum_with_unknown! {
    /// Vehicle settable suspension movement.
-   pub enum SuspensionMovement (u8) {
+   pub enum SuspensionMovement(u8) {
        /// Suspension is immobile.
        Immobile = 0,
        /// Vehicle suspension ascending, ie: from low to high position.
@@ -711,7 +711,7 @@ impl fmt::Display for SuspensionMovement {
 
 enum_with_unknown! {
    /// Enhanced traction control mode.
-   pub enum EnhancedTractionControlMode (u8) {
+   pub enum EnhancedTractionControlMode(u8) {
        /// Enhanced traction control ESP is off.
        EspOff = 0,
        /// Enhanced traction control is in normal mode.
@@ -746,7 +746,7 @@ impl fmt::Display for EnhancedTractionControlMode {
 
 enum_with_unknown! {
    /// Push button LED state.
-   pub enum PushButtonLedState (u8) {
+   pub enum PushButtonLedState(u8) {
        /// LED is off.
        Off = 0,
        /// LED is on with a steady light.
@@ -769,7 +769,7 @@ impl fmt::Display for PushButtonLedState {
 
 enum_with_unknown! {
    /// Vehicle fuel type.
-   pub enum FuelType (u8) {
+   pub enum FuelType(u8) {
        /// Petrol engine.
        Petrol = 0,
        /// Diesel engine.
@@ -789,7 +789,7 @@ impl fmt::Display for FuelType {
 
 enum_with_unknown! {
    /// A/C air recirculation state.
-   pub enum ACRecirculationState (u8) {
+   pub enum ACRecirculationState(u8) {
        /// Exterior air source.
        ExteriorAir = 0,
        /// Partial air recirculation.
@@ -815,7 +815,7 @@ impl fmt::Display for ACRecirculationState {
 
 enum_with_unknown! {
    /// Cruise-control/speed-limiter/acc mode.
-   pub enum SpeedRegulationMode (u8) {
+   pub enum SpeedRegulationMode(u8) {
        /// Off mode.
        Off = 0,
        /// Cruise-control mode.
@@ -841,7 +841,7 @@ impl fmt::Display for SpeedRegulationMode {
 
 enum_with_unknown! {
    /// Cruise-control/speed-limiter/acc mode state.
-   pub enum SpeedRegulationModeState (u8) {
+   pub enum SpeedRegulationModeState(u8) {
        /// Mode is in standby state.
        Standby = 0,
        /// Mode is in up state.
@@ -880,7 +880,7 @@ impl fmt::Display for SpeedRegulationModeState {
 
 enum_with_unknown! {
    /// Cruise-control/speed-limiter/acc setting page.
-   pub enum SpeedRegulationSettingPage (u8) {
+   pub enum SpeedRegulationSettingPage(u8) {
        /// Close page.
        Close = 0,
        /// Speed limiter page.
@@ -903,7 +903,7 @@ impl fmt::Display for SpeedRegulationSettingPage {
 
 enum_with_unknown! {
    /// Adaptive cruise-control state.
-   pub enum AdaptiveCruiseControlState (u8) {
+   pub enum AdaptiveCruiseControlState(u8) {
        /// No speed adjustment.
        NoAdjust = 0,
        /// Speed adjustment in progress.
@@ -954,7 +954,7 @@ impl fmt::Display for AdaptiveCruiseControlState {
 
 enum_with_unknown! {
    /// Wheel pressure state.
-   pub enum WheelState (u8) {
+   pub enum WheelState(u8) {
        /// Wheel has a puncture.
        Puncture = 1,
        /// Lightly deflated wheel.
@@ -984,7 +984,7 @@ impl fmt::Display for WheelState {
 enum_with_unknown! {
    /// PAX Wheel pressure state. AEE 2004 only.
    /// PAX is a discontinued run-on-flat Michelin technology.
-   pub enum PAXWheelState (u8) {
+   pub enum PAXWheelState(u8) {
        /// Wheel is normal.
        Normal = 0,
        /// Wheel has a puncture.
@@ -1007,7 +1007,7 @@ impl fmt::Display for PAXWheelState {
 
 enum_with_unknown! {
    /// Under-inflation system state.
-   pub enum UnderInflationSystemState (u8) {
+   pub enum UnderInflationSystemState(u8) {
        /// Pressure is not monitored.
        PressureNotMonitored = 0,
        /// System failure.
@@ -1037,6 +1037,60 @@ impl fmt::Display for UnderInflationSystemState {
             UnderInflationSystemState::MeasureInProgress => write!(f, "measure in progress"),
             UnderInflationSystemState::Ok => write!(f, "ok"),
             UnderInflationSystemState::Unknown(state) => write!(f, "0x{:02x}", state),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// Measured (by brake control unit) slope type.
+   pub enum SlopeType(u8) {
+       /// Light slope.
+       Light = 0,
+       /// Steep upward slope.
+       SteepUpward = 1,
+       /// Steep downward slope.
+       SteepDownward = 2,
+       /// Slope is not defined.
+       Undefined = 3,
+   }
+}
+
+impl fmt::Display for SlopeType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            SlopeType::Light => write!(f, "light"),
+            SlopeType::SteepUpward => write!(f, "steep upward"),
+            SlopeType::SteepDownward => write!(f, "steep downward"),
+            SlopeType::Undefined => write!(f, "undefined"),
+            SlopeType::Unknown(slope) => write!(f, "0x{:02x}", slope),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// Stop and Start brake requirement
+   pub enum StopAndStartBrakeRequirement(u8) {
+       /// No requirement.
+       Nothing = 0,
+       /// Brake control unit require engine stop inhibition.
+       StopInhibit = 1,
+       /// Brake control unit require engine restart.
+       Restart = 2,
+       /// Brake control unit require engine stop and restart inhibition.
+       StopAndRestartInhibit = 3,
+   }
+}
+
+impl fmt::Display for StopAndStartBrakeRequirement {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            StopAndStartBrakeRequirement::Nothing => write!(f, "Nothing"),
+            StopAndStartBrakeRequirement::StopInhibit => write!(f, "StopInhibit"),
+            StopAndStartBrakeRequirement::Restart => write!(f, "Restart"),
+            StopAndStartBrakeRequirement::StopAndRestartInhibit => {
+                write!(f, "StopAndRestartInhibit")
+            }
+            StopAndStartBrakeRequirement::Unknown(req) => write!(f, "0x{:02x}", req),
         }
     }
 }
