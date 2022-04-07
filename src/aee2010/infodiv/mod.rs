@@ -13,6 +13,9 @@ pub use x0f6 as ID_DONNEES_BSI_LENTES;
 pub mod x122;
 pub use x122 as ID_ETAT_FMUX;
 
+pub mod x128;
+pub use x128 as ID_CDE_COMBINE_SIGNALISATION;
+
 pub mod x15b;
 pub use x15b as ID_ECRAN_INFO_PROFILS;
 

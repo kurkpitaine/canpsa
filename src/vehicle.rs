@@ -1303,3 +1303,26 @@ impl fmt::Display for FootOnBrakePedalIndicatorState {
         }
     }
 }
+
+enum_with_unknown! {
+   /// AdBlue indicator state.
+   pub enum AdBlueIndicatorState(u8) {
+       /// Indicator is off.
+       Off = 0,
+       /// Indicator is blinking.
+       Blinking = 1,
+       /// Indicator is on.
+       On = 2,
+   }
+}
+
+impl fmt::Display for AdBlueIndicatorState {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            AdBlueIndicatorState::Off => write!(f, "off"),
+            AdBlueIndicatorState::Blinking => write!(f, "blinking"),
+            AdBlueIndicatorState::On => write!(f, "on"),
+            AdBlueIndicatorState::Unknown(state) => write!(f, "0x{:02x}", state),
+        }
+    }
+}
