@@ -1084,13 +1084,222 @@ enum_with_unknown! {
 impl fmt::Display for StopAndStartBrakeRequirement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            StopAndStartBrakeRequirement::Nothing => write!(f, "Nothing"),
-            StopAndStartBrakeRequirement::StopInhibit => write!(f, "StopInhibit"),
-            StopAndStartBrakeRequirement::Restart => write!(f, "Restart"),
+            StopAndStartBrakeRequirement::Nothing => write!(f, "nothing"),
+            StopAndStartBrakeRequirement::StopInhibit => write!(f, "stop inhibit"),
+            StopAndStartBrakeRequirement::Restart => write!(f, "restart"),
             StopAndStartBrakeRequirement::StopAndRestartInhibit => {
-                write!(f, "StopAndRestartInhibit")
+                write!(f, "stop and restart inhibit")
             }
             StopAndStartBrakeRequirement::Unknown(req) => write!(f, "0x{:02x}", req),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// Gearbox type.
+   pub enum GearboxType(u8) {
+       /// Automatic gearbox (BVA).
+       Automatic = 0,
+       /// Manual gearbox (BVM).
+       Manual = 1,
+       /// Manual robotized gearbox (BVMP).
+       ManualRobotized = 2,
+       /// Automatic with dual-clutch gearbox (EAT).
+       AutomaticDualClutch = 3,
+   }
+}
+
+impl fmt::Display for GearboxType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            GearboxType::Automatic => write!(f, "automatic"),
+            GearboxType::Manual => write!(f, "manual"),
+            GearboxType::ManualRobotized => write!(f, "manual robotized"),
+            GearboxType::AutomaticDualClutch => {
+                write!(f, "automatic dual clutch")
+            }
+            GearboxType::Unknown(req) => write!(f, "0x{:02x}", req),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// Automatic gearbox mode.
+   pub enum AutoGearboxMode(u8) {
+       /// Automatic mode.
+       Automatic = 0,
+       /// Automatic sport mode.
+       AutomaticSport = 2,
+       /// Sequential mode.
+       Sequential = 4,
+       /// Sequential sport mode.
+       SequentialSport = 5,
+       /// Automatic snow mode.
+       AutomaticSnow = 6,
+       /// ASM mode.
+       ASM = 7
+   }
+}
+
+impl fmt::Display for AutoGearboxMode {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            AutoGearboxMode::Automatic => write!(f, "automatic"),
+            AutoGearboxMode::AutomaticSport => write!(f, "automatic sport"),
+            AutoGearboxMode::Sequential => write!(f, "sequential"),
+            AutoGearboxMode::SequentialSport => {
+                write!(f, "sequential sport")
+            }
+            AutoGearboxMode::AutomaticSnow => {
+                write!(f, "automatic snow")
+            }
+            AutoGearboxMode::ASM => write!(f, "asm"),
+
+            AutoGearboxMode::Unknown(mode) => write!(f, "0x{:02x}", mode),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// Gearbox gear when drive mode is engaged.
+   pub enum GearboxDriveModeGear(u8) {
+       /// Gear is disengaged.
+       Disengaged = 0,
+       /// Gear 1 is engaged.
+       Gear1 = 1,
+       /// Gear 2 is engaged.
+       Gear2 = 2,
+       /// Gear 3 is engaged.
+       Gear3 = 3,
+       /// Gear 4 is engaged.
+       Gear4 = 4,
+       /// Gear 5 is engaged.
+       Gear5 = 5,
+       /// Gear 6 is engaged.
+       Gear6 = 6,
+
+   }
+}
+
+impl fmt::Display for GearboxDriveModeGear {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            GearboxDriveModeGear::Disengaged => write!(f, "disengaged"),
+            GearboxDriveModeGear::Gear1 => write!(f, "gear 1"),
+            GearboxDriveModeGear::Gear2 => write!(f, "gear 2"),
+            GearboxDriveModeGear::Gear3 => write!(f, "gear 3"),
+            GearboxDriveModeGear::Gear4 => write!(f, "gear 4"),
+            GearboxDriveModeGear::Gear5 => write!(f, "gear 5"),
+            GearboxDriveModeGear::Gear6 => write!(f, "gear 6"),
+            GearboxDriveModeGear::Unknown(gear) => write!(f, "0x{:02x}", gear),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// Gearbox engaged gear to display.
+   pub enum GearboxGear(u8) {
+       /// Parking mode is engaged.
+       P = 0,
+       /// Reverse gear is engaged.
+       R = 1,
+       /// Neutral is engaged.
+       N = 2,
+       /// Drive mode is engaged.
+       D = 3,
+       /// Gear 6 is engaged.
+       Gear6 = 4,
+       /// Gear 5 is engaged.
+       Gear5 = 5,
+       /// Gear 4 is engaged.
+       Gear4 = 6,
+       /// Gear 3 is engaged.
+       Gear3 = 7,
+       /// Gear 2 is engaged.
+       Gear2 = 8,
+       /// Gear 1 is engaged.
+       Gear1 = 9,
+       /// Nothing to display.
+       Nothing = 0x0b,
+       /// Gear 7 is engaged.
+       Gear7 = 0x0c,
+       /// Gear 8 is engaged.
+       Gear8 = 0x0d,
+       /// Gear 9 is engaged.
+       Gear9 = 0x0e,
+       /// Braking mode is engaged.
+       B = 0x0f,
+   }
+}
+
+impl fmt::Display for GearboxGear {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            GearboxGear::P => write!(f, "P"),
+            GearboxGear::R => write!(f, "R"),
+            GearboxGear::N => write!(f, "N"),
+            GearboxGear::D => write!(f, "D"),
+            GearboxGear::B => write!(f, "B"),
+            GearboxGear::Gear1 => write!(f, "gear 1"),
+            GearboxGear::Gear2 => write!(f, "gear 2"),
+            GearboxGear::Gear3 => write!(f, "gear 3"),
+            GearboxGear::Gear4 => write!(f, "gear 4"),
+            GearboxGear::Gear5 => write!(f, "gear 5"),
+            GearboxGear::Gear6 => write!(f, "gear 6"),
+            GearboxGear::Gear7 => write!(f, "gear 7"),
+            GearboxGear::Gear8 => write!(f, "gear 8"),
+            GearboxGear::Gear9 => write!(f, "gear 9"),
+            GearboxGear::Nothing => write!(f, "nothing"),
+            GearboxGear::Unknown(gear) => write!(f, "0x{:02x}", gear),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// Gear efficiency indicator arrow type.
+   pub enum GearEfficiencyArrowType(u8) {
+       /// Nothing is displayed.
+       Nothing = 0,
+       /// Upward arrow type.
+       Up = 1,
+       /// Downwards arrow type.
+       Down = 2,
+       /// Upward and downward arrow type.
+       UpAndDown = 3,
+   }
+}
+
+impl fmt::Display for GearEfficiencyArrowType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            GearEfficiencyArrowType::Nothing => write!(f, "nothing"),
+            GearEfficiencyArrowType::Up => write!(f, "up"),
+            GearEfficiencyArrowType::Down => write!(f, "down"),
+            GearEfficiencyArrowType::UpAndDown => write!(f, "up and down"),
+            GearEfficiencyArrowType::Unknown(arrow) => write!(f, "0x{:02x}", arrow),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// Foot on brake pedal indicator state.
+   pub enum FootOnBrakePedalIndicatorState(u8) {
+       /// Indicator is off.
+       Off = 0,
+       /// Indicator is on.
+       On = 1,
+       /// Indicator is blinking.
+       Blinking = 2,
+   }
+}
+
+impl fmt::Display for FootOnBrakePedalIndicatorState {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            FootOnBrakePedalIndicatorState::Off => write!(f, "off"),
+            FootOnBrakePedalIndicatorState::On => write!(f, "on"),
+            FootOnBrakePedalIndicatorState::Blinking => write!(f, "blinking"),
+            FootOnBrakePedalIndicatorState::Unknown(arrow) => write!(f, "0x{:02x}", arrow),
         }
     }
 }
