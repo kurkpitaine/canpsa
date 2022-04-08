@@ -782,7 +782,7 @@ impl fmt::Display for FuelType {
         match *self {
             FuelType::Petrol => write!(f, "petrol"),
             FuelType::Diesel => write!(f, "diesel"),
-            FuelType::Unknown(led) => write!(f, "0x{:02x}", led),
+            FuelType::Unknown(fuel) => write!(f, "0x{:02x}", fuel),
         }
     }
 }
@@ -808,7 +808,255 @@ impl fmt::Display for ACRecirculationState {
             ACRecirculationState::PartialAirRecirculation => write!(f, "partial air recirculation"),
             ACRecirculationState::FullAirRecirculation => write!(f, "full air recirculation"),
             ACRecirculationState::Stopped => write!(f, "stopped"),
-            ACRecirculationState::Unknown(led) => write!(f, "0x{:02x}", led),
+            ACRecirculationState::Unknown(state) => write!(f, "0x{:02x}", state),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// A/C fan mode. AEE 2004 only.
+   pub enum ACFanMode(u8) {
+       /// Automatic comfort mode.
+       AutoComfort = 0,
+       /// Automatic demist mode.
+       AutoDemist = 1,
+       /// Manual mode.
+       Manual = 2,
+       /// Automatic soft mode.
+       AutoSoft = 3,
+   }
+}
+
+impl fmt::Display for ACFanMode {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            ACFanMode::AutoComfort => write!(f, "auto comfort"),
+            ACFanMode::AutoDemist => write!(f, "auto demist"),
+            ACFanMode::Manual => write!(f, "manual"),
+            ACFanMode::AutoSoft => write!(f, "auto soft"),
+            ACFanMode::Unknown(mode) => write!(f, "0x{:02x}", mode),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// A/C fan speed. AEE 2004 only.
+   pub enum ACFanSpeed(u8) {
+       /// Fan speed 1.
+       Speed1 = 0,
+       /// Fan speed 2.
+       Speed2 = 1,
+       /// Fan speed 3.
+       Speed3 = 2,
+       /// Fan speed 4.
+       Speed4 = 3,
+       /// Fan speed 5.
+       Speed5 = 4,
+       /// Fan speed 6.
+       Speed6 = 5,
+       /// Fan speed 7.
+       Speed7 = 6,
+       /// Fan speed 8.
+       Speed8 = 7,
+       /// Fan speed 0.
+       Speed0 = 0x0f,
+   }
+}
+
+impl fmt::Display for ACFanSpeed {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            ACFanSpeed::Speed0 => write!(f, "speed 0"),
+            ACFanSpeed::Speed1 => write!(f, "speed 1"),
+            ACFanSpeed::Speed2 => write!(f, "speed 2"),
+            ACFanSpeed::Speed3 => write!(f, "speed 3"),
+            ACFanSpeed::Speed4 => write!(f, "speed 4"),
+            ACFanSpeed::Speed5 => write!(f, "speed 5"),
+            ACFanSpeed::Speed6 => write!(f, "speed 6"),
+            ACFanSpeed::Speed7 => write!(f, "speed 7"),
+            ACFanSpeed::Speed8 => write!(f, "speed 8"),
+            ACFanSpeed::Unknown(speed) => write!(f, "0x{:02x}", speed),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// A/C air distribution position.
+   pub enum ACAirDistributionPosition(u8) {
+       /// Automatic comfort position.
+       AutoComfort = 0,
+       /// Automatic demist position.
+       AutoDemist = 1,
+       /// Foot position.
+       Foot = 2,
+       /// Ventilation position.
+       Ventilation = 3,
+       /// Windshield demist position.
+       Demist = 4,
+       /// Foot and ventilation position.
+       FootVentilation = 5,
+       /// Foot and windshield demist position.
+       FootDemist = 6,
+       /// Ventilation and windshield demist position.
+       VentilationDemist = 7,
+       /// Foot and ventilation and windshield demist position.
+       FootVentilationDemist = 8,
+       /// Automatic soft position.
+       AutoSoft = 9,
+   }
+}
+
+impl fmt::Display for ACAirDistributionPosition {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            ACAirDistributionPosition::AutoComfort => write!(f, "auto comfort"),
+            ACAirDistributionPosition::AutoDemist => write!(f, "auto + demist"),
+            ACAirDistributionPosition::Foot => write!(f, "foot"),
+            ACAirDistributionPosition::Ventilation => write!(f, "ventilation"),
+            ACAirDistributionPosition::Demist => write!(f, "demist"),
+            ACAirDistributionPosition::FootVentilation => write!(f, "foot + ventilation"),
+            ACAirDistributionPosition::FootDemist => write!(f, "foot + demist"),
+            ACAirDistributionPosition::VentilationDemist => write!(f, "ventilation + demist"),
+            ACAirDistributionPosition::FootVentilationDemist => {
+                write!(f, "foot + ventilation + demist")
+            }
+            ACAirDistributionPosition::AutoSoft => write!(f, "auto soft"),
+            ACAirDistributionPosition::Unknown(pos) => write!(f, "0x{:02x}", pos),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// A/C air intake mode.
+   pub enum ACAirIntakeMode(u8) {
+       /// Automatic comfort position.
+       AutoComfort = 0,
+       /// Automatic demist position.
+       AutoDemist = 1,
+       /// Forced open position.
+       ForcedOpen = 2,
+       /// Forced close position.
+       ForcedClose = 3,
+       /// Automatic without air quality system.
+       AutoComfortWithoutAQS = 4,
+   }
+}
+
+impl fmt::Display for ACAirIntakeMode {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            ACAirIntakeMode::AutoComfort => write!(f, "auto comfort"),
+            ACAirIntakeMode::AutoDemist => write!(f, "auto + demist"),
+            ACAirIntakeMode::ForcedOpen => write!(f, "forced open"),
+            ACAirIntakeMode::ForcedClose => write!(f, "forced close"),
+            ACAirIntakeMode::AutoComfortWithoutAQS => write!(f, "auto comfort without AQS"),
+            ACAirIntakeMode::Unknown(mode) => write!(f, "0x{:02x}", mode),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// A/C air temperature in Celsius degrees.
+   pub enum ACAirTemperature(u8) {
+       /// LO temperature setting.
+       LO = 0,
+       /// 14°C setting.
+       Fourteen = 1,
+       /// 15°C setting.
+       Fifteen = 2,
+       /// 16°C setting.
+       Sixteen = 3,
+       /// 17°C setting.
+       Seventeen = 4,
+       /// 18°C setting.
+       Eighteen = 5,
+       /// 18.5°C setting.
+       EighteenDotFive = 6,
+       /// 19°C setting.
+       Nineteen = 7,
+       /// 19.5°C setting.
+       NineteenDotFive = 8,
+       /// 20°C setting.
+       Twenty = 9,
+       /// 20.5°C setting.
+       TwentyDotFive = 0x0a,
+       /// 21°C setting.
+       TwentyOne = 0x0b,
+       /// 21.5°C setting.
+       TwentyOneDotFive = 0x0c,
+       /// 22°C setting.
+       TwentyTwo = 0x0d,
+       /// 22.5°C setting.
+       TwentyTwoDotFive = 0x0e,
+       /// 23°C setting.
+       TwentyThree = 0x0f,
+       /// 23.5°C setting.
+       TwentyThreeDotFive = 0x10,
+       /// 24°C setting.
+       TwentyFour = 0x11,
+       /// 25°C setting.
+       TwentyFive = 0x12,
+       /// 26°C setting.
+       TwentySix = 0x13,
+       /// 27°C setting.
+       TwentySeven = 0x14,
+       /// 28°C setting.
+       TwentyEight = 0x15,
+       /// HI temperature setting.
+       HI = 0x16,
+   }
+}
+
+impl fmt::Display for ACAirTemperature {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            ACAirTemperature::LO => write!(f, "LO"),
+            ACAirTemperature::Fourteen => write!(f, "14 °C"),
+            ACAirTemperature::Fifteen => write!(f, "15°C"),
+            ACAirTemperature::Sixteen => write!(f, "16°C"),
+            ACAirTemperature::Seventeen => write!(f, "17°C"),
+            ACAirTemperature::Eighteen => write!(f, "18°C"),
+            ACAirTemperature::EighteenDotFive => write!(f, "18.5°C"),
+            ACAirTemperature::Nineteen => write!(f, "19°C"),
+            ACAirTemperature::NineteenDotFive => write!(f, "19.5°C"),
+            ACAirTemperature::Twenty => write!(f, "20°C"),
+            ACAirTemperature::TwentyDotFive => write!(f, "20.5°C"),
+            ACAirTemperature::TwentyOne => write!(f, "21°C"),
+            ACAirTemperature::TwentyOneDotFive => write!(f, "21.5°C"),
+            ACAirTemperature::TwentyTwo => write!(f, "22°C"),
+            ACAirTemperature::TwentyTwoDotFive => write!(f, "22.5°C"),
+            ACAirTemperature::TwentyThree => write!(f, "23°C"),
+            ACAirTemperature::TwentyThreeDotFive => write!(f, "23.5°C"),
+            ACAirTemperature::TwentyFour => write!(f, "24°C"),
+            ACAirTemperature::TwentyFive => write!(f, "25°C"),
+            ACAirTemperature::TwentySix => write!(f, "26°C"),
+            ACAirTemperature::TwentySeven => write!(f, "27°C"),
+            ACAirTemperature::TwentyEight => write!(f, "28°C"),
+            ACAirTemperature::HI => write!(f, "HI"),
+            ACAirTemperature::Unknown(temp) => write!(f, "0x{:02x}", temp),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// A/C mode request. AEE 2004 only.
+   pub enum ACModeRequest(u8) {
+       /// Automatic comfort mode request.
+       AutoComfort = 0,
+       /// Automatic demist mode request.
+       AutoDemist = 1,
+       /// Off mode request.
+       Off = 2,
+   }
+}
+
+impl fmt::Display for ACModeRequest {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            ACModeRequest::AutoComfort => write!(f, "auto comfort"),
+            ACModeRequest::AutoDemist => write!(f, "auto demist"),
+            ACModeRequest::Off => write!(f, "off"),
+            ACModeRequest::Unknown(mode) => write!(f, "0x{:02x}", mode),
         }
     }
 }

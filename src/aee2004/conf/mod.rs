@@ -25,6 +25,9 @@ pub use x1a5 as ETAT_RADIO_GEN_VOL;
 pub mod x1a8;
 pub use x1a8 as GESTION_VITESSE;
 
+pub mod x1d0;
+pub use x1d0 as ETAT_CLIM_AV_BSI;
+
 pub mod x1db;
 pub use x1db as CMB_CDE_MODIF_PROFILS;
 
