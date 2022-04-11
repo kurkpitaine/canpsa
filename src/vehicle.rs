@@ -1425,7 +1425,10 @@ enum_with_unknown! {
        Gear5 = 5,
        /// Gear 6 is engaged.
        Gear6 = 6,
-
+       /// Gear 7 is engaged.
+       Gear7 = 7,
+       /// Gear 8 is engaged.
+       Gear8 = 8,
    }
 }
 
@@ -1439,6 +1442,8 @@ impl fmt::Display for GearboxDriveModeGear {
             GearboxDriveModeGear::Gear4 => write!(f, "gear 4"),
             GearboxDriveModeGear::Gear5 => write!(f, "gear 5"),
             GearboxDriveModeGear::Gear6 => write!(f, "gear 6"),
+            GearboxDriveModeGear::Gear7 => write!(f, "gear 7"),
+            GearboxDriveModeGear::Gear8 => write!(f, "gear 8"),
             GearboxDriveModeGear::Unknown(gear) => write!(f, "0x{:02x}", gear),
         }
     }
@@ -1530,8 +1535,8 @@ impl fmt::Display for GearEfficiencyArrowType {
 }
 
 enum_with_unknown! {
-   /// Foot on brake pedal indicator state.
-   pub enum FootOnBrakePedalIndicatorState(u8) {
+   /// Indicator state.
+   pub enum IndicatorState(u8) {
        /// Indicator is off.
        Off = 0,
        /// Indicator is on.
@@ -1541,13 +1546,13 @@ enum_with_unknown! {
    }
 }
 
-impl fmt::Display for FootOnBrakePedalIndicatorState {
+impl fmt::Display for IndicatorState {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            FootOnBrakePedalIndicatorState::Off => write!(f, "off"),
-            FootOnBrakePedalIndicatorState::On => write!(f, "on"),
-            FootOnBrakePedalIndicatorState::Blinking => write!(f, "blinking"),
-            FootOnBrakePedalIndicatorState::Unknown(arrow) => write!(f, "0x{:02x}", arrow),
+            IndicatorState::Off => write!(f, "off"),
+            IndicatorState::On => write!(f, "on"),
+            IndicatorState::Blinking => write!(f, "blinking"),
+            IndicatorState::Unknown(arrow) => write!(f, "0x{:02x}", arrow),
         }
     }
 }

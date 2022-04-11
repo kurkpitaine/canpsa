@@ -2,7 +2,7 @@ use core::fmt;
 
 use crate::{
     vehicle::{
-        AutoGearboxMode, FootOnBrakePedalIndicatorState, GearEfficiencyArrowType,
+        AutoGearboxMode, IndicatorState, GearEfficiencyArrowType,
         GearboxDriveModeGear, GearboxGear, GearboxType,
     },
     Error, Result,
@@ -140,10 +140,10 @@ impl<T: AsRef<[u8]>> Frame<T> {
 
     /// Return the foot on brake pedal indicator state field.
     #[inline]
-    pub fn foot_on_brake_pedal_indicator(&self) -> FootOnBrakePedalIndicatorState {
+    pub fn foot_on_brake_pedal_indicator(&self) -> IndicatorState {
         let data = self.buffer.as_ref();
         let raw = (data[field::FLAGS_4] & 0x06) >> 1;
-        FootOnBrakePedalIndicatorState::from(raw)
+        IndicatorState::from(raw)
     }
 
     /// Return the gearbox drive mode engaged gear field.
@@ -200,7 +200,7 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
 
     /// Set the foot on brake pedal indicator state field.
     #[inline]
-    pub fn set_foot_on_brake_pedal_indicator(&mut self, value: FootOnBrakePedalIndicatorState) {
+    pub fn set_foot_on_brake_pedal_indicator(&mut self, value: IndicatorState) {
         let data = self.buffer.as_mut();
         let raw = data[field::FLAGS_4] & !0x06;
         let raw = raw | ((u8::from(value) << 1) & 0x06);
@@ -300,7 +300,7 @@ pub struct Repr {
     pub customization_request: bool,
     pub color_change_request: bool,
     pub rear_seat_belt_indicator_blinking: bool,
-    pub foot_on_brake_pedal_indicator: FootOnBrakePedalIndicatorState,
+    pub foot_on_brake_pedal_indicator: IndicatorState,
     pub available_space_measurement_indicator_blinking: bool,
     pub available_space_measurement_indicator: bool,
     pub hill_assist_indicator: bool,
@@ -633,7 +633,7 @@ mod test {
     use super::{field, Frame, Repr};
     use crate::{
         vehicle::{
-            AutoGearboxMode, FootOnBrakePedalIndicatorState, GearEfficiencyArrowType,
+            AutoGearboxMode, IndicatorState, GearEfficiencyArrowType,
             GearboxDriveModeGear, GearboxGear, GearboxType,
         },
         Error,
@@ -669,7 +669,7 @@ mod test {
             customization_request: true,
             color_change_request: false,
             rear_seat_belt_indicator_blinking: true,
-            foot_on_brake_pedal_indicator: FootOnBrakePedalIndicatorState::On,
+            foot_on_brake_pedal_indicator: IndicatorState::On,
             available_space_measurement_indicator_blinking: false,
             available_space_measurement_indicator: true,
             hill_assist_indicator: false,
@@ -728,7 +728,7 @@ mod test {
             customization_request: false,
             color_change_request: true,
             rear_seat_belt_indicator_blinking: false,
-            foot_on_brake_pedal_indicator: FootOnBrakePedalIndicatorState::Blinking,
+            foot_on_brake_pedal_indicator: IndicatorState::Blinking,
             available_space_measurement_indicator_blinking: true,
             available_space_measurement_indicator: false,
             hill_assist_indicator: true,
@@ -791,7 +791,7 @@ mod test {
         assert_eq!(frame.read_bit::<{ field::FLAGS_4 }, 0>(), true);
         assert_eq!(
             frame.foot_on_brake_pedal_indicator(),
-            FootOnBrakePedalIndicatorState::On
+            IndicatorState::On
         );
         assert_eq!(frame.read_bit::<{ field::FLAGS_4 }, 3>(), false);
         assert_eq!(frame.read_bit::<{ field::FLAGS_4 }, 4>(), true);
@@ -857,7 +857,7 @@ mod test {
         assert_eq!(frame.read_bit::<{ field::FLAGS_4 }, 0>(), false);
         assert_eq!(
             frame.foot_on_brake_pedal_indicator(),
-            FootOnBrakePedalIndicatorState::Blinking
+            IndicatorState::Blinking
         );
         assert_eq!(frame.read_bit::<{ field::FLAGS_4 }, 3>(), true);
         assert_eq!(frame.read_bit::<{ field::FLAGS_4 }, 4>(), false);
@@ -922,7 +922,7 @@ mod test {
         frame.write_bit::<{ field::FLAGS_3 }, 6>(true);
         frame.write_bit::<{ field::FLAGS_3 }, 7>(false);
         frame.write_bit::<{ field::FLAGS_4 }, 0>(true);
-        frame.set_foot_on_brake_pedal_indicator(FootOnBrakePedalIndicatorState::On);
+        frame.set_foot_on_brake_pedal_indicator(IndicatorState::On);
         frame.write_bit::<{ field::FLAGS_4 }, 3>(false);
         frame.write_bit::<{ field::FLAGS_4 }, 4>(true);
         frame.write_bit::<{ field::FLAGS_4 }, 5>(false);
@@ -985,7 +985,7 @@ mod test {
         frame.write_bit::<{ field::FLAGS_3 }, 6>(false);
         frame.write_bit::<{ field::FLAGS_3 }, 7>(true);
         frame.write_bit::<{ field::FLAGS_4 }, 0>(false);
-        frame.set_foot_on_brake_pedal_indicator(FootOnBrakePedalIndicatorState::Blinking);
+        frame.set_foot_on_brake_pedal_indicator(IndicatorState::Blinking);
         frame.write_bit::<{ field::FLAGS_4 }, 3>(true);
         frame.write_bit::<{ field::FLAGS_4 }, 4>(false);
         frame.write_bit::<{ field::FLAGS_4 }, 5>(true);

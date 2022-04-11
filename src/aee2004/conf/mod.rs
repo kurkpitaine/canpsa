@@ -19,6 +19,9 @@ pub use x15b as EMF_CDE_MODIF_PROFILS;
 pub mod x167;
 pub use x167 as DEMANDES_EMF;
 
+pub mod x168;
+pub use x168 as CDE_COMBINE_TEMOINS;
+
 pub mod x1a5;
 pub use x1a5 as ETAT_RADIO_GEN_VOL;
 
