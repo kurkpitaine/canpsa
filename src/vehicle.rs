@@ -1039,7 +1039,7 @@ impl fmt::Display for ACAirTemperature {
 }
 
 enum_with_unknown! {
-   /// A/C mode request. AEE 2004 only.
+   /// A/C mode request.
    pub enum ACModeRequest(u8) {
        /// Automatic comfort mode request.
        AutoComfort = 0,
