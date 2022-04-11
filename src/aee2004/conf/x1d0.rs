@@ -1,6 +1,12 @@
 use core::{fmt, time::Duration};
 
-use crate::{Error, Result};
+use crate::{
+    vehicle::{
+        ACAirDistributionPosition, ACAirIntakeMode, ACAirTemperature, ACFanMode, ACFanSpeed,
+        ACModeRequest,
+    },
+    Error, Result,
+};
 
 /// A read/write wrapper around an CAN frame buffer.
 #[derive(Debug, PartialEq, Clone)]
@@ -12,7 +18,7 @@ pub struct Frame<T: AsRef<[u8]>> {
 mod field {
     /// 3-bit A/C request field,
     /// 1-bit front A/C failure flag,
-    /// 2-bit front fan mode,
+    /// 2-bit front A/C fan mode,
     /// 1-bit rear windshield demist enable flag,
     /// 1-bit A/C off mode request flag.
     pub const AC_0: usize = 0;
@@ -30,10 +36,10 @@ mod field {
     /// 3-bit A/C air intake mode field,
     /// 1-bit restore mode flag.
     pub const AC_4: usize = 4;
-    /// 5-bit driver temperature value instruction field,
+    /// 5-bit front left temperature field,
     /// 3-bit unknown.
     pub const AC_5: usize = 5;
-    /// 5-bit passenger temperature value instruction field,
+    /// 5-bit front right temperature field,
     /// 3-bit unknown.
     pub const AC_6: usize = 6;
 }
@@ -92,262 +98,234 @@ impl<T: AsRef<[u8]>> Frame<T> {
         FRAME_LEN
     }
 
-    /// Return the 'typage' field.
-    #[inline]
-    pub fn typage(&self) -> u8 {
-        let data = self.buffer.as_ref();
-        data[field::AC_0] & 0x03
-    }
-
     /// Return the A/C request field.
     #[inline]
-    pub fn ac_request(&self) -> u8 {
+    pub fn ac_request(&self) -> ACModeRequest {
         let data = self.buffer.as_ref();
-        (data[field::AC_0] & 0x0c) >> 2
+        ACModeRequest::from(data[field::AC_0] & 0x07)
     }
 
-    /// Return the front left temperature value instruction field.
+    /// Return the front A/C failure flag.
     #[inline]
-    pub fn front_left_temp(&self) -> u8 {
+    pub fn front_ac_failure(&self) -> bool {
         let data = self.buffer.as_ref();
-        data[field::AC_3] & 0x1f
+        data[field::AC_0] & 0x08 != 0
     }
 
-    /// Return the mono temperature mode flag.
+    /// Return the front A/C fan mode.
     #[inline]
-    pub fn mono_temp(&self) -> bool {
+    pub fn front_ac_fan_mode(&self) -> ACFanMode {
         let data = self.buffer.as_ref();
-        data[field::AC_3] & 0x40 != 0
+        let raw = (data[field::AC_0] & 0x30) >> 4;
+        ACFanMode::from(raw)
     }
 
-    /// Return the A/C max request flag.
+    /// Return the rear windshield demist enable flag.
     #[inline]
-    pub fn ac_max(&self) -> bool {
+    pub fn rear_demist(&self) -> bool {
         let data = self.buffer.as_ref();
-        data[field::AC_3] & 0x80 != 0
+        data[field::AC_0] & 0x40 != 0
     }
 
-    /// Return the front right temperature value instruction field.
+    /// Return the A/C off mode request flag.
     #[inline]
-    pub fn front_right_temp(&self) -> u8 {
+    pub fn ac_off(&self) -> bool {
         let data = self.buffer.as_ref();
-        data[field::AC_4] & 0x1f
+        data[field::AC_0] & 0x80 != 0
     }
 
-    /// Return the front left seat ventilation request field.
+    /// Return the fan failure flag.
     #[inline]
-    pub fn front_left_seat_ventilation(&self) -> u8 {
+    pub fn fan_failure(&self) -> bool {
         let data = self.buffer.as_ref();
-        (data[field::AC_4] & 0x60) >> 5
+        data[field::AC_1] & 0x40 != 0
     }
 
-    /// Return the front fan speed value field.
+    /// Return the cabin sensor failure flag.
     #[inline]
-    pub fn front_fan_speed(&self) -> u8 {
+    pub fn cabin_sensor_failure(&self) -> bool {
         let data = self.buffer.as_ref();
-        data[field::AC_5] & 0x0f
+        data[field::AC_1] & 0x80 != 0
     }
 
-    /// Return the air intake mode value field.
+    /// Return the front fan speed field.
     #[inline]
-    pub fn air_intake_mode(&self) -> u8 {
+    pub fn front_fan_speed(&self) -> ACFanSpeed {
         let data = self.buffer.as_ref();
-        (data[field::AC_5] & 0x70) >> 4
+        ACFanSpeed::from(data[field::AC_2] & 0x0f)
     }
 
-    /// Return the air quality system enable flag.
+    /// Return the front right air distribution position field.
     #[inline]
-    pub fn air_quality_enable(&self) -> bool {
+    pub fn front_right_distribution_position(&self) -> ACAirDistributionPosition {
         let data = self.buffer.as_ref();
-        data[field::AC_5] & 0x80 != 0
+        let raw = data[field::AC_3] & 0x0f;
+        ACAirDistributionPosition::from(raw)
     }
 
-    /// Return the front right air distribution position value field.
+    /// Return the front left air distribution position field.
     #[inline]
-    pub fn front_right_distribution_position(&self) -> u8 {
+    pub fn front_left_distribution_position(&self) -> ACAirDistributionPosition {
         let data = self.buffer.as_ref();
-        data[field::AC_6] & 0x0f
+        let raw = data[field::AC_3] >> 4;
+        ACAirDistributionPosition::from(raw)
     }
 
-    /// Return the front left air distribution position value field.
+    /// Return the air intake mode field.
     #[inline]
-    pub fn front_left_distribution_position(&self) -> u8 {
+    pub fn air_intake_mode(&self) -> ACAirIntakeMode {
         let data = self.buffer.as_ref();
-        data[field::AC_6] >> 4
+        let raw = (data[field::AC_4] & 0x70) >> 4;
+        ACAirIntakeMode::from(raw)
     }
 
-    /// Return the front right seat ventilation request field.
+    /// Return the restore mode flag.
     #[inline]
-    pub fn front_right_seat_ventilation(&self) -> u8 {
+    pub fn restore_mode(&self) -> bool {
         let data = self.buffer.as_ref();
-        (data[field::AC_7] & 0x06) >> 1
+        data[field::AC_4] & 0x80 != 0
     }
 
-    /// Return the front left seat heating value request field.
+    /// Return the front left temperature field.
     #[inline]
-    pub fn front_left_seat_heating(&self) -> u8 {
+    pub fn front_left_temp(&self) -> ACAirTemperature {
         let data = self.buffer.as_ref();
-        (data[field::AC_7] & 0x18) >> 3
+        ACAirTemperature::from(data[field::AC_5] & 0x1f)
     }
 
-    /// Return the front right seat heating value request field.
+    /// Return the front right temperature field.
     #[inline]
-    pub fn front_right_seat_heating(&self) -> u8 {
+    pub fn front_right_temp(&self) -> ACAirTemperature {
         let data = self.buffer.as_ref();
-        (data[field::AC_7] & 0x60) >> 5
-    }
-
-    /// Return the energy saver mode enable flag.
-    #[inline]
-    pub fn energy_saver_mode_enable(&self) -> bool {
-        let data = self.buffer.as_ref();
-        data[field::AC_7] & 0x80 != 0
+        ACAirTemperature::from(data[field::AC_6] & 0x1f)
     }
 }
 
 impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
-    /// Set the typage field.
-    #[inline]
-    pub fn set_typage(&mut self, value: u8) {
-        let data = self.buffer.as_mut();
-        let raw = data[field::AC_0] & !0x03;
-        let raw = raw | (value & 0x03);
-        data[field::AC_0] = raw;
-    }
-
     /// Set the A/C request field.
     #[inline]
-    pub fn set_ac_request(&mut self, value: u8) {
+    pub fn set_ac_request(&mut self, value: ACModeRequest) {
         let data = self.buffer.as_mut();
-        let raw = data[field::AC_0] & !0x0c;
-        let raw = raw | ((value << 2) & 0x0c);
+        let raw = data[field::AC_0] & !0x07;
+        let raw = raw | (u8::from(value) & 0x07);
         data[field::AC_0] = raw;
     }
 
-    /// Set the front left temperature value instruction field.
+    /// Set the front A/C failure flag.
     #[inline]
-    pub fn set_front_left_temp(&mut self, value: u8) {
+    pub fn set_front_ac_failure(&mut self, value: bool) {
         let data = self.buffer.as_mut();
-        let raw = data[field::AC_3] & !0x1f;
-        let raw = raw | (value & 0x1f);
-        data[field::AC_3] = raw;
+        let raw = data[field::AC_0];
+        let raw = if value { raw | 0x08 } else { raw & !0x08 };
+        data[field::AC_0] = raw;
     }
 
-    /// Set the mono temperature mode flag.
+    /// Set the front A/C fan mode.
     #[inline]
-    pub fn set_mono_temp(&mut self, value: bool) {
+    pub fn set_front_ac_fan_mode(&mut self, value: ACFanMode) {
         let data = self.buffer.as_mut();
-        let raw = data[field::AC_3];
+        let raw = data[field::AC_0] & !0x30;
+        let raw = raw | ((u8::from(value) << 4) & 0x30);
+        data[field::AC_0] = raw;
+    }
+
+    /// Set the rear windshield demist enable flag.
+    #[inline]
+    pub fn set_rear_demist(&mut self, value: bool) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::AC_0];
         let raw = if value { raw | 0x40 } else { raw & !0x40 };
-        data[field::AC_3] = raw;
+        data[field::AC_0] = raw;
     }
 
-    /// Set the A/C max request flag.
+    /// Set the A/C off mode request flag.
     #[inline]
-    pub fn set_ac_max(&mut self, value: bool) {
+    pub fn set_ac_off(&mut self, value: bool) {
         let data = self.buffer.as_mut();
-        let raw = data[field::AC_3];
+        let raw = data[field::AC_0];
         let raw = if value { raw | 0x80 } else { raw & !0x80 };
-        data[field::AC_3] = raw;
+        data[field::AC_0] = raw;
     }
 
-    /// Set the front right temperature value instruction field.
+    /// Set the fan failure flag.
     #[inline]
-    pub fn set_front_right_temp(&mut self, value: u8) {
+    pub fn set_fan_failure(&mut self, value: bool) {
         let data = self.buffer.as_mut();
-        let raw = data[field::AC_4] & !0x1f;
-        let raw = raw | (value & 0x1f);
-        data[field::AC_4] = raw;
+        let raw = data[field::AC_1];
+        let raw = if value { raw | 0x40 } else { raw & !0x40 };
+        data[field::AC_1] = raw;
     }
 
-    /// Set the front left seat ventilation request field.
+    /// Set the cabin sensor failure flag.
     #[inline]
-    pub fn set_front_left_seat_ventilation(&mut self, value: u8) {
+    pub fn set_cabin_sensor_failure(&mut self, value: bool) {
         let data = self.buffer.as_mut();
-        let raw = data[field::AC_4] & !0x60;
-        let raw = raw | ((value << 5) & 0x60);
-        data[field::AC_4] = raw;
+        let raw = data[field::AC_1];
+        let raw = if value { raw | 0x80 } else { raw & !0x80 };
+        data[field::AC_1] = raw;
     }
 
     /// Set the front fan speed value field.
     #[inline]
-    pub fn set_front_fan_speed(&mut self, value: u8) {
+    pub fn set_front_fan_speed(&mut self, value: ACFanSpeed) {
         let data = self.buffer.as_mut();
-        let raw = data[field::AC_5] & !0x0f;
-        let raw = raw | (value & 0x0f);
-        data[field::AC_5] = raw;
+        let raw = data[field::AC_2] & !0x0f;
+        let raw = raw | (u8::from(value) & 0x0f);
+        data[field::AC_2] = raw;
+    }
+
+    /// Set the front right air distribution position field.
+    #[inline]
+    pub fn set_front_right_distribution_position(&mut self, value: ACAirDistributionPosition) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::AC_3] & !0x0f;
+        let raw = raw | (u8::from(value) & 0x0f);
+        data[field::AC_3] = raw;
+    }
+
+    /// Set the front left air distribution position field.
+    #[inline]
+    pub fn set_front_left_distribution_position(&mut self, value: ACAirDistributionPosition) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::AC_3] & !0xf0;
+        let raw = raw | (u8::from(value) << 4);
+        data[field::AC_3] = raw;
     }
 
     /// Set the air intake mode value field.
     #[inline]
-    pub fn set_air_intake_mode(&mut self, value: u8) {
+    pub fn set_air_intake_mode(&mut self, value: ACAirIntakeMode) {
         let data = self.buffer.as_mut();
-        let raw = data[field::AC_5] & !0x70;
-        let raw = raw | ((value << 4) & 0x70);
+        let raw = data[field::AC_4] & !0x70;
+        let raw = raw | ((u8::from(value) << 4) & 0x70);
+        data[field::AC_4] = raw;
+    }
+
+    /// Set the restore mode flag.
+    #[inline]
+    pub fn set_restore_mode(&mut self, value: bool) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::AC_4];
+        let raw = if value { raw | 0x80 } else { raw & !0x80 };
+        data[field::AC_4] = raw;
+    }
+
+    /// Set the front left temperature field.
+    #[inline]
+    pub fn set_front_left_temp(&mut self, value: ACAirTemperature) {
+        let data = self.buffer.as_mut();
+        let raw = data[field::AC_5] & !0x1f;
+        let raw = raw | (u8::from(value) & 0x1f);
         data[field::AC_5] = raw;
     }
 
-    /// Set the air quality system enable flag.
+    /// Set the front right temperature field.
     #[inline]
-    pub fn set_air_quality_enable(&mut self, value: bool) {
+    pub fn set_front_right_temp(&mut self, value: ACAirTemperature) {
         let data = self.buffer.as_mut();
-        let raw = data[field::AC_5];
-        let raw = if value { raw | 0x80 } else { raw & !0x80 };
-        data[field::AC_5] = raw;
-    }
-
-    /// Set the front right air distribution position value field.
-    #[inline]
-    pub fn set_front_right_distribution_position(&mut self, value: u8) {
-        let data = self.buffer.as_mut();
-        let raw = data[field::AC_6] & !0x0f;
-        let raw = raw | (value & 0x0f);
+        let raw = data[field::AC_6] & !0x1f;
+        let raw = raw | (u8::from(value) & 0x1f);
         data[field::AC_6] = raw;
-    }
-
-    /// Set the front left air distribution position value field.
-    #[inline]
-    pub fn set_front_left_distribution_position(&mut self, value: u8) {
-        let data = self.buffer.as_mut();
-        let raw = data[field::AC_6] & !0xf0;
-        let raw = raw | (value << 4);
-        data[field::AC_6] = raw;
-    }
-
-    /// Set the front right seat ventilation request field.
-    #[inline]
-    pub fn set_front_right_seat_ventilation(&mut self, value: u8) {
-        let data = self.buffer.as_mut();
-        let raw = data[field::AC_7] & !0x06;
-        let raw = raw | ((value << 1) & 0x06);
-        data[field::AC_7] = raw;
-    }
-
-    /// Set the front left seat heating value request field.
-    #[inline]
-    pub fn set_front_left_seat_heating(&mut self, value: u8) {
-        let data = self.buffer.as_mut();
-        let raw = data[field::AC_7] & !0x18;
-        let raw = raw | ((value << 3) & 0x18);
-        data[field::AC_7] = raw;
-    }
-
-    /// Set the front right seat heating value request field.
-    #[inline]
-    pub fn set_front_right_seat_heating(&mut self, value: u8) {
-        let data = self.buffer.as_mut();
-        let raw = data[field::AC_7] & !0x60;
-        let raw = raw | ((value << 5) & 0x60);
-        data[field::AC_7] = raw;
-    }
-
-    /// Set the energy saver mode enable flag.
-    #[inline]
-    pub fn set_energy_saver_mode_enable(&mut self, value: bool) {
-        let data = self.buffer.as_mut();
-        let raw = data[field::AC_7];
-        let raw = if value { raw | 0x80 } else { raw & !0x80 };
-        data[field::AC_7] = raw;
     }
 }
 
@@ -373,22 +351,20 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Repr {
-    pub typage: u8,
-    pub ac_request: u8,
-    pub front_left_temperature: u8,
-    pub mono_temperature: bool,
-    pub ac_max: bool,
-    pub front_right_temperature: u8,
-    pub front_left_seat_ventilation: u8,
-    pub front_fan_speed: u8,
-    pub air_intake_mode: u8,
-    pub air_quality_enabled: bool,
-    pub front_right_distribution_position: u8,
-    pub front_left_distribution_position: u8,
-    pub front_right_seat_ventilation: u8,
-    pub front_left_seat_heating: u8,
-    pub front_right_seat_heating: u8,
-    pub energy_saver_mode_enabled: bool,
+    pub ac_request: ACModeRequest,
+    pub front_ac_failure: bool,
+    pub front_ac_fan_mode: ACFanMode,
+    pub rear_demist: bool,
+    pub ac_off: bool,
+    pub fan_failure: bool,
+    pub cabin_sensor_failure: bool,
+    pub front_fan_speed: ACFanSpeed,
+    pub front_right_distribution_position: ACAirDistributionPosition,
+    pub front_left_distribution_position: ACAirDistributionPosition,
+    pub air_intake_mode: ACAirIntakeMode,
+    pub restore_mode: bool,
+    pub front_left_temp: ACAirTemperature,
+    pub front_right_temp: ACAirTemperature,
 }
 
 impl Repr {
@@ -396,22 +372,20 @@ impl Repr {
         frame.check_len()?;
 
         Ok(Repr {
-            typage: frame.typage(),
             ac_request: frame.ac_request(),
-            front_left_temperature: frame.front_left_temp(),
-            mono_temperature: frame.mono_temp(),
-            ac_max: frame.ac_max(),
-            front_right_temperature: frame.front_right_temp(),
-            front_left_seat_ventilation: frame.front_left_seat_ventilation(),
+            front_ac_failure: frame.front_ac_failure(),
+            front_ac_fan_mode: frame.front_ac_fan_mode(),
+            rear_demist: frame.rear_demist(),
+            ac_off: frame.ac_off(),
+            fan_failure: frame.fan_failure(),
+            cabin_sensor_failure: frame.cabin_sensor_failure(),
             front_fan_speed: frame.front_fan_speed(),
-            air_intake_mode: frame.air_intake_mode(),
-            air_quality_enabled: frame.air_quality_enable(),
             front_right_distribution_position: frame.front_right_distribution_position(),
             front_left_distribution_position: frame.front_left_distribution_position(),
-            front_right_seat_ventilation: frame.front_right_seat_ventilation(),
-            front_left_seat_heating: frame.front_left_seat_heating(),
-            front_right_seat_heating: frame.front_right_seat_heating(),
-            energy_saver_mode_enabled: frame.energy_saver_mode_enable(),
+            air_intake_mode: frame.air_intake_mode(),
+            restore_mode: frame.restore_mode(),
+            front_left_temp: frame.front_left_temp(),
+            front_right_temp: frame.front_right_temp(),
         })
     }
 
@@ -422,46 +396,34 @@ impl Repr {
 
     /// Emit a high-level representation into a x1d0 CAN frame.
     pub fn emit<T: AsRef<[u8]> + AsMut<[u8]>>(&self, frame: &mut Frame<T>) {
-        frame.set_typage(self.typage);
         frame.set_ac_request(self.ac_request);
-        frame.set_front_left_temp(self.front_left_temperature);
-        frame.set_mono_temp(self.mono_temperature);
-        frame.set_ac_max(self.ac_max);
-        frame.set_front_right_temp(self.front_right_temperature);
-        frame.set_front_left_seat_ventilation(self.front_left_seat_ventilation);
+        frame.set_front_ac_failure(self.front_ac_failure);
+        frame.set_front_ac_fan_mode(self.front_ac_fan_mode);
+        frame.set_rear_demist(self.rear_demist);
+        frame.set_ac_off(self.ac_off);
+        frame.set_fan_failure(self.fan_failure);
+        frame.set_cabin_sensor_failure(self.cabin_sensor_failure);
         frame.set_front_fan_speed(self.front_fan_speed);
-        frame.set_air_intake_mode(self.air_intake_mode);
-        frame.set_air_quality_enable(self.air_quality_enabled);
         frame.set_front_right_distribution_position(self.front_right_distribution_position);
         frame.set_front_left_distribution_position(self.front_left_distribution_position);
-        frame.set_front_right_seat_ventilation(self.front_right_seat_ventilation);
-        frame.set_front_left_seat_heating(self.front_left_seat_heating);
-        frame.set_front_right_seat_heating(self.front_right_seat_heating);
-        frame.set_energy_saver_mode_enable(self.energy_saver_mode_enabled);
+        frame.set_air_intake_mode(self.air_intake_mode);
+        frame.set_restore_mode(self.restore_mode);
+        frame.set_front_left_temp(self.front_left_temp);
+        frame.set_front_right_temp(self.front_right_temp);
     }
 }
 
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(f, "x1d0")?;
-        writeln!(f, " typage={}", self.typage)?;
         writeln!(f, " ac_request={}", self.ac_request)?;
-        writeln!(f, " front_left_temperature={}", self.front_left_temperature)?;
-        writeln!(f, " mono_temperature={}", self.mono_temperature)?;
-        writeln!(f, " ac_max={}", self.ac_max)?;
-        writeln!(
-            f,
-            " front_right_temperature={}",
-            self.front_right_temperature
-        )?;
-        writeln!(
-            f,
-            " front_left_seat_ventilation={}",
-            self.front_left_seat_ventilation
-        )?;
+        writeln!(f, " front_ac_failure={}", self.front_ac_failure)?;
+        writeln!(f, " front_ac_fan_mode={}", self.front_ac_fan_mode)?;
+        writeln!(f, " rear_demist={}", self.rear_demist)?;
+        writeln!(f, " ac_off={}", self.ac_off)?;
+        writeln!(f, " fan_failure={}", self.fan_failure)?;
+        writeln!(f, " cabin_sensor_failure={}", self.cabin_sensor_failure)?;
         writeln!(f, " front_fan_speed={}", self.front_fan_speed)?;
-        writeln!(f, " air_intake_mode={}", self.air_intake_mode)?;
-        writeln!(f, " air_quality_enabled={}", self.air_quality_enabled)?;
         writeln!(
             f,
             " front_right_distribution_position={}",
@@ -472,76 +434,62 @@ impl fmt::Display for Repr {
             " front_left_distribution_position={}",
             self.front_left_distribution_position
         )?;
-        writeln!(
-            f,
-            " front_right_seat_ventilation={}",
-            self.front_right_seat_ventilation
-        )?;
-        writeln!(
-            f,
-            " front_left_seat_heating={}",
-            self.front_left_seat_heating
-        )?;
-        writeln!(
-            f,
-            " front_right_seat_heating={}",
-            self.front_right_seat_heating
-        )?;
-        writeln!(
-            f,
-            " energy_saver_mode_enabled={}",
-            self.energy_saver_mode_enabled
-        )
+        writeln!(f, " air_intake_mode={}", self.air_intake_mode)?;
+        writeln!(f, " restore_mode={}", self.restore_mode)?;
+        writeln!(f, " front_left_temp={}", self.front_left_temp)?;
+        writeln!(f, " front_right_temp={}", self.front_right_temp)
     }
 }
 
 #[cfg(test)]
 mod test {
     use super::{Frame, Repr};
-    use crate::Error;
+    use crate::{
+        vehicle::{
+            ACAirDistributionPosition, ACAirIntakeMode, ACAirTemperature, ACFanMode, ACFanSpeed,
+            ACModeRequest,
+        },
+        Error,
+    };
 
-    static REPR_FRAME_BYTES_1: [u8; 8] = [0x09, 0x00, 0x00, 0x94, 0x14, 0x25, 0x32, 0xc8];
-    static REPR_FRAME_BYTES_2: [u8; 8] = [0x03, 0x00, 0x00, 0x53, 0x31, 0x83, 0x10, 0x1c];
+    static REPR_FRAME_BYTES_1: [u8; 7] = [0x40, 0x40, 0x02, 0x40, 0x80, 0x03, 0x0a];
+    static REPR_FRAME_BYTES_2: [u8; 7] = [0xb9, 0x80, 0x04, 0x86, 0x20, 0x13, 0x06];
 
     fn frame_1_repr() -> Repr {
         Repr {
-            typage: 1,
-            ac_request: 2,
-            front_left_temperature: 20,
-            mono_temperature: false,
-            ac_max: true,
-            front_right_temperature: 20,
-            front_left_seat_ventilation: 0,
-            front_fan_speed: 5,
-            air_intake_mode: 2,
-            air_quality_enabled: false,
-            front_right_distribution_position: 2,
-            front_left_distribution_position: 3,
-            front_right_seat_ventilation: 0,
-            front_left_seat_heating: 1,
-            front_right_seat_heating: 2,
-            energy_saver_mode_enabled: true,
+            ac_request: ACModeRequest::AutoComfort,
+            front_ac_failure: false,
+            front_ac_fan_mode: ACFanMode::AutoComfort,
+            rear_demist: true,
+            ac_off: false,
+            fan_failure: true,
+            cabin_sensor_failure: false,
+            front_fan_speed: ACFanSpeed::Speed3,
+            front_right_distribution_position: ACAirDistributionPosition::AutoComfort,
+            front_left_distribution_position: ACAirDistributionPosition::Demist,
+            air_intake_mode: ACAirIntakeMode::AutoComfort,
+            restore_mode: true,
+            front_left_temp: ACAirTemperature::Sixteen,
+            front_right_temp: ACAirTemperature::TwentyDotFive,
         }
     }
 
     fn frame_2_repr() -> Repr {
         Repr {
-            typage: 3,
-            ac_request: 0,
-            front_left_temperature: 19,
-            mono_temperature: true,
-            ac_max: false,
-            front_right_temperature: 17,
-            front_left_seat_ventilation: 1,
-            front_fan_speed: 3,
-            air_intake_mode: 0,
-            air_quality_enabled: true,
-            front_right_distribution_position: 0,
-            front_left_distribution_position: 1,
-            front_right_seat_ventilation: 2,
-            front_left_seat_heating: 3,
-            front_right_seat_heating: 0,
-            energy_saver_mode_enabled: false,
+            ac_request: ACModeRequest::AutoDemist,
+            front_ac_failure: true,
+            front_ac_fan_mode: ACFanMode::AutoSoft,
+            rear_demist: false,
+            ac_off: true,
+            fan_failure: false,
+            cabin_sensor_failure: true,
+            front_fan_speed: ACFanSpeed::Speed5,
+            front_right_distribution_position: ACAirDistributionPosition::FootDemist,
+            front_left_distribution_position: ACAirDistributionPosition::FootVentilationDemist,
+            air_intake_mode: ACAirIntakeMode::ForcedOpen,
+            restore_mode: false,
+            front_left_temp: ACAirTemperature::TwentySix,
+            front_right_temp: ACAirTemperature::EighteenDotFive,
         }
     }
 
@@ -549,99 +497,104 @@ mod test {
     fn test_frame_1_deconstruction() {
         let frame = Frame::new_unchecked(&REPR_FRAME_BYTES_1);
         assert_eq!(frame.check_len(), Ok(()));
-        assert_eq!(frame.typage(), 1);
-        assert_eq!(frame.ac_request(), 2);
-        assert_eq!(frame.front_left_temp(), 20);
-        assert_eq!(frame.mono_temp(), false);
-        assert_eq!(frame.ac_max(), true);
-        assert_eq!(frame.front_right_temp(), 20);
-        assert_eq!(frame.front_left_seat_ventilation(), 0);
-        assert_eq!(frame.front_fan_speed(), 5);
-        assert_eq!(frame.air_intake_mode(), 2);
-        assert_eq!(frame.air_quality_enable(), false);
-        assert_eq!(frame.front_right_distribution_position(), 2);
-        assert_eq!(frame.front_left_distribution_position(), 3);
-        assert_eq!(frame.front_right_seat_ventilation(), 0);
-        assert_eq!(frame.front_left_seat_heating(), 1);
-        assert_eq!(frame.front_right_seat_heating(), 2);
-        assert_eq!(frame.energy_saver_mode_enable(), true);
+        assert_eq!(frame.ac_request(), ACModeRequest::AutoComfort);
+        assert_eq!(frame.front_ac_failure(), false);
+        assert_eq!(frame.front_ac_fan_mode(), ACFanMode::AutoComfort);
+        assert_eq!(frame.rear_demist(), true);
+        assert_eq!(frame.ac_off(), false);
+        assert_eq!(frame.fan_failure(), true);
+        assert_eq!(frame.cabin_sensor_failure(), false);
+        assert_eq!(frame.front_fan_speed(), ACFanSpeed::Speed3);
+        assert_eq!(
+            frame.front_right_distribution_position(),
+            ACAirDistributionPosition::AutoComfort
+        );
+        assert_eq!(
+            frame.front_left_distribution_position(),
+            ACAirDistributionPosition::Demist
+        );
+        assert_eq!(frame.air_intake_mode(), ACAirIntakeMode::AutoComfort);
+        assert_eq!(frame.restore_mode(), true);
+        assert_eq!(frame.front_left_temp(), ACAirTemperature::Sixteen);
+        assert_eq!(frame.front_right_temp(), ACAirTemperature::TwentyDotFive);
     }
 
     #[test]
     fn test_frame_2_deconstruction() {
         let frame = Frame::new_unchecked(&REPR_FRAME_BYTES_2);
         assert_eq!(frame.check_len(), Ok(()));
-        assert_eq!(frame.typage(), 3);
-        assert_eq!(frame.ac_request(), 0);
-        assert_eq!(frame.front_left_temp(), 19);
-        assert_eq!(frame.mono_temp(), true);
-        assert_eq!(frame.ac_max(), false);
-        assert_eq!(frame.front_right_temp(), 17);
-        assert_eq!(frame.front_left_seat_ventilation(), 1);
-        assert_eq!(frame.front_fan_speed(), 3);
-        assert_eq!(frame.air_intake_mode(), 0);
-        assert_eq!(frame.air_quality_enable(), true);
-        assert_eq!(frame.front_right_distribution_position(), 0);
-        assert_eq!(frame.front_left_distribution_position(), 1);
-        assert_eq!(frame.front_right_seat_ventilation(), 2);
-        assert_eq!(frame.front_left_seat_heating(), 3);
-        assert_eq!(frame.front_right_seat_heating(), 0);
-        assert_eq!(frame.energy_saver_mode_enable(), false);
+        assert_eq!(frame.ac_request(), ACModeRequest::AutoDemist);
+        assert_eq!(frame.front_ac_failure(), true);
+        assert_eq!(frame.front_ac_fan_mode(), ACFanMode::AutoSoft);
+        assert_eq!(frame.rear_demist(), false);
+        assert_eq!(frame.ac_off(), true);
+        assert_eq!(frame.fan_failure(), false);
+        assert_eq!(frame.cabin_sensor_failure(), true);
+        assert_eq!(frame.front_fan_speed(), ACFanSpeed::Speed5);
+        assert_eq!(
+            frame.front_right_distribution_position(),
+            ACAirDistributionPosition::FootDemist
+        );
+        assert_eq!(
+            frame.front_left_distribution_position(),
+            ACAirDistributionPosition::FootVentilationDemist
+        );
+        assert_eq!(frame.air_intake_mode(), ACAirIntakeMode::ForcedOpen);
+        assert_eq!(frame.restore_mode(), false);
+        assert_eq!(frame.front_left_temp(), ACAirTemperature::TwentySix);
+        assert_eq!(frame.front_right_temp(), ACAirTemperature::EighteenDotFive);
     }
 
     #[test]
     fn test_frame_1_construction() {
-        let mut bytes = [0u8; 8];
+        let mut bytes = [0u8; 7];
         let mut frame = Frame::new_unchecked(&mut bytes);
 
-        frame.set_typage(1);
-        frame.set_ac_request(2);
-        frame.set_front_left_temp(20);
-        frame.set_mono_temp(false);
-        frame.set_ac_max(true);
-        frame.set_front_right_temp(20);
-        frame.set_front_left_seat_ventilation(0);
-        frame.set_front_fan_speed(5);
-        frame.set_air_intake_mode(2);
-        frame.set_air_quality_enable(false);
-        frame.set_front_right_distribution_position(2);
-        frame.set_front_left_distribution_position(3);
-        frame.set_front_right_seat_ventilation(0);
-        frame.set_front_left_seat_heating(1);
-        frame.set_front_right_seat_heating(2);
-        frame.set_energy_saver_mode_enable(true);
+        frame.set_ac_request(ACModeRequest::AutoComfort);
+        frame.set_front_ac_failure(false);
+        frame.set_front_ac_fan_mode(ACFanMode::AutoComfort);
+        frame.set_rear_demist(true);
+        frame.set_ac_off(false);
+        frame.set_fan_failure(true);
+        frame.set_cabin_sensor_failure(false);
+        frame.set_front_fan_speed(ACFanSpeed::Speed3);
+        frame.set_front_right_distribution_position(ACAirDistributionPosition::AutoComfort);
+        frame.set_front_left_distribution_position(ACAirDistributionPosition::Demist);
+        frame.set_air_intake_mode(ACAirIntakeMode::AutoComfort);
+        frame.set_restore_mode(true);
+        frame.set_front_left_temp(ACAirTemperature::Sixteen);
+        frame.set_front_right_temp(ACAirTemperature::TwentyDotFive);
 
         assert_eq!(frame.into_inner(), &REPR_FRAME_BYTES_1);
     }
 
     #[test]
     fn test_frame_2_construction() {
-        let mut bytes = [0u8; 8];
+        let mut bytes = [0u8; 7];
         let mut frame = Frame::new_unchecked(&mut bytes);
 
-        frame.set_typage(3);
-        frame.set_ac_request(0);
-        frame.set_front_left_temp(19);
-        frame.set_mono_temp(true);
-        frame.set_ac_max(false);
-        frame.set_front_right_temp(17);
-        frame.set_front_left_seat_ventilation(1);
-        frame.set_front_fan_speed(3);
-        frame.set_air_intake_mode(0);
-        frame.set_air_quality_enable(true);
-        frame.set_front_right_distribution_position(0);
-        frame.set_front_left_distribution_position(1);
-        frame.set_front_right_seat_ventilation(2);
-        frame.set_front_left_seat_heating(3);
-        frame.set_front_right_seat_heating(0);
-        frame.set_energy_saver_mode_enable(false);
+        frame.set_ac_request(ACModeRequest::AutoDemist);
+        frame.set_front_ac_failure(true);
+        frame.set_front_ac_fan_mode(ACFanMode::AutoSoft);
+        frame.set_rear_demist(false);
+        frame.set_ac_off(true);
+        frame.set_fan_failure(false);
+        frame.set_cabin_sensor_failure(true);
+        frame.set_front_fan_speed(ACFanSpeed::Speed5);
+        frame.set_front_right_distribution_position(ACAirDistributionPosition::FootDemist);
+        frame
+            .set_front_left_distribution_position(ACAirDistributionPosition::FootVentilationDemist);
+        frame.set_air_intake_mode(ACAirIntakeMode::ForcedOpen);
+        frame.set_restore_mode(false);
+        frame.set_front_left_temp(ACAirTemperature::TwentySix);
+        frame.set_front_right_temp(ACAirTemperature::EighteenDotFive);
 
         assert_eq!(frame.into_inner(), &REPR_FRAME_BYTES_2);
     }
 
     #[test]
     fn test_overlong() {
-        let bytes: [u8; 9] = [0x09, 0x00, 0x00, 0x94, 0x14, 0x25, 0x32, 0xc8, 0xff];
+        let bytes: [u8; 8] = [0x40, 0x40, 0x20, 0x40, 0x80, 0x03, 0x0a, 0xff];
         assert_eq!(
             Frame::new_unchecked(&bytes).check_len().unwrap_err(),
             Error::Overlong
@@ -650,7 +603,7 @@ mod test {
 
     #[test]
     fn test_underlong() {
-        let bytes: [u8; 7] = [0x09, 0x00, 0x00, 0x94, 0x14, 0x25, 0x32];
+        let bytes: [u8; 6] = [0x40, 0x40, 0x20, 0x40, 0x80, 0x03];
         assert_eq!(Frame::new_checked(&bytes).unwrap_err(), Error::Truncated);
     }
 
@@ -670,7 +623,7 @@ mod test {
 
     #[test]
     fn test_basic_repr_1_emit() {
-        let mut buf = [0u8; 8];
+        let mut buf = [0u8; 7];
         let mut frame = Frame::new_unchecked(&mut buf);
         let repr = frame_1_repr();
         repr.emit(&mut frame);
@@ -679,7 +632,7 @@ mod test {
 
     #[test]
     fn test_basic_repr_2_emit() {
-        let mut buf = [0u8; 8];
+        let mut buf = [0u8; 7];
         let mut frame = Frame::new_unchecked(&mut buf);
         let repr = frame_2_repr();
         repr.emit(&mut frame);
