@@ -1429,6 +1429,8 @@ enum_with_unknown! {
        Gear7 = 7,
        /// Gear 8 is engaged.
        Gear8 = 8,
+       /// Gear 9 is engaged.
+       Gear9 = 9,
    }
 }
 
@@ -1444,6 +1446,7 @@ impl fmt::Display for GearboxDriveModeGear {
             GearboxDriveModeGear::Gear6 => write!(f, "gear 6"),
             GearboxDriveModeGear::Gear7 => write!(f, "gear 7"),
             GearboxDriveModeGear::Gear8 => write!(f, "gear 8"),
+            GearboxDriveModeGear::Gear9 => write!(f, "gear 9"),
             GearboxDriveModeGear::Unknown(gear) => write!(f, "0x{:02x}", gear),
         }
     }
@@ -1576,6 +1579,81 @@ impl fmt::Display for AdBlueIndicatorState {
             AdBlueIndicatorState::Blinking => write!(f, "blinking"),
             AdBlueIndicatorState::On => write!(f, "on"),
             AdBlueIndicatorState::Unknown(state) => write!(f, "0x{:02x}", state),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// Lane centering indicator state. AEE 2010 only.
+   pub enum LaneCenteringIndicatorState(u8) {
+       /// Indicator is off.
+       Off = 0,
+       /// Indicator is on and steady.
+       Steady = 1,
+       /// Indicator is blinking indicating a system fault.
+       BlinkingFault = 2,
+       /// Indicator is blinking alerting the driver.
+       BlinkingAlert = 3,
+   }
+}
+
+impl fmt::Display for LaneCenteringIndicatorState {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            LaneCenteringIndicatorState::Off => write!(f, "off"),
+            LaneCenteringIndicatorState::Steady => write!(f, "steady"),
+            LaneCenteringIndicatorState::BlinkingFault => write!(f, "blinking fault"),
+            LaneCenteringIndicatorState::BlinkingAlert => write!(f, "blinking alert"),
+            LaneCenteringIndicatorState::Unknown(state) => write!(f, "0x{:02x}", state),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// Steering assistance indicator state. AEE 2010 only.
+   pub enum SteeringAssistanceIndicatorState(u8) {
+       /// Indicator is off.
+       Off = 0,
+       /// Indicator is on and red color.
+       Red = 1,
+       /// Indicator is on and orange color.
+       Orange = 2,
+   }
+}
+
+impl fmt::Display for SteeringAssistanceIndicatorState {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            SteeringAssistanceIndicatorState::Off => write!(f, "off"),
+            SteeringAssistanceIndicatorState::Red => write!(f, "red"),
+            SteeringAssistanceIndicatorState::Orange => write!(f, "orange"),
+            SteeringAssistanceIndicatorState::Unknown(state) => write!(f, "0x{:02x}", state),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// Steering assistance fault type. AEE 2010 only.
+   pub enum SteeringAssistanceFaultType(u8) {
+       /// No fault.
+       None = 0,
+       /// G4 fault.
+       G4 = 1,
+       /// G3 fault.
+       G3 = 2,
+       /// G3 and G4 fault.
+       G3AndG4 = 3,
+   }
+}
+
+impl fmt::Display for SteeringAssistanceFaultType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            SteeringAssistanceFaultType::None => write!(f, "none"),
+            SteeringAssistanceFaultType::G4 => write!(f, "G4"),
+            SteeringAssistanceFaultType::G3 => write!(f, "G3"),
+            SteeringAssistanceFaultType::G3AndG4 => write!(f, "G3 and G4"),
+            SteeringAssistanceFaultType::Unknown(state) => write!(f, "0x{:02x}", state),
         }
     }
 }
