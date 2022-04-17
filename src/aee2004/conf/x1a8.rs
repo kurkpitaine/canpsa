@@ -207,7 +207,10 @@ pub struct Repr {
     pub speed_regulation_mode_state: SpeedRegulationModeState,
     pub speed_regulation_mode: SpeedRegulationMode,
     pub speed_setting: u16,
+    #[cfg(feature = "float")]
     pub partial_odometer: f32,
+    #[cfg(not(feature = "float"))]
+    pub partial_odometer: u32,
 }
 
 impl Repr {
@@ -220,7 +223,10 @@ impl Repr {
             speed_regulation_mode_state: frame.speed_regulation_mode_state(),
             speed_regulation_mode: frame.speed_regulation_mode(),
             speed_setting: frame.speed_setting(),
+            #[cfg(feature = "float")]
             partial_odometer: (frame.partial_odometer() as f32 / 10.0),
+            #[cfg(not(feature = "float"))]
+            partial_odometer: (frame.partial_odometer()),
         })
     }
 
@@ -236,7 +242,10 @@ impl Repr {
         frame.set_speed_regulation_mode_state(self.speed_regulation_mode_state);
         frame.set_speed_regulation_mode(self.speed_regulation_mode);
         frame.set_speed_setting(self.speed_setting);
+        #[cfg(feature = "float")]
         frame.set_partial_odometer((self.partial_odometer * 10.0) as u32);
+        #[cfg(not(feature = "float"))]
+        frame.set_partial_odometer(self.partial_odometer);
     }
 }
 

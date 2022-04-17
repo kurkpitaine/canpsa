@@ -362,10 +362,22 @@ pub struct Repr {
     pub vehicle_main_status: MainStatus,
     pub factory_park_enabled: bool,
     pub vsm_config_mode: VsmConfigMode,
+    #[cfg(feature = "float")]
     pub coolant_temperature: f32,
+    #[cfg(not(feature = "float"))]
+    pub coolant_temperature: u8,
+    #[cfg(feature = "float")]
     pub odometer: f32,
+    #[cfg(not(feature = "float"))]
+    pub odometer: u32,
+    #[cfg(feature = "float")]
     pub external_temperature: f32,
+    #[cfg(not(feature = "float"))]
+    pub external_temperature: u8,
+    #[cfg(feature = "float")]
     pub external_temperature_filtered: f32,
+    #[cfg(not(feature = "float"))]
+    pub external_temperature_filtered: u8,
     pub blinkers_status: BlinkersStatus,
     pub cluster_lights_test: bool,
     pub steering_wheel_position: SteeringWheelPosition,
@@ -383,10 +395,22 @@ impl Repr {
             vehicle_main_status: frame.vehicle_main_status(),
             factory_park_enabled: frame.factory_park(),
             vsm_config_mode: frame.vsm_config_mode(),
+            #[cfg(feature = "float")]
             coolant_temperature: frame.coolant_temp() as f32 - 40.0,
+            #[cfg(not(feature = "float"))]
+            coolant_temperature: frame.coolant_temp(),
+            #[cfg(feature = "float")]
             odometer: (frame.odometer() as f32 / 10.0),
+            #[cfg(not(feature = "float"))]
+            odometer: frame.odometer(),
+            #[cfg(feature = "float")]
             external_temperature: (frame.external_temp() as f32 / 2.0) - 40.0,
+            #[cfg(not(feature = "float"))]
+            external_temperature: frame.external_temp(),
+            #[cfg(feature = "float")]
             external_temperature_filtered: (frame.external_temp_filtered() as f32 / 2.0) - 40.0,
+            #[cfg(not(feature = "float"))]
+            external_temperature_filtered: frame.external_temp_filtered(),
             blinkers_status: frame.blinkers_status(),
             cluster_lights_test: frame.cluster_lights_test(),
             steering_wheel_position: frame.steering_wheel_pos(),
@@ -407,10 +431,22 @@ impl Repr {
         frame.set_vehicle_main_status(self.vehicle_main_status);
         frame.set_factory_park(self.factory_park_enabled);
         frame.set_vsm_config_mode(self.vsm_config_mode);
+        #[cfg(feature = "float")]
         frame.set_coolant_temp((self.coolant_temperature + 40.0) as u8);
+        #[cfg(not(feature = "float"))]
+        frame.set_coolant_temp(self.coolant_temperature);
+        #[cfg(feature = "float")]
         frame.set_odometer((self.odometer * 10.0) as u32);
+        #[cfg(not(feature = "float"))]
+        frame.set_odometer(self.odometer);
+        #[cfg(feature = "float")]
         frame.set_external_temp(((self.external_temperature + 40.0) * 2.0) as u8);
+        #[cfg(not(feature = "float"))]
+        frame.set_external_temp(self.external_temperature);
+        #[cfg(feature = "float")]
         frame.set_external_temp_filtered(((self.external_temperature_filtered + 40.0) * 2.0) as u8);
+        #[cfg(not(feature = "float"))]
+        frame.set_external_temp_filtered(self.external_temperature_filtered);
         frame.set_blinkers_status(self.blinkers_status);
         frame.set_cluster_lights_test(self.cluster_lights_test);
         frame.set_steering_wheel_pos(self.steering_wheel_position);

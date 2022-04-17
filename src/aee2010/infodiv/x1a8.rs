@@ -156,7 +156,10 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
 pub struct Repr {
     pub limit_reached: bool,
     pub pre_programming_state: bool,
+    #[cfg(feature = "float")]
     pub partial_odometer: f32,
+    #[cfg(not(feature = "float"))]
+    pub partial_odometer: u32,
 }
 
 impl Repr {
@@ -166,7 +169,10 @@ impl Repr {
         Ok(Repr {
             limit_reached: frame.limit_reached(),
             pre_programming_state: frame.pre_programming_state(),
+            #[cfg(feature = "float")]
             partial_odometer: (frame.partial_odometer() as f32 / 10.0),
+            #[cfg(not(feature = "float"))]
+            partial_odometer: frame.partial_odometer(),
         })
     }
 
@@ -179,7 +185,10 @@ impl Repr {
     pub fn emit<T: AsRef<[u8]> + AsMut<[u8]>>(&self, frame: &mut Frame<T>) {
         frame.set_limit_reached(self.limit_reached);
         frame.set_pre_programming_state(self.pre_programming_state);
+        #[cfg(feature = "float")]
         frame.set_partial_odometer((self.partial_odometer * 10.0) as u32);
+        #[cfg(not(feature = "float"))]
+        frame.set_partial_odometer(self.partial_odometer);
     }
 }
 

@@ -204,8 +204,14 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
 #[derive(Debug, PartialEq, Clone, Copy)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Repr {
+    #[cfg(feature = "float")]
     pub engine_rpm: f32,
+    #[cfg(not(feature = "float"))]
+    pub engine_rpm: u16,
+    #[cfg(feature = "float")]
     pub vehicle_immediate_speed: f32,
+    #[cfg(not(feature = "float"))]
+    pub vehicle_immediate_speed: u16,
     pub trip_odometer: u16,
     pub trip_fuel_consumption: u8,
     pub speed_validity: SpeedValidity,
@@ -217,8 +223,14 @@ impl Repr {
         frame.check_len()?;
 
         Ok(Repr {
+            #[cfg(feature = "float")]
             engine_rpm: frame.engine_rpm() as f32 / 10.0,
+            #[cfg(not(feature = "float"))]
+            engine_rpm: frame.engine_rpm(),
+            #[cfg(feature = "float")]
             vehicle_immediate_speed: frame.vehicle_immediate_speed() as f32 / 100.0,
+            #[cfg(not(feature = "float"))]
+            vehicle_immediate_speed: frame.vehicle_immediate_speed(),
             trip_odometer: frame.trip_odometer(),
             trip_fuel_consumption: frame.trip_fuel_consumption(),
             speed_validity: frame.speed_validity(),
@@ -233,8 +245,14 @@ impl Repr {
 
     /// Emit a high-level representation into a x0b6 CAN frame.
     pub fn emit<T: AsRef<[u8]> + AsMut<[u8]>>(&self, frame: &mut Frame<T>) {
+        #[cfg(feature = "float")]
         frame.set_engine_rpm((self.engine_rpm * 10.0) as u16);
+        #[cfg(not(feature = "float"))]
+        frame.set_engine_rpm(self.engine_rpm);
+        #[cfg(feature = "float")]
         frame.set_vehicle_immediate_speed((self.vehicle_immediate_speed * 100.0) as u16);
+        #[cfg(not(feature = "float"))]
+        frame.set_vehicle_immediate_speed(self.vehicle_immediate_speed);
         frame.set_trip_odometer(self.trip_odometer);
         frame.set_trip_fuel_consumption(self.trip_fuel_consumption);
         frame.set_speed_validity(self.speed_validity);

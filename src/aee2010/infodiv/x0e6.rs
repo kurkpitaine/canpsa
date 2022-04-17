@@ -447,7 +447,10 @@ pub struct Repr {
     pub rear_left_wheel_counter_failure: bool,
     pub rear_right_wheel_counter: u16,
     pub rear_right_wheel_counter_failure: bool,
+    #[cfg(feature = "float")]
     pub battery_voltage: f32,
+    #[cfg(not(feature = "float"))]
+    pub battery_voltage: u8,
     pub slope_type: SlopeType,
     pub stop_start_brake_req: StopAndStartBrakeRequirement,
     pub gee_failure: bool,
@@ -472,7 +475,10 @@ impl Repr {
             rear_left_wheel_counter_failure: frame.rear_left_wheel_counter_failure(),
             rear_right_wheel_counter: frame.rear_right_wheel_counter(),
             rear_right_wheel_counter_failure: frame.rear_right_wheel_counter_failure(),
+            #[cfg(feature = "float")]
             battery_voltage: (frame.battery_voltage() as f32) / 10.0,
+            #[cfg(not(feature = "float"))]
+            battery_voltage: frame.battery_voltage(),
             slope_type: frame.slope_type(),
             stop_start_brake_req: frame.stop_start_brake_req(),
             gee_failure: frame.gee_failure(),
@@ -500,7 +506,10 @@ impl Repr {
         frame.set_rear_left_wheel_counter_failure(self.rear_left_wheel_counter_failure);
         frame.set_rear_right_wheel_counter(self.rear_right_wheel_counter);
         frame.set_rear_right_wheel_counter_failure(self.rear_right_wheel_counter_failure);
+        #[cfg(feature = "float")]
         frame.set_battery_voltage((self.battery_voltage * 10.0) as u8);
+        #[cfg(not(feature = "float"))]
+        frame.set_battery_voltage(self.battery_voltage);
         frame.set_slope_type(self.slope_type);
         frame.set_stop_start_brake_req(self.stop_start_brake_req);
         frame.set_gee_failure(self.gee_failure);

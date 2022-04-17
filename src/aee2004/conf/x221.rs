@@ -217,7 +217,10 @@ pub struct Repr {
     pub trip_computer_push_button_state: bool,
     pub fuel_autonomy_data_valid: bool,
     pub fuel_consumption_data_valid: bool,
+    #[cfg(feature = "float")]
     pub instant_fuel_consumption: f32,
+    #[cfg(not(feature = "float"))]
+    pub instant_fuel_consumption: u16,
     pub remaining_fuel_range: u16,
     pub remaining_trip_distance: u16,
 }
@@ -231,7 +234,10 @@ impl Repr {
             trip_computer_push_button_state: frame.trip_computer_push_button_state(),
             fuel_autonomy_data_valid: frame.fuel_autonomy_data_valid(),
             fuel_consumption_data_valid: frame.fuel_consumption_data_valid(),
+            #[cfg(feature = "float")]
             instant_fuel_consumption: frame.instant_fuel_consumption() as f32 / 10.0,
+            #[cfg(not(feature = "float"))]
+            instant_fuel_consumption: frame.instant_fuel_consumption(),
             remaining_fuel_range: frame.remaining_fuel_range(),
             remaining_trip_distance: frame.remaining_trip_distance(),
         })
@@ -248,7 +254,10 @@ impl Repr {
         frame.set_trip_computer_push_button_state(self.trip_computer_push_button_state);
         frame.set_fuel_autonomy_data_valid(self.fuel_autonomy_data_valid);
         frame.set_fuel_consumption_data_valid(self.fuel_consumption_data_valid);
+        #[cfg(feature = "float")]
         frame.set_instant_fuel_consumption((self.instant_fuel_consumption * 10.0) as u16);
+        #[cfg(not(feature = "float"))]
+        frame.set_instant_fuel_consumption(self.instant_fuel_consumption);
         frame.set_remaining_fuel_range(self.remaining_fuel_range);
         frame.set_remaining_trip_distance(self.remaining_trip_distance);
     }

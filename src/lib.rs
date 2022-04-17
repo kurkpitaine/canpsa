@@ -1,7 +1,9 @@
-use core::fmt;
+#![no_std]
 
 #[macro_use]
 mod macros;
+
+use core::fmt;
 
 pub mod aee2004;
 pub mod aee2010;

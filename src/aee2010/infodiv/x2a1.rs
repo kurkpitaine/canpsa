@@ -153,7 +153,10 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
 pub struct Repr {
     pub average_speed: u8,
     pub distance: u16,
+    #[cfg(feature = "float")]
     pub average_consumption: f32,
+    #[cfg(not(feature = "float"))]
+    pub average_consumption: u16,
 }
 
 impl Repr {
@@ -163,7 +166,10 @@ impl Repr {
         Ok(Repr {
             average_speed: frame.average_speed(),
             distance: frame.distance(),
+            #[cfg(feature = "float")]
             average_consumption: frame.average_consumption() as f32 / 10.0,
+            #[cfg(not(feature = "float"))]
+            average_consumption: frame.average_consumption(),
         })
     }
 
@@ -176,7 +182,10 @@ impl Repr {
     pub fn emit<T: AsRef<[u8]> + AsMut<[u8]>>(&self, frame: &mut Frame<T>) {
         frame.set_average_speed(self.average_speed);
         frame.set_distance(self.distance);
+        #[cfg(feature = "float")]
         frame.set_average_consumption((self.average_consumption * 10.0) as u16);
+        #[cfg(not(feature = "float"))]
+        frame.set_average_consumption(self.average_consumption);
     }
 }
 
