@@ -1,9 +1,9 @@
-use core::fmt;
+use core::{cmp::Ordering, fmt};
 
 use crate::{
     vehicle::{
-        AdBlueIndicatorState, AutoGearboxMode, IndicatorState,
-        GearEfficiencyArrowType, GearboxDriveModeGear, GearboxGear, GearboxType,
+        AdBlueIndicatorState, AutoGearboxMode, GearEfficiencyArrowType, GearboxDriveModeGear,
+        GearboxGear, GearboxType, IndicatorState,
     },
     Error, Result,
 };
@@ -158,12 +158,10 @@ impl<T: AsRef<[u8]>> Frame<T> {
     #[inline]
     pub fn check_len(&self) -> Result<()> {
         let len = self.buffer.as_ref().len();
-        if len < (FRAME_LEN) {
-            Err(Error::Truncated)
-        } else if len > (FRAME_LEN) {
-            Err(Error::Overlong)
-        } else {
-            Ok(())
+        match len.cmp(&FRAME_LEN) {
+            Ordering::Less => Err(Error::Truncated),
+            Ordering::Greater => Err(Error::Overlong),
+            Ordering::Equal => Ok(()),
         }
     }
 
@@ -658,8 +656,8 @@ mod test {
     use super::{field, Frame, Repr};
     use crate::{
         vehicle::{
-            AdBlueIndicatorState, AutoGearboxMode, IndicatorState,
-            GearEfficiencyArrowType, GearboxDriveModeGear, GearboxGear, GearboxType,
+            AdBlueIndicatorState, AutoGearboxMode, GearEfficiencyArrowType, GearboxDriveModeGear,
+            GearboxGear, GearboxType, IndicatorState,
         },
         Error,
     };
@@ -793,10 +791,7 @@ mod test {
         assert_eq!(frame.read_bit::<{ field::FLAGS_3 }, 7>(), false);
         assert_eq!(frame.read_bit::<{ field::FLAGS_4 }, 0>(), true);
         assert_eq!(frame.read_bit::<{ field::FLAGS_4 }, 1>(), false);
-        assert_eq!(
-            frame.foot_on_brake_pedal_indicator(),
-            IndicatorState::On
-        );
+        assert_eq!(frame.foot_on_brake_pedal_indicator(), IndicatorState::On);
         assert_eq!(frame.read_bit::<{ field::FLAGS_4 }, 4>(), true);
         assert_eq!(frame.read_bit::<{ field::FLAGS_4 }, 5>(), false);
         assert_eq!(frame.read_bit::<{ field::FLAGS_4 }, 6>(), true);

@@ -1,4 +1,4 @@
-use core::fmt;
+use core::{cmp::Ordering, fmt};
 
 use byteorder::{ByteOrder, NetworkEndian};
 
@@ -74,12 +74,10 @@ impl<T: AsRef<[u8]>> Frame<T> {
     #[inline]
     pub fn check_len(&self) -> Result<()> {
         let len = self.buffer.as_ref().len();
-        if len < (FRAME_LEN) {
-            Err(Error::Truncated)
-        } else if len > (FRAME_LEN) {
-            Err(Error::Overlong)
-        } else {
-            Ok(())
+        match len.cmp(&FRAME_LEN) {
+            Ordering::Less => Err(Error::Truncated),
+            Ordering::Greater => Err(Error::Overlong),
+            Ordering::Equal => Ok(()),
         }
     }
 
@@ -108,7 +106,7 @@ impl<T: AsRef<[u8]>> Frame<T> {
     #[inline]
     pub fn maintenance_reset_request(&self) -> bool {
         let data = self.buffer.as_ref();
-        !(data[field::REQ_0] & 0x08 != 0)
+        data[field::REQ_0] & 0x08 == 0
     }
 
     /// Return the emergency call in progress flag.

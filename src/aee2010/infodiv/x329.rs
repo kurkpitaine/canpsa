@@ -1,5 +1,5 @@
 use crate::{Error, Result};
-use core::{fmt, time::Duration};
+use core::{cmp::Ordering, fmt, time::Duration};
 
 /// A read/write wrapper around an CAN frame buffer.
 #[derive(Debug, PartialEq, Clone)]
@@ -105,12 +105,10 @@ impl<T: AsRef<[u8]>> Frame<T> {
     #[inline]
     pub fn check_len(&self) -> Result<()> {
         let len = self.buffer.as_ref().len();
-        if len < (FRAME_LEN) {
-            Err(Error::Truncated)
-        } else if len > (FRAME_LEN) {
-            Err(Error::Overlong)
-        } else {
-            Ok(())
+        match len.cmp(&FRAME_LEN) {
+            Ordering::Less => Err(Error::Truncated),
+            Ordering::Greater => Err(Error::Overlong),
+            Ordering::Equal => Ok(()),
         }
     }
 

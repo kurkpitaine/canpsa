@@ -1,4 +1,4 @@
-use core::fmt;
+use core::{cmp::Ordering, fmt};
 
 use byteorder::{ByteOrder, NetworkEndian};
 use time::Duration;
@@ -54,12 +54,10 @@ impl<T: AsRef<[u8]>> Frame<T> {
     #[inline]
     pub fn check_len(&self) -> Result<()> {
         let len = self.buffer.as_ref().len();
-        if len < (FRAME_LEN) {
-            Err(Error::Truncated)
-        } else if len > (FRAME_LEN) {
-            Err(Error::Overlong)
-        } else {
-            Ok(())
+        match len.cmp(&FRAME_LEN) {
+            Ordering::Less => Err(Error::Truncated),
+            Ordering::Greater => Err(Error::Overlong),
+            Ordering::Equal => Ok(()),
         }
     }
 
@@ -332,7 +330,7 @@ impl Repr {
                 + Duration::days(365 * i64::from(frame.running_years()));
 
             Ok(Repr {
-                running_duration: running_duration,
+                running_duration,
                 distance_unit: frame.distance_unit(),
                 volume_unit: frame.volume_unit(),
                 consumption_unit: frame.consumption_unit(),

@@ -1,4 +1,4 @@
-use core::{fmt, time::Duration};
+use core::{cmp::Ordering, fmt, time::Duration};
 
 use crate::{Error, Result};
 
@@ -50,12 +50,10 @@ impl<T: AsRef<[u8]>> Frame<T> {
     #[inline]
     pub fn check_len(&self) -> Result<()> {
         let len = self.buffer.as_ref().len();
-        if len < (FRAME_LEN) {
-            Err(Error::Truncated)
-        } else if len > (FRAME_LEN) {
-            Err(Error::Overlong)
-        } else {
-            Ok(())
+        match len.cmp(&FRAME_LEN) {
+            Ordering::Less => Err(Error::Truncated),
+            Ordering::Greater => Err(Error::Overlong),
+            Ordering::Equal => Ok(()),
         }
     }
 
@@ -196,9 +194,17 @@ impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(f, "x1d0")?;
         writeln!(f, " fragrance_selection={}", self.fragrance_selection)?;
-        writeln!(f, " fragrance_diffuser_enable={}", self.fragrance_diffuser_enable)?;
+        writeln!(
+            f,
+            " fragrance_diffuser_enable={}",
+            self.fragrance_diffuser_enable
+        )?;
         writeln!(f, " fragrance_intensity={}", self.fragrance_intensity)?;
-        writeln!(f, " fragrance_cartridge_type={}", self.fragrance_cartridge_type)
+        writeln!(
+            f,
+            " fragrance_cartridge_type={}",
+            self.fragrance_cartridge_type
+        )
     }
 }
 

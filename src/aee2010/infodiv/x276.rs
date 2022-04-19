@@ -1,10 +1,10 @@
-use core::{fmt, time::Duration};
+use core::{cmp::Ordering, fmt, time::Duration};
 
 use byteorder::{ByteOrder, NetworkEndian};
 use time::{Date, Month, PrimitiveDateTime, Time};
 
 use crate::{
-    config::{DisplayMode, ClockFormat},
+    config::{ClockFormat, DisplayMode},
     Error, Result, YEAR_OFFSET,
 };
 
@@ -91,12 +91,10 @@ impl<T: AsRef<[u8]>> Frame<T> {
     #[inline]
     pub fn check_len(&self) -> Result<()> {
         let len = self.buffer.as_ref().len();
-        if len < (FRAME_LEN) {
-            Err(Error::Truncated)
-        } else if len > (FRAME_LEN) {
-            Err(Error::Overlong)
-        } else {
-            Ok(())
+        match len.cmp(&FRAME_LEN) {
+            Ordering::Less => Err(Error::Truncated),
+            Ordering::Greater => Err(Error::Overlong),
+            Ordering::Equal => Ok(()),
         }
     }
 
@@ -364,7 +362,7 @@ impl fmt::Display for Repr {
 mod test {
     use super::{Frame, Repr};
     use crate::{
-        config::{DisplayMode, ClockFormat},
+        config::{ClockFormat, DisplayMode},
         Error,
     };
 

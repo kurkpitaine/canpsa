@@ -1,4 +1,4 @@
-use core::{fmt, time::Duration};
+use core::{cmp::Ordering, fmt, time::Duration};
 
 use crate::{
     vehicle::{
@@ -129,12 +129,10 @@ impl<T: AsRef<[u8]>> Frame<T> {
     #[inline]
     pub fn check_len(&self) -> Result<()> {
         let len = self.buffer.as_ref().len();
-        if len < (FRAME_LEN) {
-            Err(Error::Truncated)
-        } else if len > (FRAME_LEN) {
-            Err(Error::Overlong)
-        } else {
-            Ok(())
+        match len.cmp(&FRAME_LEN) {
+            Ordering::Less => Err(Error::Truncated),
+            Ordering::Greater => Err(Error::Overlong),
+            Ordering::Equal => Ok(()),
         }
     }
 
@@ -758,11 +756,7 @@ impl Repr {
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(f, "x036")?;
-        writeln!(
-            f,
-            " driver_memory_setting={}",
-            self.driver_memory_setting
-        )?;
+        writeln!(f, " driver_memory_setting={}", self.driver_memory_setting)?;
         writeln!(
             f,
             " driver_memory_setting_write={}",

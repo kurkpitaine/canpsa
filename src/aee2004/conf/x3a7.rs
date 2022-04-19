@@ -1,4 +1,4 @@
-use core::{fmt, time::Duration};
+use core::{cmp::Ordering, fmt, time::Duration};
 
 use byteorder::{ByteOrder, NetworkEndian};
 
@@ -73,12 +73,10 @@ impl<T: AsRef<[u8]>> Frame<T> {
     #[inline]
     pub fn check_len(&self) -> Result<()> {
         let len = self.buffer.as_ref().len();
-        if len < (FRAME_LEN) {
-            Err(Error::Truncated)
-        } else if len > (FRAME_LEN) {
-            Err(Error::Overlong)
-        } else {
-            Ok(())
+        match len.cmp(&FRAME_LEN) {
+            Ordering::Less => Err(Error::Truncated),
+            Ordering::Greater => Err(Error::Overlong),
+            Ordering::Equal => Ok(()),
         }
     }
 
@@ -296,11 +294,11 @@ impl Repr {
         let mut remaining_distance: i32 = frame.remaining_distance().into();
 
         if frame.distance_counter_negative() {
-            remaining_distance = remaining_distance * -1;
+            remaining_distance = -remaining_distance;
         }
 
         if frame.time_counter_negative() {
-            remaining_days = remaining_days * -1;
+            remaining_days = -remaining_days;
         }
 
         Ok(Repr {
@@ -310,7 +308,7 @@ impl Repr {
             distance_counter_display_mode: frame.distance_counter_display_mode(),
             time_counter_display_mode: frame.time_counter_display_mode(),
             remaining_distance: remaining_distance * 20,
-            remaining_days: remaining_days,
+            remaining_days,
             display_duration: Duration::from_secs(frame.display_duration().into()),
         })
     }

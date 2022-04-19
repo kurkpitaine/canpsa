@@ -1,9 +1,9 @@
-use core::fmt;
+use core::{cmp::Ordering, fmt};
 
 use crate::{
     vehicle::{
-        AutoGearboxMode, IndicatorState, GearEfficiencyArrowType,
-        GearboxDriveModeGear, GearboxGear, GearboxType,
+        AutoGearboxMode, GearEfficiencyArrowType, GearboxDriveModeGear, GearboxGear, GearboxType,
+        IndicatorState,
     },
     Error, Result,
 };
@@ -110,12 +110,10 @@ impl<T: AsRef<[u8]>> Frame<T> {
     #[inline]
     pub fn check_len(&self) -> Result<()> {
         let len = self.buffer.as_ref().len();
-        if len < (FRAME_LEN) {
-            Err(Error::Truncated)
-        } else if len > (FRAME_LEN) {
-            Err(Error::Overlong)
-        } else {
-            Ok(())
+        match len.cmp(&FRAME_LEN) {
+            Ordering::Less => Err(Error::Truncated),
+            Ordering::Greater => Err(Error::Overlong),
+            Ordering::Equal => Ok(()),
         }
     }
 
@@ -633,8 +631,8 @@ mod test {
     use super::{field, Frame, Repr};
     use crate::{
         vehicle::{
-            AutoGearboxMode, IndicatorState, GearEfficiencyArrowType,
-            GearboxDriveModeGear, GearboxGear, GearboxType,
+            AutoGearboxMode, GearEfficiencyArrowType, GearboxDriveModeGear, GearboxGear,
+            GearboxType, IndicatorState,
         },
         Error,
     };
@@ -789,10 +787,7 @@ mod test {
         assert_eq!(frame.read_bit::<{ field::FLAGS_3 }, 6>(), true);
         assert_eq!(frame.read_bit::<{ field::FLAGS_3 }, 7>(), false);
         assert_eq!(frame.read_bit::<{ field::FLAGS_4 }, 0>(), true);
-        assert_eq!(
-            frame.foot_on_brake_pedal_indicator(),
-            IndicatorState::On
-        );
+        assert_eq!(frame.foot_on_brake_pedal_indicator(), IndicatorState::On);
         assert_eq!(frame.read_bit::<{ field::FLAGS_4 }, 3>(), false);
         assert_eq!(frame.read_bit::<{ field::FLAGS_4 }, 4>(), true);
         assert_eq!(frame.read_bit::<{ field::FLAGS_4 }, 5>(), false);
@@ -881,7 +876,10 @@ mod test {
         assert_eq!(frame.read_bit::<{ field::FLAGS_6 }, 6>(), false);
         assert_eq!(frame.read_bit::<{ field::FLAGS_6 }, 7>(), true);
         assert_eq!(frame.read_bit::<{ field::FLAGS_7 }, 0>(), false);
-        assert_eq!(frame.gearbox_drive_mode_gear(), GearboxDriveModeGear::Disengaged);
+        assert_eq!(
+            frame.gearbox_drive_mode_gear(),
+            GearboxDriveModeGear::Disengaged
+        );
         assert_eq!(frame.gearbox_gear(), GearboxGear::Nothing);
         assert_eq!(frame.gearbox_type(), GearboxType::Manual);
         assert_eq!(
