@@ -297,31 +297,24 @@ impl Repr {
         //  - 0x00 and 0x0d are not used
         //  - 0x0e means unavailable
         //  - 0x0f means invalid value.
-        if frame.month() < 1
-            || frame.month() > 12
-            || frame.day() < 1
-            || frame.day() > 31
-            || frame.hour() > 23
-            || frame.minute() > 59
-        {
-            Err(Error::Illegal)
-        } else {
-            Ok(Repr {
-                clock_format: frame.clock_format(),
-                clock_disp_mode: frame.clock_display_mode(),
-                utc_datetime: PrimitiveDateTime::new(
-                    Date::from_calendar_date(
-                        YEAR_OFFSET + (frame.year() as i32),
-                        Month::try_from(frame.month()).unwrap(),
-                        frame.day(),
-                    )
-                    .unwrap(),
-                    Time::from_hms(frame.hour(), frame.minute(), 0).unwrap(),
-                ),
-                adblue_autonomy: frame.adblue_autonomy(),
-                adblue_autonomy_display_request: frame.adblue_autonomy_display_request(),
-            })
-        }
+
+        let date = Date::from_calendar_date(
+            YEAR_OFFSET + (frame.year() as i32),
+            Month::try_from(frame.month()).map_err(|_| Error::Illegal)?,
+            frame.day(),
+        )
+        .map_err(|_| Error::Illegal)?;
+
+        let time = Time::from_hms(frame.hour(), frame.minute(), 0).map_err(|_| Error::Illegal)?;
+        let utc_datetime = PrimitiveDateTime::new(date, time);
+
+        Ok(Repr {
+            clock_format: frame.clock_format(),
+            clock_disp_mode: frame.clock_display_mode(),
+            utc_datetime,
+            adblue_autonomy: frame.adblue_autonomy(),
+            adblue_autonomy_display_request: frame.adblue_autonomy_display_request(),
+        })
     }
 
     /// Return the length of a frame that will be emitted from this high-level representation.

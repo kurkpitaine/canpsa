@@ -238,14 +238,22 @@ impl Repr {
         frame.check_len()?;
 
         let mut vis: String<8> = String::new();
-        vis.push(frame.vis_first_char()).unwrap();
-        vis.push(frame.vis_second_char()).unwrap();
-        vis.push(frame.vis_third_char()).unwrap();
-        vis.push(frame.vis_fourth_char()).unwrap();
-        vis.push(frame.vis_fifth_char()).unwrap();
-        vis.push(frame.vis_sixth_char()).unwrap();
-        vis.push(frame.vis_seventh_char()).unwrap();
-        vis.push(frame.vis_eighth_char()).unwrap();
+        vis.push(frame.vis_first_char())
+            .map_err(|_| Error::Invalid)?;
+        vis.push(frame.vis_second_char())
+            .map_err(|_| Error::Invalid)?;
+        vis.push(frame.vis_third_char())
+            .map_err(|_| Error::Invalid)?;
+        vis.push(frame.vis_fourth_char())
+            .map_err(|_| Error::Invalid)?;
+        vis.push(frame.vis_fifth_char())
+            .map_err(|_| Error::Invalid)?;
+        vis.push(frame.vis_sixth_char())
+            .map_err(|_| Error::Invalid)?;
+        vis.push(frame.vis_seventh_char())
+            .map_err(|_| Error::Invalid)?;
+        vis.push(frame.vis_eighth_char())
+            .map_err(|_| Error::Invalid)?;
 
         Ok(Repr { vis })
     }
@@ -258,14 +266,14 @@ impl Repr {
     /// Emit a high-level representation into a x2b6 CAN frame.
     pub fn emit<T: AsRef<[u8]> + AsMut<[u8]>>(&self, frame: &mut Frame<T>) {
         let mut vis = self.vis.clone();
-        frame.set_vis_eighth_char(vis.pop().unwrap());
-        frame.set_vis_seventh_char(vis.pop().unwrap());
-        frame.set_vis_sixth_char(vis.pop().unwrap());
-        frame.set_vis_fifth_char(vis.pop().unwrap());
-        frame.set_vis_fourth_char(vis.pop().unwrap());
-        frame.set_vis_third_char(vis.pop().unwrap());
-        frame.set_vis_second_char(vis.pop().unwrap());
-        frame.set_vis_first_char(vis.pop().unwrap());
+        frame.set_vis_eighth_char(vis.pop().unwrap_or(' '));
+        frame.set_vis_seventh_char(vis.pop().unwrap_or(' '));
+        frame.set_vis_sixth_char(vis.pop().unwrap_or(' '));
+        frame.set_vis_fifth_char(vis.pop().unwrap_or(' '));
+        frame.set_vis_fourth_char(vis.pop().unwrap_or(' '));
+        frame.set_vis_third_char(vis.pop().unwrap_or(' '));
+        frame.set_vis_second_char(vis.pop().unwrap_or(' '));
+        frame.set_vis_first_char(vis.pop().unwrap_or(' '));
     }
 }
 

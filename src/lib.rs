@@ -1,3 +1,5 @@
+#![allow(clippy::bool_assert_comparison)]
+#![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
 #![no_std]
 
 #[macro_use]

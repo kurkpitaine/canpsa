@@ -211,28 +211,20 @@ impl Repr {
     pub fn parse<T: AsRef<[u8]> + ?Sized>(frame: &Frame<&T>) -> Result<Repr> {
         frame.check_len()?;
 
-        if frame.month() < 1
-            || frame.month() > 12
-            || frame.day() < 1
-            || frame.day() > 31
-            || frame.hour() > 23
-            || frame.minute() > 59
-        {
-            Err(Error::Invalid)
-        } else {
-            Ok(Repr {
-                clock_format: frame.clock_format(),
-                utc_datetime: PrimitiveDateTime::new(
-                    Date::from_calendar_date(
-                        YEAR_OFFSET + (frame.year() as i32),
-                        Month::try_from(frame.month()).unwrap(),
-                        frame.day(),
-                    )
-                    .unwrap(),
-                    Time::from_hms(frame.hour(), frame.minute(), 0).unwrap(),
-                ),
-            })
-        }
+        let date = Date::from_calendar_date(
+            YEAR_OFFSET + (frame.year() as i32),
+            Month::try_from(frame.month()).map_err(|_| Error::Illegal)?,
+            frame.day(),
+        )
+        .map_err(|_| Error::Illegal)?;
+
+        let time = Time::from_hms(frame.hour(), frame.minute(), 0).map_err(|_| Error::Illegal)?;
+        let utc_datetime = PrimitiveDateTime::new(date, time);
+
+        Ok(Repr {
+            clock_format: frame.clock_format(),
+            utc_datetime,
+        })
     }
 
     /// Return the length of a frame that will be emitted from this high-level representation.

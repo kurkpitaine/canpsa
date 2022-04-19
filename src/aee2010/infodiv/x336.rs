@@ -153,9 +153,12 @@ impl Repr {
         frame.check_len()?;
 
         let mut wmi: String<3> = String::new();
-        wmi.push(frame.wmi_first_char()).unwrap();
-        wmi.push(frame.wmi_second_char()).unwrap();
-        wmi.push(frame.wmi_third_char()).unwrap();
+        wmi.push(frame.wmi_first_char())
+            .map_err(|_| Error::Invalid)?;
+        wmi.push(frame.wmi_second_char())
+            .map_err(|_| Error::Invalid)?;
+        wmi.push(frame.wmi_third_char())
+            .map_err(|_| Error::Invalid)?;
 
         Ok(Repr { wmi })
     }
@@ -168,9 +171,9 @@ impl Repr {
     /// Emit a high-level representation into a x336 CAN frame.
     pub fn emit<T: AsRef<[u8]> + AsMut<[u8]>>(&self, frame: &mut Frame<T>) {
         let mut wmi = self.wmi.clone();
-        frame.set_wmi_third_char(wmi.pop().unwrap());
-        frame.set_wmi_second_char(wmi.pop().unwrap());
-        frame.set_wmi_first_char(wmi.pop().unwrap());
+        frame.set_wmi_third_char(wmi.pop().unwrap_or(' '));
+        frame.set_wmi_second_char(wmi.pop().unwrap_or(' '));
+        frame.set_wmi_first_char(wmi.pop().unwrap_or(' '));
     }
 }
 

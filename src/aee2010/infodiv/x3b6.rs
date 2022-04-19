@@ -204,12 +204,18 @@ impl Repr {
         frame.check_len()?;
 
         let mut vds: String<6> = String::new();
-        vds.push(frame.vds_first_char()).unwrap();
-        vds.push(frame.vds_second_char()).unwrap();
-        vds.push(frame.vds_third_char()).unwrap();
-        vds.push(frame.vds_fourth_char()).unwrap();
-        vds.push(frame.vds_fifth_char()).unwrap();
-        vds.push(frame.vds_sixth_char()).unwrap();
+        vds.push(frame.vds_first_char())
+            .map_err(|_| Error::Invalid)?;
+        vds.push(frame.vds_second_char())
+            .map_err(|_| Error::Invalid)?;
+        vds.push(frame.vds_third_char())
+            .map_err(|_| Error::Invalid)?;
+        vds.push(frame.vds_fourth_char())
+            .map_err(|_| Error::Invalid)?;
+        vds.push(frame.vds_fifth_char())
+            .map_err(|_| Error::Invalid)?;
+        vds.push(frame.vds_sixth_char())
+            .map_err(|_| Error::Invalid)?;
 
         Ok(Repr { vds })
     }
@@ -222,12 +228,12 @@ impl Repr {
     /// Emit a high-level representation into a x3b6 CAN frame.
     pub fn emit<T: AsRef<[u8]> + AsMut<[u8]>>(&self, frame: &mut Frame<T>) {
         let mut vds = self.vds.clone();
-        frame.set_vds_sixth_char(vds.pop().unwrap());
-        frame.set_vds_fifth_char(vds.pop().unwrap());
-        frame.set_vds_fourth_char(vds.pop().unwrap());
-        frame.set_vds_third_char(vds.pop().unwrap());
-        frame.set_vds_second_char(vds.pop().unwrap());
-        frame.set_vds_first_char(vds.pop().unwrap());
+        frame.set_vds_sixth_char(vds.pop().unwrap_or(' '));
+        frame.set_vds_fifth_char(vds.pop().unwrap_or(' '));
+        frame.set_vds_fourth_char(vds.pop().unwrap_or(' '));
+        frame.set_vds_third_char(vds.pop().unwrap_or(' '));
+        frame.set_vds_second_char(vds.pop().unwrap_or(' '));
+        frame.set_vds_first_char(vds.pop().unwrap_or(' '));
     }
 }
 

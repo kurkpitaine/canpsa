@@ -131,13 +131,8 @@ impl Repr {
     pub fn parse<T: AsRef<[u8]> + ?Sized>(frame: &Frame<&T>) -> Result<Repr> {
         frame.check_len()?;
 
-        if frame.hour() > 23 || frame.minute() > 59 {
-            Err(Error::Invalid)
-        } else {
-            Ok(Repr {
-                time: Time::from_hms(frame.hour(), frame.minute(), 0).unwrap(),
-            })
-        }
+        let time = Time::from_hms(frame.hour(), frame.minute(), 0).map_err(|_| Error::Invalid)?;
+        Ok(Repr { time })
     }
 
     /// Return the length of a frame that will be emitted from this high-level representation.
