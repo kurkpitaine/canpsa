@@ -1,7 +1,7 @@
 use core::{cmp::Ordering, fmt, time::Duration};
 
 use byteorder::{ByteOrder, NetworkEndian};
-use time::{Date, Month, PrimitiveDateTime, Time};
+use time::{Date, Month, OffsetDateTime, PrimitiveDateTime, Time};
 
 use crate::{
     config::{ClockFormat, DisplayMode},
@@ -284,7 +284,7 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
 pub struct Repr {
     pub clock_format: ClockFormat,
     pub clock_disp_mode: DisplayMode,
-    pub utc_datetime: PrimitiveDateTime,
+    pub utc_datetime: OffsetDateTime,
     pub adblue_autonomy: u16,
     pub adblue_autonomy_display_request: bool,
 }
@@ -306,12 +306,13 @@ impl Repr {
         .map_err(|_| Error::Illegal)?;
 
         let time = Time::from_hms(frame.hour(), frame.minute(), 0).map_err(|_| Error::Illegal)?;
-        let utc_datetime = PrimitiveDateTime::new(date, time);
+        let date_time = PrimitiveDateTime::new(date, time);
+        let utc_datetime = OffsetDateTime::from_unix_timestamp(0).map_err(|_| Error::Illegal)?;
 
         Ok(Repr {
             clock_format: frame.clock_format(),
             clock_disp_mode: frame.clock_display_mode(),
-            utc_datetime,
+            utc_datetime: utc_datetime.replace_date_time(date_time),
             adblue_autonomy: frame.adblue_autonomy(),
             adblue_autonomy_display_request: frame.adblue_autonomy_display_request(),
         })
@@ -367,7 +368,7 @@ mod test {
         Repr {
             clock_format: ClockFormat::H24,
             clock_disp_mode: DisplayMode::Blinking,
-            utc_datetime: datetime!(2022-01-10 15:29),
+            utc_datetime: datetime!(2022-01-10 15:29 UTC),
             adblue_autonomy: 16382,
             adblue_autonomy_display_request: false,
         }

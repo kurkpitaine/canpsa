@@ -27,7 +27,7 @@ mod field {
     /// 6-bit unknown.
     pub const FLAGS: usize = 0;
     /// 32-bit unknown.
-    pub const UNKNOWN: Field = 1..5;
+    pub const _UNKNOWN: Field = 1..5;
     /// 24-bit partial odometer field, in 0.1 kilometers units.
     pub const ODOMETER: Field = 5..8;
 }

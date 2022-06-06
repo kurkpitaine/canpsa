@@ -290,7 +290,7 @@ impl<T: AsRef<[u8]>> Frame<T> {
 
     /// Return the automatic emergency braking option presence flag.
     #[inline]
-    pub fn automatic_emergency_braking_presence(&self) -> bool {
+    pub fn automatic_emergency_braking_present(&self) -> bool {
         let data = self.buffer.as_ref();
         data[field::OPT_5] & 0x02 != 0
     }
@@ -562,7 +562,7 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
 
     /// Set the automatic emergency braking option presence flag.
     #[inline]
-    pub fn set_automatic_emergency_braking_presence(&mut self, value: bool) {
+    pub fn set_automatic_emergency_braking_present(&mut self, value: bool) {
         let data = self.buffer.as_mut();
         let raw = data[field::OPT_5] & !0x02;
         let raw = if value { raw | 0x02 } else { raw & !0x02 };
@@ -653,8 +653,8 @@ pub struct Repr {
     pub multi_function_display_present: bool,
     pub parking_sensors_inhibition_present: bool,
     pub parking_sensors_audible_assistance_present: bool,
-    pub parking_sensors_visual_assistance_presence: bool,
-    pub automatic_emergency_braking_presence: bool,
+    pub parking_sensors_visual_assistance_present: bool,
+    pub automatic_emergency_braking_present: bool,
     pub under_inflation_detection_reset_menu_present: bool,
     pub seat_belt_status_lamps_present: bool,
     pub under_inflation_detection: UnderInflationDetectionSystem,
@@ -695,9 +695,9 @@ impl Repr {
             parking_sensors_inhibition_present: frame.park_sensors_inhibition_presence(),
             parking_sensors_audible_assistance_present: frame
                 .park_sensors_audible_assistance_presence(),
-            parking_sensors_visual_assistance_presence: frame
+            parking_sensors_visual_assistance_present: frame
                 .park_sensors_visual_assistance_presence(),
-            automatic_emergency_braking_presence: frame.automatic_emergency_braking_presence(),
+            automatic_emergency_braking_present: frame.automatic_emergency_braking_present(),
             under_inflation_detection_reset_menu_present: frame
                 .under_inflation_detection_reset_menu_presence(),
             seat_belt_status_lamps_present: frame.seat_belt_status_lamps_presence(),
@@ -747,9 +747,9 @@ impl Repr {
             self.parking_sensors_audible_assistance_present,
         );
         frame.set_park_sensors_visual_assistance_presence(
-            self.parking_sensors_visual_assistance_presence,
+            self.parking_sensors_visual_assistance_present,
         );
-        frame.set_automatic_emergency_braking_presence(self.automatic_emergency_braking_presence);
+        frame.set_automatic_emergency_braking_present(self.automatic_emergency_braking_present);
         frame.set_under_inflation_detection_reset_menu_presence(
             self.under_inflation_detection_reset_menu_present,
         );
@@ -865,13 +865,13 @@ impl fmt::Display for Repr {
         )?;
         writeln!(
             f,
-            " parking_sensors_visual_assistance_presence={}",
-            self.parking_sensors_visual_assistance_presence
+            " parking_sensors_visual_assistance_present={}",
+            self.parking_sensors_visual_assistance_present
         )?;
         writeln!(
             f,
-            " automatic_emergency_braking_presence={}",
-            self.automatic_emergency_braking_presence
+            " automatic_emergency_braking_present={}",
+            self.automatic_emergency_braking_present
         )?;
         writeln!(
             f,
@@ -934,8 +934,8 @@ mod test {
             multi_function_display_present: true,
             parking_sensors_inhibition_present: true,
             parking_sensors_audible_assistance_present: false,
-            parking_sensors_visual_assistance_presence: false,
-            automatic_emergency_braking_presence: false,
+            parking_sensors_visual_assistance_present: false,
+            automatic_emergency_braking_present: false,
             under_inflation_detection_reset_menu_present: true,
             seat_belt_status_lamps_present: false,
             under_inflation_detection: UnderInflationDetectionSystem::Indirect,
@@ -970,8 +970,8 @@ mod test {
             multi_function_display_present: true,
             parking_sensors_inhibition_present: false,
             parking_sensors_audible_assistance_present: false,
-            parking_sensors_visual_assistance_presence: false,
-            automatic_emergency_braking_presence: false,
+            parking_sensors_visual_assistance_present: false,
+            automatic_emergency_braking_present: false,
             under_inflation_detection_reset_menu_present: false,
             seat_belt_status_lamps_present: false,
             under_inflation_detection: UnderInflationDetectionSystem::DirectWithoutAbsolutePressure,
@@ -1009,7 +1009,7 @@ mod test {
         assert_eq!(frame.park_sensors_inhibition_presence(), true);
         assert_eq!(frame.park_sensors_audible_assistance_presence(), false);
         assert_eq!(frame.park_sensors_visual_assistance_presence(), false);
-        assert_eq!(frame.automatic_emergency_braking_presence(), false);
+        assert_eq!(frame.automatic_emergency_braking_present(), false);
         assert_eq!(frame.under_inflation_detection_reset_menu_presence(), true);
         assert_eq!(frame.seat_belt_status_lamps_presence(), false);
         assert_eq!(
@@ -1049,7 +1049,7 @@ mod test {
         assert_eq!(frame.park_sensors_inhibition_presence(), false);
         assert_eq!(frame.park_sensors_audible_assistance_presence(), false);
         assert_eq!(frame.park_sensors_visual_assistance_presence(), false);
-        assert_eq!(frame.automatic_emergency_braking_presence(), false);
+        assert_eq!(frame.automatic_emergency_braking_present(), false);
         assert_eq!(frame.under_inflation_detection_reset_menu_presence(), false);
         assert_eq!(frame.seat_belt_status_lamps_presence(), false);
         assert_eq!(
@@ -1090,7 +1090,7 @@ mod test {
         frame.set_park_sensors_inhibition_presence(true);
         frame.set_park_sensors_audible_assistance_presence(false);
         frame.set_park_sensors_visual_assistance_presence(false);
-        frame.set_automatic_emergency_braking_presence(false);
+        frame.set_automatic_emergency_braking_present(false);
         frame.set_under_inflation_detection_reset_menu_presence(true);
         frame.set_seat_belt_status_lamps_presence(false);
         frame.set_under_inflation_detection(UnderInflationDetectionSystem::Indirect);
@@ -1130,7 +1130,7 @@ mod test {
         frame.set_park_sensors_inhibition_presence(false);
         frame.set_park_sensors_audible_assistance_presence(false);
         frame.set_park_sensors_visual_assistance_presence(false);
-        frame.set_automatic_emergency_braking_presence(false);
+        frame.set_automatic_emergency_braking_present(false);
         frame.set_under_inflation_detection_reset_menu_presence(false);
         frame.set_seat_belt_status_lamps_presence(false);
         frame.set_under_inflation_detection(

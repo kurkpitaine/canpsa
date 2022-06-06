@@ -1137,6 +1137,54 @@ impl fmt::Display for Repr {
     }
 }
 
+impl From<&crate::aee2004::conf::x361::Repr> for Repr {
+    /// Build a x361 AEE2010 frame high level representation from an AEE2004 representation.
+    fn from(repr_2004: &crate::aee2004::conf::x361::Repr) -> Self {
+        Repr {
+            daytime_running_lamps_present: repr_2004.daytime_running_lamps_present,
+            automatic_headlamps_present: repr_2004.automatic_headlamps_present,
+            mood_lighting_present: repr_2004.mood_lighting_present,
+            blind_spot_monitoring_present: repr_2004.blind_spot_monitoring_present,
+            adaptive_lamps_present: repr_2004.adaptive_lamps_present,
+            welcome_lighting_present: repr_2004.welcome_lighting_present,
+            motorway_lighting_present: repr_2004.motorway_lighting_present,
+            config_menu_info_available: true, // Always to true.
+            selective_unlocking_present: repr_2004.selective_unlocking_present,
+            key_selective_unlocking_present: false,
+            boot_selective_unlocking_present: false,
+            motorized_tailgate_present: false,
+            welcome_function_present: repr_2004.welcome_function_present,
+            follow_me_home_present: repr_2004.follow_me_home_present,
+            rear_wiper_in_reverse_gear_present: repr_2004.rear_wiper_in_reverse_gear_present,
+            parking_sensors_inhibition_present: repr_2004.parking_sensors_inhibition_present,
+            extended_traffic_sign_recognition_present: false, // No traffic sign recognition on AEE2004.
+            mirror_tilt_in_reverse_present: false, // No mirror tilt on reverse on AEE 2004.
+            sound_harmony_present: false,          // No sound harmony on AEE2004.
+            automatic_electric_parking_brake_application_present: repr_2004
+                .automatic_electric_parking_brake_application_present,
+            configurable_key_present: repr_2004.configurable_key_present,
+            cruise_control_custom_limits_present: false, // No cruise-control configurable limits on AEE2004.
+            seat_belt_status_lamps_present: repr_2004.seat_belt_status_lamps_present,
+            under_inflation_detection: repr_2004.under_inflation_detection,
+            gear_efficiency_indicator_present: repr_2004.gear_efficiency_indicator_present,
+            cruise_control_custom_limits_menu_present: false, // No cruise-control configurable limits on AEE2004.
+            collision_alert_sensibility_menu_present: false, // No collision alert sensibility menu on AEE2004.
+            automatic_emergency_braking_present: repr_2004.automatic_emergency_braking_present,
+            under_inflation_detection_reset_menu_present: repr_2004
+                .under_inflation_detection_reset_menu_present,
+            hands_free_tailgate_auto_lock_menu_present: false, // No electrical tailgate on AEE2004.
+            hands_free_tailgate_present: false,                // No electrical tailgate on AEE2004.
+            speed_limit_recognition_present: false, // No speed limit recognition on AEE2004.
+            radiator_grill_lamps_present: false,    // No option of this kind on AEE2004.
+            cfc_present: false,                     // No cfc on AEE2004.
+            automatic_mirrors_folding_inhibit_present: false, // Cannot inhibit electrical mirrors folding on AEE2004.
+            automatic_main_beam_present: false,               // No automatic main beam on AEE2004.
+            electric_child_security_present: false,           // No option of this kind on AEE2004.
+            driver_alert_assist_present: false,               // No driver monitoring on AEE2004.
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::{Frame, Repr};

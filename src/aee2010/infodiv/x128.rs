@@ -651,6 +651,59 @@ impl fmt::Display for Repr {
     }
 }
 
+impl From<&crate::aee2004::conf::x128::Repr> for Repr {
+    fn from(repr_2004: &crate::aee2004::conf::x128::Repr) -> Self {
+        Repr {
+            daytime_running_lamps_indicator: repr_2004.daytime_running_lamps_indicator,
+            left_blinker_indicator: repr_2004.left_blinker_indicator,
+            right_blinker_indicator: repr_2004.right_blinker_indicator,
+            rear_anti_fog_light_indicator: repr_2004.rear_anti_fog_light_indicator,
+            front_anti_fog_light_indicator: repr_2004.front_anti_fog_light_indicator,
+            main_beam_indicator: repr_2004.main_beam_indicator,
+            headlamps_indicator: repr_2004.headlamps_indicator,
+            sidelights_indicator: repr_2004.sidelights_indicator,
+            displayed_gear_blinking: repr_2004.displayed_gear_blinking,
+            gearbox_drive_mode_gear: repr_2004.gearbox_drive_mode_gear,
+            gearbox_gear: repr_2004.gearbox_gear,
+            gearbox_type: repr_2004.gearbox_type,
+            gear_efficiency_indicator_arrow_type: repr_2004.gear_efficiency_indicator_arrow_type,
+            automatic_gearbox_mode: repr_2004.automatic_gearbox_mode,
+            gear_efficiency_indicator_blinking: repr_2004.gear_efficiency_indicator_blinking,
+            automatic_parking_brake_inhibited: repr_2004.automatic_parking_brake_inhibited,
+            parking_brake_applied: repr_2004.parking_brake_applied,
+            foot_on_brake_pedal_indicator: repr_2004.foot_on_brake_pedal_indicator,
+            passenger_airbag_inhibited: repr_2004.passenger_airbag_inhibited,
+            child_lock_security: repr_2004.child_lock_security,
+            stop_indicator: repr_2004.stop_indicator,
+            service_indicator: repr_2004.service_indicator,
+            suspension_indicator: repr_2004.suspension_indicator,
+            esp_indicator: repr_2004.esp_indicator,
+            esp_inhibited: repr_2004.esp_inhibited,
+            automatic_main_beam_indicator: false, // No automatic main beam on AEE2004.
+            available_space_measurement_indicator_blinking: repr_2004.available_space_measurement_indicator_blinking,
+            available_space_measurement_indicator: repr_2004.available_space_measurement_indicator,
+            opened_door: repr_2004.opened_door_less_10kph || repr_2004.opened_door_more_10kph,
+            diesel_pre_heating: repr_2004.diesel_pre_heating,
+            rear_left_seat_belt_indicator: repr_2004.rear_left_seat_belt_indicator,
+            adblue_indicator: AdBlueIndicatorState::Off, // No AdBlue indicator on AEE2004.
+            passenger_seat_belt_indicator_blinking: repr_2004.passenger_seat_belt_indicator_blinking,
+            passenger_seat_belt_indicator: repr_2004.passenger_seat_belt_indicator,
+            driver_seat_belt_indicator_blinking: repr_2004.driver_seat_belt_indicator_blinking,
+            driver_seat_belt_indicator: repr_2004.driver_seat_belt_indicator,
+            low_fuel: repr_2004.low_fuel,
+            passenger_protection: repr_2004.passenger_protection,
+            hazard_warning_lights: repr_2004.hazard_warning_lights,
+            instrument_cluster_on: repr_2004.instrument_cluster_on,
+            rear_right_seat_belt_indicator_blinking: repr_2004.rear_right_seat_belt_indicator_blinking,
+            rear_right_seat_belt_indicator: repr_2004.rear_right_seat_belt_indicator,
+            rear_middle_seat_belt_indicator_blinking: repr_2004.rear_middle_seat_belt_indicator_blinking,
+            rear_middle_seat_belt_indicator: repr_2004.rear_middle_seat_belt_indicator,
+            rear_left_seat_belt_indicator_blinking: repr_2004.rear_left_seat_belt_indicator_blinking,
+            low_fuel_indicator_blinking: false, // No blinking fuel indicator on AEE2004.
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::{field, Frame, Repr};

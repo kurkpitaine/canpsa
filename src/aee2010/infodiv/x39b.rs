@@ -1,5 +1,5 @@
 use core::{cmp::Ordering, fmt};
-use time::{Date, Month, PrimitiveDateTime, Time};
+use time::{Date, Month, OffsetDateTime, PrimitiveDateTime, Time};
 
 use crate::{config::ClockFormat, Error, Result, YEAR_OFFSET};
 
@@ -204,7 +204,7 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Repr {
     pub clock_format: ClockFormat,
-    pub utc_datetime: PrimitiveDateTime,
+    pub utc_datetime: OffsetDateTime,
 }
 
 impl Repr {
@@ -218,12 +218,14 @@ impl Repr {
         )
         .map_err(|_| Error::Illegal)?;
 
+
         let time = Time::from_hms(frame.hour(), frame.minute(), 0).map_err(|_| Error::Illegal)?;
-        let utc_datetime = PrimitiveDateTime::new(date, time);
+        let date_time = PrimitiveDateTime::new(date, time);
+        let utc_datetime = OffsetDateTime::from_unix_timestamp(0).map_err(|_| Error::Illegal)?;
 
         Ok(Repr {
             clock_format: frame.clock_format(),
-            utc_datetime,
+            utc_datetime : utc_datetime.replace_date_time(date_time),
         })
     }
 
@@ -263,7 +265,7 @@ mod test {
     fn frame_repr() -> Repr {
         Repr {
             clock_format: ClockFormat::H24,
-            utc_datetime: datetime!(2022-01-10 15:29),
+            utc_datetime: datetime!(2022-01-10 15:29 UTC),
         }
     }
 

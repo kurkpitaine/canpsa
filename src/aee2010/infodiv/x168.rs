@@ -532,6 +532,46 @@ impl fmt::Display for Repr {
     }
 }
 
+impl From<&crate::aee2004::conf::x168::Repr> for Repr {
+    fn from(repr_2004: &crate::aee2004::conf::x168::Repr) -> Self {
+        Repr {
+            under_inflation_failure: repr_2004.under_inflation_failure,
+            cold_engine_alert: repr_2004.cold_engine_alert,
+            low_brake_fluid_level_alert: repr_2004.low_brake_fluid_level_alert,
+            low_oil_pressure_alert: repr_2004.low_oil_pressure_alert,
+            low_oil_level_alert: repr_2004.low_oil_level_alert,
+            low_coolant_level_alert: repr_2004.low_coolant_level_alert,
+            gearbox_has_more_than_six_speed: false, // No corresponding data.
+            coolant_temperature_alert: repr_2004.coolant_temperature_alert,
+            automatic_wipers_enabled: repr_2004.automatic_wipers_enabled,
+            particulate_filter_indicator: repr_2004.particulate_filter_indicator,
+            anti_emission_fault: repr_2004.anti_emission_fault,
+            tyre_puncture_alert: repr_2004.tyre_puncture_alert,
+            under_inflation_alert_flag: repr_2004.under_inflation_alert_flag,
+            electrical_generator_fault: repr_2004.electrical_generator_fault,
+            battery_charge_fault: repr_2004.battery_charge_fault,
+            ebd_fault: repr_2004.ebd_fault,
+            obd_fault: repr_2004.obd_fault,
+            worn_brake_pad_fault: repr_2004.worn_brake_pad_fault,
+            gearbox_fault: repr_2004.gearbox_fault,
+            esp_asr_fault: repr_2004.esp_asr_fault,
+            abs_fault: repr_2004.abs_fault,
+            steering_assistance_fault: repr_2004.steering_assistance_fault,
+            passive_safety_fault: repr_2004.passive_safety_fault,
+            turn_lights_fault: repr_2004.turn_lights_fault,
+            water_in_diesel: repr_2004.water_in_diesel,
+            steering_assistance_fault_type_validity: false,
+            steering_assistance_fault_type: SteeringAssistanceFaultType::None,
+            steering_assistance_indicator_validity: false,
+            steering_assistance_indicator: SteeringAssistanceIndicatorState::Off,
+            braking_assistance_fault: false,
+            gearbox_drive_mode_gear: repr_2004.gearbox_drive_mode_gear,
+            lane_centering_indicator: LaneCenteringIndicatorState::Off, // No lane centering on AEE2004.
+            automatic_emergency_braking_indicator: IndicatorState::Off, // No corresponding data.
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::{field, Frame, Repr};

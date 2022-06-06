@@ -815,7 +815,7 @@ impl fmt::Display for ACRecirculationState {
 
 enum_with_unknown! {
    /// A/C fan mode. AEE 2004 only.
-   pub enum ACFanMode(u8) {
+   pub enum ACFanMode2004(u8) {
        /// Automatic comfort mode.
        AutoComfort = 0,
        /// Automatic demist mode.
@@ -827,14 +827,52 @@ enum_with_unknown! {
    }
 }
 
-impl fmt::Display for ACFanMode {
+impl fmt::Display for ACFanMode2004 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            ACFanMode::AutoComfort => write!(f, "auto comfort"),
-            ACFanMode::AutoDemist => write!(f, "auto demist"),
-            ACFanMode::Manual => write!(f, "manual"),
-            ACFanMode::AutoSoft => write!(f, "auto soft"),
-            ACFanMode::Unknown(mode) => write!(f, "0x{:02x}", mode),
+            ACFanMode2004::AutoComfort => write!(f, "auto comfort"),
+            ACFanMode2004::AutoDemist => write!(f, "auto demist"),
+            ACFanMode2004::Manual => write!(f, "manual"),
+            ACFanMode2004::AutoSoft => write!(f, "auto soft"),
+            ACFanMode2004::Unknown(mode) => write!(f, "0x{:02x}", mode),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// A/C fan mode. AEE 2010 only.
+   pub enum ACFanMode2010(u8) {
+       /// Automatic soft mode.
+       AutoSoft = 0,
+       /// Automatic comfort mode.
+       AutoComfort = 1,
+       /// Automatic demist mode.
+       AutoDemist = 2,
+       /// Manual mode.
+       Manual = 3,
+   }
+}
+
+impl fmt::Display for ACFanMode2010 {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            ACFanMode2010::AutoSoft => write!(f, "auto soft"),
+            ACFanMode2010::AutoComfort => write!(f, "auto comfort"),
+            ACFanMode2010::AutoDemist => write!(f, "auto demist"),
+            ACFanMode2010::Manual => write!(f, "manual"),
+            ACFanMode2010::Unknown(mode) => write!(f, "0x{:02x}", mode),
+        }
+    }
+}
+
+impl From<ACFanMode2004> for ACFanMode2010 {
+    fn from(mode_2004: ACFanMode2004) -> Self {
+        match mode_2004 {
+            ACFanMode2004::AutoComfort => ACFanMode2010::AutoComfort,
+            ACFanMode2004::AutoDemist => ACFanMode2010::AutoDemist,
+            ACFanMode2004::Manual => ACFanMode2010::Manual,
+            ACFanMode2004::AutoSoft => ACFanMode2010::AutoSoft,
+            ACFanMode2004::Unknown(mode) => ACFanMode2010::Unknown(mode),
         }
     }
 }

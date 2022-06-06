@@ -15,12 +15,14 @@ pub mod vehicle;
 
 mod field {
     pub type Field = ::core::ops::Range<usize>;
-    pub type Rest = ::core::ops::RangeFrom<usize>;
+    pub type _Rest = ::core::ops::RangeFrom<usize>;
 }
 
 /// Year value offset. Stellantis CAN time origin is January 1st 2000 0:00.
 /// To get human year, add this constant to the CAN bus value.
 pub const YEAR_OFFSET: i32 = 2000;
+/// Offset to apply to convert Unix epoch from/to PSA epoch.
+pub const UNIX_EPOCH_OFFSET: i64 = 946684800;
 
 /// The error type for the networking stack.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

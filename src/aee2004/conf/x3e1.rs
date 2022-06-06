@@ -22,7 +22,7 @@ mod field {
     /// 6-bit Stop & Start number of seconds engine stopped counter field.
     pub const STT_CNT_2: usize = 1;
     /// 8-bit unknown.
-    pub const UNKNOWN: usize = 2;
+    pub const _UNKNOWN: usize = 2;
     /// 2-bit electrical engine state field,
     /// 2-bit petrol engine state field,
     /// 1-bit zero emission request flag,

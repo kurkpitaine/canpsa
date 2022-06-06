@@ -65,9 +65,9 @@ mod field {
     /// 3-bit unknown.
     pub const REQ_3: usize = 3;
     /// 8-bit unknown.
-    pub const REQ_4: usize = 4;
+    pub const _REQ_4: usize = 4;
     /// 8-bit unknown.
-    pub const REQ_5: usize = 5;
+    pub const _REQ_5: usize = 5;
     /// 8-bit unknown.
     pub const REQ_6: usize = 6;
 }

@@ -2,7 +2,7 @@ use core::{cmp::Ordering, fmt, time::Duration};
 
 use crate::{
     vehicle::{
-        ACAirDistributionPosition, ACAirIntakeMode, ACAirTemperature, ACFanMode, ACFanSpeed,
+        ACAirDistributionPosition, ACAirIntakeMode, ACAirTemperature, ACFanMode2004, ACFanSpeed,
         ACModeRequest,
     },
     Error, Result,
@@ -112,10 +112,10 @@ impl<T: AsRef<[u8]>> Frame<T> {
 
     /// Return the front A/C fan mode.
     #[inline]
-    pub fn front_ac_fan_mode(&self) -> ACFanMode {
+    pub fn front_ac_fan_mode(&self) -> ACFanMode2004 {
         let data = self.buffer.as_ref();
         let raw = (data[field::AC_0] & 0x30) >> 4;
-        ACFanMode::from(raw)
+        ACFanMode2004::from(raw)
     }
 
     /// Return the rear windshield demist enable flag.
@@ -220,7 +220,7 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
 
     /// Set the front A/C fan mode.
     #[inline]
-    pub fn set_front_ac_fan_mode(&mut self, value: ACFanMode) {
+    pub fn set_front_ac_fan_mode(&mut self, value: ACFanMode2004) {
         let data = self.buffer.as_mut();
         let raw = data[field::AC_0] & !0x30;
         let raw = raw | ((u8::from(value) << 4) & 0x30);
@@ -351,7 +351,7 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
 pub struct Repr {
     pub ac_request: ACModeRequest,
     pub front_ac_failure: bool,
-    pub front_ac_fan_mode: ACFanMode,
+    pub front_ac_fan_mode: ACFanMode2004,
     pub rear_demist: bool,
     pub ac_off: bool,
     pub fan_failure: bool,
@@ -444,7 +444,7 @@ mod test {
     use super::{Frame, Repr};
     use crate::{
         vehicle::{
-            ACAirDistributionPosition, ACAirIntakeMode, ACAirTemperature, ACFanMode, ACFanSpeed,
+            ACAirDistributionPosition, ACAirIntakeMode, ACAirTemperature, ACFanMode2004, ACFanSpeed,
             ACModeRequest,
         },
         Error,
@@ -457,7 +457,7 @@ mod test {
         Repr {
             ac_request: ACModeRequest::AutoComfort,
             front_ac_failure: false,
-            front_ac_fan_mode: ACFanMode::AutoComfort,
+            front_ac_fan_mode: ACFanMode2004::AutoComfort,
             rear_demist: true,
             ac_off: false,
             fan_failure: true,
@@ -476,7 +476,7 @@ mod test {
         Repr {
             ac_request: ACModeRequest::AutoDemist,
             front_ac_failure: true,
-            front_ac_fan_mode: ACFanMode::AutoSoft,
+            front_ac_fan_mode: ACFanMode2004::AutoSoft,
             rear_demist: false,
             ac_off: true,
             fan_failure: false,
@@ -497,7 +497,7 @@ mod test {
         assert_eq!(frame.check_len(), Ok(()));
         assert_eq!(frame.ac_request(), ACModeRequest::AutoComfort);
         assert_eq!(frame.front_ac_failure(), false);
-        assert_eq!(frame.front_ac_fan_mode(), ACFanMode::AutoComfort);
+        assert_eq!(frame.front_ac_fan_mode(), ACFanMode2004::AutoComfort);
         assert_eq!(frame.rear_demist(), true);
         assert_eq!(frame.ac_off(), false);
         assert_eq!(frame.fan_failure(), true);
@@ -523,7 +523,7 @@ mod test {
         assert_eq!(frame.check_len(), Ok(()));
         assert_eq!(frame.ac_request(), ACModeRequest::AutoDemist);
         assert_eq!(frame.front_ac_failure(), true);
-        assert_eq!(frame.front_ac_fan_mode(), ACFanMode::AutoSoft);
+        assert_eq!(frame.front_ac_fan_mode(), ACFanMode2004::AutoSoft);
         assert_eq!(frame.rear_demist(), false);
         assert_eq!(frame.ac_off(), true);
         assert_eq!(frame.fan_failure(), false);
@@ -550,7 +550,7 @@ mod test {
 
         frame.set_ac_request(ACModeRequest::AutoComfort);
         frame.set_front_ac_failure(false);
-        frame.set_front_ac_fan_mode(ACFanMode::AutoComfort);
+        frame.set_front_ac_fan_mode(ACFanMode2004::AutoComfort);
         frame.set_rear_demist(true);
         frame.set_ac_off(false);
         frame.set_fan_failure(true);
@@ -573,7 +573,7 @@ mod test {
 
         frame.set_ac_request(ACModeRequest::AutoDemist);
         frame.set_front_ac_failure(true);
-        frame.set_front_ac_fan_mode(ACFanMode::AutoSoft);
+        frame.set_front_ac_fan_mode(ACFanMode2004::AutoSoft);
         frame.set_rear_demist(false);
         frame.set_ac_off(true);
         frame.set_fan_failure(false);

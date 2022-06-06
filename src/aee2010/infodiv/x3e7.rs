@@ -253,6 +253,25 @@ impl fmt::Display for Repr {
     }
 }
 
+impl From<&crate::aee2004::conf::x3a7::Repr> for Repr {
+    fn from(repr_2004: &crate::aee2004::conf::x3a7::Repr) -> Self {
+        let wrench_display_mode = if repr_2004.wrench_standard_display_mode
+            >= repr_2004.wrench_maintenance_display_mode
+        {
+            repr_2004.wrench_standard_display_mode
+        } else {
+            repr_2004.wrench_maintenance_display_mode
+        };
+
+        Repr {
+            distance_counter_display_mode: repr_2004.distance_counter_display_mode,
+            maintenance_wrench_display_mode: wrench_display_mode.into(),
+            remaining_days: repr_2004.remaining_days,
+            remaining_distance: repr_2004.remaining_distance,
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::{Frame, Repr};

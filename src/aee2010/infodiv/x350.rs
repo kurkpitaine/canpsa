@@ -2,7 +2,7 @@ use core::{cmp::Ordering, fmt, time::Duration};
 
 use crate::{
     vehicle::{
-        ACAirDistributionPosition, ACAirIntakeMode, ACAirTemperature, ACFanSpeed, ACModeRequest,
+        ACAirDistributionPosition, ACAirIntakeMode, ACAirTemperature, ACFanSpeed, ACModeRequest, ACFanMode2010
     },
     Error, Result,
 };
@@ -41,14 +41,14 @@ pub struct Frame<T: AsRef<[u8]>> {
 */
 
 mod field {
-    /// 2-bit 'typage' field,
+    /// 2-bit front A/C fan mode,
     /// 2-bit A/C request field,
     /// 4-bit unknown.
     pub const AC_0: usize = 0;
     /// 8-bit unknown.
-    pub const AC_1: usize = 1;
+    pub const _AC_1: usize = 1;
     /// 8-bit unknown.
-    pub const AC_2: usize = 2;
+    pub const _AC_2: usize = 2;
     /// 5-bit front left temperature field,
     /// 1-bit unknown,
     /// 1-bit mono temperature mode flag,
@@ -125,11 +125,12 @@ impl<T: AsRef<[u8]>> Frame<T> {
         FRAME_LEN
     }
 
-    /// Return the 'typage' field.
+    /// Return the front A/C fan mode.
     #[inline]
-    pub fn typage(&self) -> u8 {
+    pub fn front_ac_fan_mode(&self) -> ACFanMode2010 {
         let data = self.buffer.as_ref();
-        data[field::AC_0] & 0x03
+        let raw = data[field::AC_0] & 0x03;
+        ACFanMode2010::from(raw)
     }
 
     /// Return the A/C request field.
@@ -241,12 +242,12 @@ impl<T: AsRef<[u8]>> Frame<T> {
 }
 
 impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
-    /// Set the 'typage' field.
+    /// Set the front A/C fan mode.
     #[inline]
-    pub fn set_typage(&mut self, value: u8) {
+    pub fn set_front_ac_fan_mode(&mut self, value: ACFanMode2010) {
         let data = self.buffer.as_mut();
         let raw = data[field::AC_0] & !0x03;
-        let raw = raw | (value & 0x03);
+        let raw = raw | (u8::from(value) & 0x03);
         data[field::AC_0] = raw;
     }
 
@@ -408,7 +409,7 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Repr {
-    pub typage: u8,
+    pub front_ac_fan_mode: ACFanMode2010,
     pub ac_request: ACModeRequest,
     pub front_left_temperature: ACAirTemperature,
     pub mono_temperature: bool,
@@ -431,7 +432,7 @@ impl Repr {
         frame.check_len()?;
 
         Ok(Repr {
-            typage: frame.typage(),
+            front_ac_fan_mode: frame.front_ac_fan_mode(),
             ac_request: frame.ac_request(),
             front_left_temperature: frame.front_left_temp(),
             mono_temperature: frame.mono_temp(),
@@ -457,7 +458,7 @@ impl Repr {
 
     /// Emit a high-level representation into a x350 CAN frame.
     pub fn emit<T: AsRef<[u8]> + AsMut<[u8]>>(&self, frame: &mut Frame<T>) {
-        frame.set_typage(self.typage);
+        frame.set_front_ac_fan_mode(self.front_ac_fan_mode);
         frame.set_ac_request(self.ac_request);
         frame.set_front_left_temp(self.front_left_temperature);
         frame.set_mono_temp(self.mono_temperature);
@@ -479,7 +480,7 @@ impl Repr {
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(f, "x350")?;
-        writeln!(f, " typage={}", self.typage)?;
+        writeln!(f, " front_ac_fan_mode={}", self.front_ac_fan_mode)?;
         writeln!(f, " ac_request={}", self.ac_request)?;
         writeln!(f, " front_left_temperature={}", self.front_left_temperature)?;
         writeln!(f, " mono_temperature={}", self.mono_temperature)?;
@@ -530,12 +531,35 @@ impl fmt::Display for Repr {
     }
 }
 
+impl From<&crate::aee2004::conf::x1d0::Repr> for Repr {
+    fn from(repr_2004: &crate::aee2004::conf::x1d0::Repr) -> Self {
+        Repr {
+            front_ac_fan_mode: repr_2004.front_ac_fan_mode.into(),
+            ac_request: repr_2004.ac_request,
+            front_left_temperature: repr_2004.front_left_temp,
+            mono_temperature: repr_2004.front_left_temp == repr_2004.front_right_temp, // No other way to detect it.
+            ac_max: repr_2004.front_fan_speed == ACFanSpeed::Speed8, // No other way to detect it.
+            front_right_temperature: repr_2004.front_right_temp,
+            front_left_seat_ventilation: 0, // No seat ventilation on AEE2004.
+            front_fan_speed: repr_2004.front_fan_speed,
+            air_intake_mode: repr_2004.air_intake_mode,
+            air_quality_enabled: false, // No air quality sensor on AEE2004.
+            front_right_distribution_position: repr_2004.front_right_distribution_position,
+            front_left_distribution_position: repr_2004.front_left_distribution_position,
+            front_right_seat_ventilation: 0, // No seat ventilation on AEE2004.
+            front_left_seat_heating: 0, // No seat heating drive on screen on AEE2004.
+            front_right_seat_heating: 0, // No seat heating drive on screen on AEE2004.
+            energy_saver_mode_enabled: false, // No energy saver mode on AEE2004.
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::{Frame, Repr};
     use crate::{
         vehicle::{
-            ACAirDistributionPosition, ACAirIntakeMode, ACAirTemperature, ACFanSpeed, ACModeRequest,
+            ACAirDistributionPosition, ACAirIntakeMode, ACAirTemperature, ACFanMode2010, ACFanSpeed, ACModeRequest,
         },
         Error,
     };
@@ -545,7 +569,7 @@ mod test {
 
     fn frame_1_repr() -> Repr {
         Repr {
-            typage: 1,
+            front_ac_fan_mode: ACFanMode2010::AutoComfort,
             ac_request: ACModeRequest::Off,
             front_left_temperature: ACAirTemperature::TwentySeven,
             mono_temperature: false,
@@ -566,7 +590,7 @@ mod test {
 
     fn frame_2_repr() -> Repr {
         Repr {
-            typage: 3,
+            front_ac_fan_mode: ACFanMode2010::Manual,
             ac_request: ACModeRequest::AutoComfort,
             front_left_temperature: ACAirTemperature::TwentySix,
             mono_temperature: true,
@@ -589,7 +613,7 @@ mod test {
     fn test_frame_1_deconstruction() {
         let frame = Frame::new_unchecked(&REPR_FRAME_BYTES_1);
         assert_eq!(frame.check_len(), Ok(()));
-        assert_eq!(frame.typage(), 1);
+        assert_eq!(frame.front_ac_fan_mode(), ACFanMode2010::AutoComfort);
         assert_eq!(frame.ac_request(), ACModeRequest::Off);
         assert_eq!(frame.front_left_temp(), ACAirTemperature::TwentySeven);
         assert_eq!(frame.mono_temp(), false);
@@ -617,7 +641,7 @@ mod test {
     fn test_frame_2_deconstruction() {
         let frame = Frame::new_unchecked(&REPR_FRAME_BYTES_2);
         assert_eq!(frame.check_len(), Ok(()));
-        assert_eq!(frame.typage(), 3);
+        assert_eq!(frame.front_ac_fan_mode(), ACFanMode2010::Manual);
         assert_eq!(frame.ac_request(), ACModeRequest::AutoComfort);
         assert_eq!(frame.front_left_temp(), ACAirTemperature::TwentySix);
         assert_eq!(frame.mono_temp(), true);
@@ -646,7 +670,7 @@ mod test {
         let mut bytes = [0u8; 8];
         let mut frame = Frame::new_unchecked(&mut bytes);
 
-        frame.set_typage(1);
+        frame.set_front_ac_fan_mode(ACFanMode2010::AutoComfort);
         frame.set_ac_request(ACModeRequest::Off);
         frame.set_front_left_temp(ACAirTemperature::TwentySeven);
         frame.set_mono_temp(false);
@@ -671,7 +695,7 @@ mod test {
         let mut bytes = [0u8; 8];
         let mut frame = Frame::new_unchecked(&mut bytes);
 
-        frame.set_typage(3);
+        frame.set_front_ac_fan_mode(ACFanMode2010::Manual);
         frame.set_ac_request(ACModeRequest::AutoComfort);
         frame.set_front_left_temp(ACAirTemperature::TwentySix);
         frame.set_mono_temp(true);

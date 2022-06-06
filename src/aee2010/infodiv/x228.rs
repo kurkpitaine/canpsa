@@ -427,6 +427,25 @@ impl fmt::Display for Repr {
     }
 }
 
+impl From<&crate::aee2004::conf::x1a8::Repr> for Repr {
+    fn from(repr_2004: &crate::aee2004::conf::x1a8::Repr) -> Self {
+        Repr {
+            speed_setting: repr_2004.speed_setting,
+            speed_setting_adjustment_in_progress: false, // No known conversion.
+            try_enable: repr_2004.try_enable,
+            speed_regulation_mode_state: repr_2004.speed_regulation_mode_state,
+            speed_regulation_mode: repr_2004.speed_regulation_mode,
+            speed_regulation_available: true, // No known conversion.
+            acc_time: 0x14,                   // Seems to be the default value.
+            speed_regulation_page_req: SpeedRegulationSettingPage::Close, // No known conversion.
+            acc_adjusted_speed: 0x7fff,       // Seems to be the default value.
+            set_speed_from_traffic_sign_recognition_allowed: false, // No traffic sign recognition on AEE2004.
+            mem_key_state: false, // No mem key on AEE2004 cruise control.
+            acc_displayed_state: AdaptiveCruiseControlState::Disabled,
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::{Frame, Repr};

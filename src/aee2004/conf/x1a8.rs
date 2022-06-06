@@ -26,7 +26,7 @@ mod field {
     /// 16-bit cruise-control/speed-limiter/acc speed setting field.
     pub const SPD_INST: Field = 1..3;
     /// 16-bit empty.
-    pub const EMPTY: Field = 3..5;
+    pub const _EMPTY: Field = 3..5;
     /// 24-bit partial odometer field, in 0.1 kilometers units.
     pub const ODOMETER: Field = 5..8;
 }

@@ -45,17 +45,17 @@ mod field {
     /// 3-bit unknown.
     pub const AC_0: usize = 0;
     /// 8-bit unknown.
-    pub const AC_1: usize = 1;
+    pub const _AC_1: usize = 1;
     /// 8-bit unknown.
-    pub const AC_2: usize = 2;
+    pub const _AC_2: usize = 2;
     /// 8-bit unknown.
-    pub const AC_3: usize = 3;
+    pub const _AC_3: usize = 3;
     /// 8-bit unknown.
-    pub const AC_4: usize = 4;
+    pub const _AC_4: usize = 4;
     /// 8-bit unknown.
-    pub const AC_5: usize = 5;
+    pub const _AC_5: usize = 5;
     /// 8-bit unknown.
-    pub const AC_6: usize = 6;
+    pub const _AC_6: usize = 6;
     /// 8-bit unknown.
     pub const AC_7: usize = 7;
 }

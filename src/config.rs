@@ -297,6 +297,17 @@ impl fmt::Display for DisplayMode {
     }
 }
 
+impl From<MaintenanceDisplayMode> for DisplayMode {
+    fn from(maintenance_mode: MaintenanceDisplayMode) -> Self {
+        match maintenance_mode {
+            MaintenanceDisplayMode::Off => DisplayMode::Steady,
+            MaintenanceDisplayMode::Steady => DisplayMode::Steady,
+            MaintenanceDisplayMode::Blinking => DisplayMode::Blinking,
+            MaintenanceDisplayMode::Unknown(mode) => DisplayMode::Unknown(mode),
+        }
+    }
+}
+
 enum_with_unknown! {
     /// Maintenance display mode. AEE 2004 only.
     pub enum MaintenanceDisplayMode(u8) {

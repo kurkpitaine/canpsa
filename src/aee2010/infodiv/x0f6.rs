@@ -38,7 +38,7 @@ mod field {
     /// 1-bit generator working flag,
     /// 2-bit vehicle main status,
     /// 1-bit factory park flag,
-    /// 2-bit vehicle vehicle supervision module config mode.
+    /// 2-bit vehicle supervision module config mode.
     pub const STATES: usize = 0;
     /// 8-bit engine coolant temperature value, in celsius with a +40 offset.
     pub const COOLANT_TEMP: usize = 1;

@@ -27,7 +27,7 @@ pub struct Frame<T: AsRef<[u8]>> {
 
 mod field {
     /// 8-bit unknown.
-    pub const AC_0: usize = 0;
+    pub const _AC_0: usize = 0;
     /// 5-bit rear left temperature value instruction field,
     /// 3-bit unknown.
     pub const AC_1: usize = 1;
@@ -38,7 +38,7 @@ mod field {
     /// 6-bit unknown.
     pub const AC_3: usize = 3;
     /// 8-bit unknown.
-    pub const AC_4: usize = 4;
+    pub const _AC_4: usize = 4;
     /// 8-bit unknown.
     pub const AC_5: usize = 5;
 }
