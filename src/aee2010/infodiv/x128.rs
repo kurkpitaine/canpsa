@@ -128,6 +128,8 @@ mod field {
     pub const FLAGS_8: usize = 7;
 }
 
+/// Raw x128 CAN frame identifier.
+pub const FRAME_ID: u16 = 0x128;
 /// Length of a x128 CAN frame.
 pub const FRAME_LEN: usize = field::FLAGS_8 + 1;
 

@@ -72,6 +72,8 @@ mod field {
     pub const REQ_6: usize = 6;
 }
 
+/// Raw x329 CAN frame identifier.
+pub const FRAME_ID: u16 = 0x329;
 /// Length of a x329 CAN frame.
 pub const FRAME_LEN: usize = field::REQ_6 + 1;
 

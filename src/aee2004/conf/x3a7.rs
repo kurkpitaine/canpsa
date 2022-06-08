@@ -40,6 +40,8 @@ mod field {
     pub const DISP_DURATION: usize = 7;
 }
 
+/// Raw x3a7 CAN frame identifier.
+pub const FRAME_ID: u16 = 0x3a7;
 /// Length of a x3a7 CAN frame.
 pub const FRAME_LEN: usize = field::DISP_DURATION + 1;
 

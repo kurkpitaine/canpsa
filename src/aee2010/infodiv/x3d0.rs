@@ -43,6 +43,8 @@ mod field {
     pub const AC_5: usize = 5;
 }
 
+/// Raw x3d0 CAN frame identifier.
+pub const FRAME_ID: u16 = 0x3d0;
 /// Length of a x3d0 CAN frame.
 pub const FRAME_LEN: usize = field::AC_5 + 1;
 

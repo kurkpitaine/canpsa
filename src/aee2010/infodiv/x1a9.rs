@@ -96,6 +96,8 @@ mod field {
     pub const REQ_4: usize = 7;
 }
 
+/// Raw x1a9 CAN frame identifier.
+pub const FRAME_ID: u16 = 0x1a9;
 /// Length of a x1a9 CAN frame.
 pub const FRAME_LEN: usize = field::REQ_4 + 1;
 

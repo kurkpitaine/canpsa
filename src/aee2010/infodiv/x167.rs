@@ -64,6 +64,8 @@ mod field {
     pub const MENU_ACTION: usize = 7;
 }
 
+/// Raw x167 CAN frame identifier.
+pub const FRAME_ID: u16 = 0x167;
 /// Length of a x167 CAN frame.
 pub const FRAME_LEN: usize = field::MENU_ACTION + 1;
 

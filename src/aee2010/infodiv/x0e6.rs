@@ -67,6 +67,8 @@ mod field {
     pub const CHK_CNT: usize = 7;
 }
 
+/// Raw x0e6 CAN frame identifier.
+pub const FRAME_ID: u16 = 0x0e6;
 /// Length of a x0e6 CAN frame.
 pub const FRAME_LEN: usize = field::CHK_CNT + 1;
 

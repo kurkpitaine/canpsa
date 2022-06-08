@@ -121,6 +121,8 @@ mod field {
     pub const OPT_5: usize = 5;
 }
 
+/// Raw x361 CAN frame identifier.
+pub const FRAME_ID: u16 = 0x361;
 /// Length of a x361 CAN frame.
 pub const FRAME_LEN: usize = field::OPT_5 + 1;
 

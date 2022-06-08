@@ -30,6 +30,8 @@ mod field {
     pub const RES: Field = 5..7;
 }
 
+/// Raw x2a1 CAN frame identifier.
+pub const FRAME_ID: u16 = 0x2a1;
 /// Length of a x2a1 CAN frame.
 pub const FRAME_LEN: usize = field::RES.end;
 

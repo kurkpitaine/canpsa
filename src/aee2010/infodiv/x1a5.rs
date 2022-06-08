@@ -15,6 +15,8 @@ mod field {
     pub const VOLUME: usize = 0;
 }
 
+/// Raw x1a5 CAN frame identifier.
+pub const FRAME_ID: u16 = 0x1a5;
 /// Length of a x1a5 CAN frame.
 pub const FRAME_LEN: usize = field::VOLUME + 1;
 

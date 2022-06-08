@@ -58,6 +58,8 @@ mod field {
     pub const FLAGS_ADBLUE_AUTONOMY: Field = 5..7;
 }
 
+/// Raw x276 CAN frame identifier.
+pub const FRAME_ID: u16 = 0x276;
 /// Length of a x276 CAN frame.
 pub const FRAME_LEN: usize = field::FLAGS_ADBLUE_AUTONOMY.end;
 

@@ -32,6 +32,8 @@ mod field {
     pub const MINUTE: usize = 4;
 }
 
+/// Raw x39b CAN frame identifier.
+pub const FRAME_ID: u16 = 0x39b;
 /// Length of a x39b CAN frame.
 pub const FRAME_LEN: usize = field::MINUTE + 1;
 

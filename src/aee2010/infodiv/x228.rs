@@ -63,6 +63,8 @@ mod field {
     pub const XVV_4: usize = 7;
 }
 
+/// Raw x228 CAN frame identifier.
+pub const FRAME_ID: u16 = 0x228;
 /// Length of a x228 CAN frame.
 pub const FRAME_LEN: usize = field::XVV_4 + 1;
 

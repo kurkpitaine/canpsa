@@ -35,6 +35,8 @@ mod field {
     pub const VDS_6: usize = 5;
 }
 
+/// Raw x3b6 CAN frame identifier.
+pub const FRAME_ID: u16 = 0x3b6;
 /// Length of a x3b6 CAN frame.
 pub const FRAME_LEN: usize = field::VDS_6 + 1;
 

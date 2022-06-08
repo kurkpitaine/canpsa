@@ -41,6 +41,8 @@ mod field {
     pub const VIS_8: usize = 7;
 }
 
+/// Raw x2b6 CAN frame identifier.
+pub const FRAME_ID: u16 = 0x2b6;
 /// Length of a x2b6 CAN frame.
 pub const FRAME_LEN: usize = field::VIS_8 + 1;
 

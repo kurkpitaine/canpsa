@@ -26,6 +26,8 @@ mod field {
     pub const WMI_3: usize = 2;
 }
 
+/// Raw x336 CAN frame identifier.
+pub const FRAME_ID: u16 = 0x336;
 /// Length of a x336 CAN frame.
 pub const FRAME_LEN: usize = field::WMI_3 + 1;
 

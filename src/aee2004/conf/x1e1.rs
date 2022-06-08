@@ -40,6 +40,8 @@ mod field {
     pub const EMPTY: Field = 6..8;
 }
 
+/// Raw x1e1 CAN frame identifier.
+pub const FRAME_ID: u16 = 0x1e1;
 /// Length of a x1e1 CAN frame.
 pub const FRAME_LEN: usize = field::EMPTY.end;
 

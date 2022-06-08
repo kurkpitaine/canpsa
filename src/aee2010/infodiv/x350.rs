@@ -73,6 +73,8 @@ mod field {
     pub const AC_7: usize = 7;
 }
 
+/// Raw x350 CAN frame identifier.
+pub const FRAME_ID: u16 = 0x350;
 /// Length of a x350 CAN frame.
 pub const FRAME_LEN: usize = field::AC_7 + 1;
 

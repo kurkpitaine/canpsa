@@ -41,6 +41,8 @@ mod field {
     pub const FLAGS_2: usize = 6;
 }
 
+/// Raw x0e6 CAN frame identifier.
+pub const FRAME_ID: u16 = 0x0e6;
 /// Length of a x0e6 CAN frame.
 pub const FRAME_LEN: usize = field::FLAGS_2 + 1;
 

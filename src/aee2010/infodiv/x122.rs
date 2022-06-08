@@ -86,6 +86,8 @@ mod field {
     pub const WHL_2_TICKS: usize = 7;
 }
 
+/// Raw x122 CAN frame identifier.
+pub const FRAME_ID: u16 = 0x122;
 /// Length of a x122 CAN frame.
 pub const FRAME_LEN: usize = field::WHL_2_TICKS + 1;
 

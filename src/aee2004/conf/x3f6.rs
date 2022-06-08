@@ -24,6 +24,8 @@ mod field {
     pub const LANGUAGE: usize = 6;
 }
 
+/// Raw x3f6 CAN frame identifier.
+pub const FRAME_ID: u16 = 0x3f6;
 /// Length of a x3f6 CAN frame.
 pub const FRAME_LEN: usize = field::LANGUAGE + 1;
 

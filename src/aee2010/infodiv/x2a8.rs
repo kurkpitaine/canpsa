@@ -24,6 +24,8 @@ mod field {
     pub const XVV_0: usize = 0;
 }
 
+/// Raw x2a8 CAN frame identifier.
+pub const FRAME_ID: u16 = 0x2a8;
 /// Length of a x2a8 CAN frame.
 pub const FRAME_LEN: usize = field::XVV_0 + 1;
 

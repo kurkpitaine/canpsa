@@ -40,6 +40,8 @@ mod field {
     pub const LED_4: usize = 4;
 }
 
+/// Raw x227 CAN frame identifier.
+pub const FRAME_ID: u16 = 0x227;
 /// Length of a x227 CAN frame.
 pub const FRAME_LEN: usize = field::LED_4 + 1;
 

@@ -18,6 +18,8 @@ mod field {
     pub const MINUTE: usize = 1;
 }
 
+/// Raw x228 CAN frame identifier.
+pub const FRAME_ID: u16 = 0x228;
 /// Length of a x228 CAN frame.
 pub const FRAME_LEN: usize = field::MINUTE + 1;
 

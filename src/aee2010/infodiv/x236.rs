@@ -52,6 +52,8 @@ mod field {
     pub const UNKNOWN_FLAGS: usize = 7;
 }
 
+/// Raw x236 CAN frame identifier.
+pub const FRAME_ID: u16 = 0x236;
 /// Length of a x236 CAN frame.
 pub const FRAME_LEN: usize = field::UNKNOWN_FLAGS + 1;
 

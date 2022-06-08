@@ -31,6 +31,8 @@ mod field {
     pub const ODOMETER: Field = 5..8;
 }
 
+/// Raw x1a8 CAN frame identifier.
+pub const FRAME_ID: u16 = 0x1a8;
 /// Length of a x1a8 CAN frame.
 pub const FRAME_LEN: usize = field::ODOMETER.end;
 

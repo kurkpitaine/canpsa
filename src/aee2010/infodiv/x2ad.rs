@@ -60,6 +60,8 @@ mod field {
     pub const AC_7: usize = 7;
 }
 
+/// Raw x2ad CAN frame identifier.
+pub const FRAME_ID: u16 = 0x2ad;
 /// Length of a x2ad CAN frame.
 pub const FRAME_LEN: usize = field::AC_7 + 1;
 

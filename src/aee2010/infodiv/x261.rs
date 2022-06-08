@@ -30,6 +30,8 @@ mod field {
     pub const RES: Field = 5..7;
 }
 
+/// Raw x261 CAN frame identifier.
+pub const FRAME_ID: u16 = 0x261;
 /// Length of a x261 CAN frame.
 pub const FRAME_LEN: usize = field::RES.end;
 

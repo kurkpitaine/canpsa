@@ -39,6 +39,8 @@ mod field {
     pub const REM_TRIP_DIST: Field = 5..7;
 }
 
+/// Raw x221 CAN frame identifier.
+pub const FRAME_ID: u16 = 0x221;
 /// Length of a x221 CAN frame.
 pub const FRAME_LEN: usize = field::REM_TRIP_DIST.end;
 

@@ -36,6 +36,8 @@ mod field {
     pub const REAR_RIGHT: usize = 3;
 }
 
+/// Raw x1e1 CAN frame identifier.
+pub const FRAME_ID: u16 = 0x1e1;
 /// Length of a x1e1 CAN frame.
 pub const FRAME_LEN: usize = field::REAR_RIGHT + 1;
 

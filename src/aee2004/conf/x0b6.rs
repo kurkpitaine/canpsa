@@ -17,9 +17,9 @@ mod field {
     pub const ENGINE_RPM: Field = 0..2;
     /// 16-bit vehicle immediate speed measured on the driving wheels, in 0.01 km/h.
     pub const VEHICLE_SPD: Field = 2..4;
-    /// 16-bit odometer value since start of vehicle, incremented at each distance top.
+    /// 16-bit odometer value since start of vehicle incremented at each distance top, in cm.
     pub const ODOMETER: Field = 4..6;
-    /// 16-bit fuel consumption since start of vehicle.
+    /// 16-bit fuel consumption since start of vehicle, in mm3.
     pub const FUEL_CONSUMPTION: usize = 6;
     /// 3-bit empty,
     /// 4-bit vehicle speed value validity field,
@@ -27,6 +27,8 @@ mod field {
     pub const VALIDITY: usize = 7;
 }
 
+/// Raw x0b6 CAN frame identifier.
+pub const FRAME_ID: u16 = 0x0b6;
 /// Length of a x0b6 CAN frame.
 pub const FRAME_LEN: usize = field::VALIDITY + 1;
 

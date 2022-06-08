@@ -66,6 +66,8 @@ mod field {
     pub const FN_4: usize = 4;
 }
 
+/// Raw x2e1 CAN frame identifier.
+pub const FRAME_ID: u16 = 0x2e1;
 /// Length of a x2e1 CAN frame.
 pub const FRAME_LEN: usize = field::FN_4 + 1;
 

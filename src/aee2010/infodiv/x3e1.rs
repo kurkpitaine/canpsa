@@ -49,6 +49,8 @@ mod field {
     pub const BATT_CHARGE: usize = 4;
 }
 
+/// Raw x3e1 CAN frame identifier.
+pub const FRAME_ID: u16 = 0x3e1;
 /// Length of a x3e1 CAN frame.
 pub const FRAME_LEN: usize = field::BATT_CHARGE + 1;
 

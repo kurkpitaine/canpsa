@@ -38,6 +38,8 @@ mod field {
     pub const MAINTENANCE_DISTANCE: Field = 3..5;
 }
 
+/// Raw x3e7 CAN frame identifier.
+pub const FRAME_ID: u16 = 0x3e7;
 /// Length of a x3e7 CAN frame.
 pub const FRAME_LEN: usize = field::MAINTENANCE_DISTANCE.end;
 
