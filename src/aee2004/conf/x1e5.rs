@@ -535,6 +535,32 @@ impl fmt::Display for Repr {
     }
 }
 
+impl From<&crate::aee2010::infodiv::x1e5::Repr> for Repr {
+    fn from(repr_2010: &crate::aee2010::infodiv::x1e5::Repr) -> Self {
+        Repr {
+            balance_level: repr_2010.balance_level + 49,
+            balance_under_adj: repr_2010.balance_under_adj,
+            fader_level: repr_2010.fader_level + 49,
+            fader_under_adj: repr_2010.fader_under_adj,
+            bass_level: repr_2010.bass_level + 49,
+            bass_under_adj: repr_2010.bass_under_adj,
+            middle_level: 0x3f,
+            middle_under_adj: false,
+            treble_level: repr_2010.treble_level + 49,
+            treble_under_adj: repr_2010.treble_under_adj,
+            speed_dependent_volume: if repr_2010.speed_dependent_volume_enabled { SpeedDependentVolumeLaw::On } else { SpeedDependentVolumeLaw::Off },
+            speed_dependent_volume_under_adj: repr_2010.speed_dependent_volume_under_adj,
+            loudness_enabled: repr_2010.loudness_enabled,
+            loudness_under_adj: repr_2010.loudness_under_adj,
+            loudness_enabled_diag: false,
+            fader_enabled_diag: repr_2010.fader_opt == crate::config::ConfigOption::SelectableOption,
+            musical_ambiance: repr_2010.musical_ambiance,
+            musical_ambiance_under_adj: repr_2010.musical_ambiance_under_adj,
+            impossible_setting: repr_2010.impossible_setting,
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::{Frame, Repr};

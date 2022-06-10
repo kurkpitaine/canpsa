@@ -236,13 +236,13 @@ impl fmt::Display for SpeedValidity {
 enum_with_unknown! {
    /// Vehicle powertrain state.
    pub enum PowertrainStatus(u8) {
-       /// Motor is stopped.
+       /// Engine is stopped.
        Stopped = 0,
-       /// Motor is starting.
+       /// Engine is starting.
        Cranking = 1,
-       /// Motor is running.
+       /// Engine is running.
        Running = 2,
-       /// Motor is stopping.
+       /// Engine is stopping.
        Stopping = 3
    }
 }
@@ -1692,6 +1692,52 @@ impl fmt::Display for SteeringAssistanceFaultType {
             SteeringAssistanceFaultType::G3 => write!(f, "G3"),
             SteeringAssistanceFaultType::G3AndG4 => write!(f, "G3 and G4"),
             SteeringAssistanceFaultType::Unknown(state) => write!(f, "0x{:02x}", state),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// Vehicle body type.
+   pub enum BodyType(u8) {
+       /// Car has 5 doors.
+       FiveDoors = 0,
+       /// Car has 3 doors.
+       ThreeDoors = 1,
+   }
+}
+
+impl fmt::Display for BodyType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            BodyType::FiveDoors => write!(f, "5 doors"),
+            BodyType::ThreeDoors => write!(f, "3 doors"),
+            BodyType::Unknown(arrow) => write!(f, "0x{:02x}", arrow),
+        }
+    }
+}
+
+enum_with_unknown! {
+   /// Fault log context. AEE 2010 only.
+   pub enum FaultLogContext(u8) {
+       /// Vehicle Main status is Off and economy mode is activated.
+       MainOffEco = 0x0c,
+       /// Vehicle Main status is Off.
+       MainOff = 0x0d,
+       /// Vehicle Main status is On and economy mode is activated.
+       MainOnEco = 0x0e,
+       /// Vehicle Main status is On
+       MainOn = 0x0f,
+   }
+}
+
+impl fmt::Display for FaultLogContext {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            FaultLogContext::MainOffEco => write!(f, "main off eco"),
+            FaultLogContext::MainOff => write!(f, "main off"),
+            FaultLogContext::MainOnEco => write!(f, "main on eco"),
+            FaultLogContext::MainOn => write!(f, "main on"),
+            FaultLogContext::Unknown(state) => write!(f, "0x{:02x}", state),
         }
     }
 }

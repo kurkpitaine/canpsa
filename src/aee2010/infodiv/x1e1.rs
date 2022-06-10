@@ -242,6 +242,18 @@ impl fmt::Display for Repr {
     }
 }
 
+impl From<&crate::aee2004::conf::x1e1::Repr> for Repr {
+    fn from(repr_2004: &crate::aee2004::conf::x1e1::Repr) -> Self {
+        Repr {
+            front_left_wheel_state: repr_2004.front_left_wheel_state,
+            front_right_wheel_state: repr_2004.front_right_wheel_state,
+            rear_left_wheel_state: repr_2004.rear_left_wheel_state,
+            rear_right_wheel_state: repr_2004.rear_right_wheel_state,
+            system_state: repr_2004.system_state,
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::{Frame, Repr};

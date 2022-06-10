@@ -13,6 +13,9 @@ pub use x0f6 as DONNEES_BSI_LENTES;
 pub mod x128;
 pub use x128 as CDE_COMBINE_SIGNALISATION;
 
+pub mod x136;
+pub use x136 as DONNEES_BSI_LENTES_2;
+
 pub mod x15b;
 pub use x15b as EMF_CDE_MODIF_PROFILS;
 
@@ -39,6 +42,9 @@ pub use x1e1 as DONNEES_ETAT_ROUES;
 
 pub mod x1e5;
 pub use x1e5 as ETAT_RADIO_GEN_AUD;
+
+pub mod x220;
+pub use x220 as DONNEES_ETATS_OUVRANTS;
 
 pub mod x221;
 pub use x221 as INFOS_GEN_ODB;

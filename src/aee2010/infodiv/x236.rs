@@ -3,7 +3,7 @@ use core::{cmp::Ordering, fmt, time::Duration};
 use byteorder::{ByteOrder, NetworkEndian};
 
 use crate::{
-    vehicle::{ElectricalNetworkState, VehicleConfigMode},
+    vehicle::{ElectricalNetworkState, FaultLogContext, VehicleConfigMode},
     Error, Result,
 };
 
@@ -40,7 +40,7 @@ mod field {
     pub const CONFIG_MODE_ELEC_NET: usize = 0;
     /// 32-bit vehicle supervision module temporal counter, 0xFFFFFFFE if unavailable.
     pub const TEMPORAL_COUNTER: Field = 1..5;
-    /// 5-bit 'JDD' context field,
+    /// 5-bit fault log context field,
     /// 1-bit unknown,
     /// 1-bit driver door opened event flag,
     /// 1-bit opened boot flag.
@@ -129,11 +129,12 @@ impl<T: AsRef<[u8]>> Frame<T> {
         NetworkEndian::read_u32(&data[field::TEMPORAL_COUNTER])
     }
 
-    /// Return the 'JDD' context field.
+    /// Return the fault log context field.
     #[inline]
-    pub fn jdd_context(&self) -> u8 {
+    pub fn fault_log_context(&self) -> FaultLogContext {
         let data = self.buffer.as_ref();
-        data[field::CTX_FLAGS] & 0x1f
+        let raw = data[field::CTX_FLAGS] & 0x1f;
+        FaultLogContext::from(raw)
     }
 
     /// Return the driver door opened event flag.
@@ -191,12 +192,12 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
         NetworkEndian::write_u32(&mut data[field::TEMPORAL_COUNTER], value);
     }
 
-    /// Set the 'JDD' context field.
+    /// Set the fault log context field.
     #[inline]
-    pub fn set_jdd_context(&mut self, value: u8) {
+    pub fn set_fault_log_context(&mut self, value: FaultLogContext) {
         let data = self.buffer.as_mut();
         let raw = data[field::CTX_FLAGS] & !0x1f;
-        let raw = raw | (value & 0x1f);
+        let raw = raw | (u8::from(value) & 0x1f);
         data[field::CTX_FLAGS] = raw;
     }
 
@@ -260,7 +261,7 @@ pub struct Repr {
     pub vehicle_config_mode: VehicleConfigMode,
     pub electrical_network_status: ElectricalNetworkState,
     pub vsm_temporal_counter: u32,
-    pub jdd_context: u8,
+    pub fault_log_context: FaultLogContext,
     pub driver_door_open_evt: bool,
     pub boot_open: bool,
     pub gct_reset_counter: u8,
@@ -275,7 +276,7 @@ impl Repr {
             vehicle_config_mode: frame.vehicle_config_mode(),
             electrical_network_status: frame.electrical_network_status(),
             vsm_temporal_counter: frame.vsm_temporal_counter(),
-            jdd_context: frame.jdd_context(),
+            fault_log_context: frame.fault_log_context(),
             driver_door_open_evt: frame.driver_door_open_evt(),
             boot_open: frame.boot_open(),
             gct_reset_counter: frame.gct_reset_counter(),
@@ -293,7 +294,7 @@ impl Repr {
         frame.set_vehicle_config_mode(self.vehicle_config_mode);
         frame.set_electrical_network_status(self.electrical_network_status);
         frame.set_vsm_temporal_counter(self.vsm_temporal_counter);
-        frame.set_jdd_context(self.jdd_context);
+        frame.set_fault_log_context(self.fault_log_context);
         frame.set_driver_door_open_evt(self.driver_door_open_evt);
         frame.set_boot_open(self.boot_open);
         frame.set_gct_reset_counter(self.gct_reset_counter);
@@ -310,7 +311,7 @@ impl fmt::Display for Repr {
             self.electrical_network_status
         )?;
         writeln!(f, " vsm_temporal_counter={}", self.vsm_temporal_counter)?;
-        writeln!(f, " jdd_context={}", self.jdd_context)?;
+        writeln!(f, " fault_log_context={}", self.fault_log_context)?;
         writeln!(f, " driver_door_open_evt={}", self.driver_door_open_evt)?;
         writeln!(f, " boot_open={}", self.boot_open)?;
         writeln!(f, " gct_reset_counter={}", self.gct_reset_counter)?;
@@ -322,7 +323,7 @@ impl fmt::Display for Repr {
 mod test {
     use super::{Frame, Repr};
     use crate::{
-        vehicle::{ElectricalNetworkState, VehicleConfigMode},
+        vehicle::{ElectricalNetworkState, FaultLogContext, VehicleConfigMode},
         Error,
     };
 
@@ -334,7 +335,7 @@ mod test {
             vehicle_config_mode: VehicleConfigMode::Customer,
             electrical_network_status: ElectricalNetworkState::GeneratorNormal,
             vsm_temporal_counter: 123456,
-            jdd_context: 0,
+            fault_log_context: FaultLogContext::Unknown(0),
             driver_door_open_evt: false,
             boot_open: true,
             gct_reset_counter: 0xfe,
@@ -347,7 +348,7 @@ mod test {
             vehicle_config_mode: VehicleConfigMode::Workshop,
             electrical_network_status: ElectricalNetworkState::BatteryNormal,
             vsm_temporal_counter: 7654321,
-            jdd_context: 24,
+            fault_log_context: FaultLogContext::Unknown(24),
             driver_door_open_evt: true,
             boot_open: false,
             gct_reset_counter: 0xfe,
@@ -365,7 +366,7 @@ mod test {
             ElectricalNetworkState::GeneratorNormal
         );
         assert_eq!(frame.vsm_temporal_counter(), 123456);
-        assert_eq!(frame.jdd_context(), 0);
+        assert_eq!(frame.fault_log_context(), FaultLogContext::Unknown(0));
         assert_eq!(frame.driver_door_open_evt(), false);
         assert_eq!(frame.boot_open(), true);
         assert_eq!(frame.gct_reset_counter(), 0xfe);
@@ -382,7 +383,7 @@ mod test {
             ElectricalNetworkState::BatteryNormal
         );
         assert_eq!(frame.vsm_temporal_counter(), 7654321);
-        assert_eq!(frame.jdd_context(), 24);
+        assert_eq!(frame.fault_log_context(), FaultLogContext::Unknown(24));
         assert_eq!(frame.driver_door_open_evt(), true);
         assert_eq!(frame.boot_open(), false);
         assert_eq!(frame.gct_reset_counter(), 0xfe);
@@ -397,7 +398,7 @@ mod test {
         frame.set_vehicle_config_mode(VehicleConfigMode::Customer);
         frame.set_electrical_network_status(ElectricalNetworkState::GeneratorNormal);
         frame.set_vsm_temporal_counter(123456);
-        frame.set_jdd_context(0);
+        frame.set_fault_log_context(FaultLogContext::Unknown(0));
         frame.set_driver_door_open_evt(false);
         frame.set_boot_open(true);
         frame.set_gct_reset_counter(0xfe);
@@ -414,7 +415,7 @@ mod test {
         frame.set_vehicle_config_mode(VehicleConfigMode::Workshop);
         frame.set_electrical_network_status(ElectricalNetworkState::BatteryNormal);
         frame.set_vsm_temporal_counter(7654321);
-        frame.set_jdd_context(24);
+        frame.set_fault_log_context(FaultLogContext::Unknown(24));
         frame.set_driver_door_open_evt(true);
         frame.set_boot_open(false);
         frame.set_gct_reset_counter(0xfe);

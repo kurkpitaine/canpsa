@@ -664,6 +664,34 @@ impl fmt::Display for ConfigurableKeyAction2010 {
     }
 }
 
+impl From<ConfigurableKeyAction2004> for ConfigurableKeyAction2010 {
+    fn from(action_2004: ConfigurableKeyAction2004) -> Self {
+        match action_2004 {
+            ConfigurableKeyAction2004::BlackPanel => ConfigurableKeyAction2010::BlackPanel,
+            ConfigurableKeyAction2004::CeilingLight => ConfigurableKeyAction2010::CeilingLight,
+            ConfigurableKeyAction2004::FaultLog => ConfigurableKeyAction2010::FaultLog,
+            ConfigurableKeyAction2004::FunctionState => ConfigurableKeyAction2010::Unknown(0),
+            ConfigurableKeyAction2004::ClusterCustomization => ConfigurableKeyAction2010::ClusterCustomization,
+            ConfigurableKeyAction2004::ClusterColor => ConfigurableKeyAction2010::ClusterColor,
+            ConfigurableKeyAction2004::Unknown(u) => ConfigurableKeyAction2010::Unknown(u),
+        }
+    }
+}
+
+impl Into<ConfigurableKeyAction2004> for ConfigurableKeyAction2010 {
+    fn into(self) -> ConfigurableKeyAction2004 {
+        match self {
+            ConfigurableKeyAction2010::CeilingLight => ConfigurableKeyAction2004::CeilingLight,
+            ConfigurableKeyAction2010::BlackPanel => ConfigurableKeyAction2004::BlackPanel,
+            ConfigurableKeyAction2010::FaultLog => ConfigurableKeyAction2004::FaultLog,
+            ConfigurableKeyAction2010::ClusterCustomization => ConfigurableKeyAction2004::ClusterCustomization,
+            ConfigurableKeyAction2010::ClusterColor => ConfigurableKeyAction2004::ClusterColor,
+            ConfigurableKeyAction2010::ManualFaultCheck => ConfigurableKeyAction2004::Unknown(0),
+            ConfigurableKeyAction2010::Unknown(u) => ConfigurableKeyAction2004::Unknown(u),
+        }
+    }
+}
+
 enum_with_unknown! {
     /// Collision alert warning sensibility level. AEE 2010 only.
     pub enum CollisionAlertSensibilityLevel(u8) {

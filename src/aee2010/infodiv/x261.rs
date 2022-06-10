@@ -198,6 +198,16 @@ impl fmt::Display for Repr {
     }
 }
 
+impl From<&crate::aee2004::conf::x261::Repr> for Repr {
+    fn from(repr_2004: &crate::aee2004::conf::x261::Repr) -> Self {
+        Repr {
+            average_speed: repr_2004.average_speed,
+            distance: repr_2004.distance,
+            average_consumption: repr_2004.average_consumption,
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::{Frame, Repr};

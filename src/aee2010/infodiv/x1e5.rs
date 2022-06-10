@@ -13,16 +13,19 @@ pub struct Frame<T: AsRef<[u8]>> {
 }
 
 mod field {
-    /// 2-bit balance option activation, 5-bit balance level,
+    /// 2-bit balance option activation,
+    /// 5-bit balance level,
     /// 1-bit balance under adjustment flag.
     pub const BALANCE_OPT_ADJ: usize = 0;
     /// 2-bit fader option activation (via diagnostic session),
     /// 5-bit fader level, 1-bit fader under adjustment flag.
     pub const FADER_OPT_ADJ: usize = 1;
-    /// 2-bit bass option activation, 5-bit bass level,
+    /// 2-bit bass option activation,
+    /// 5-bit bass level,
     /// 1-bit bass under adjustment flag.
     pub const BASS_OPT_ADJ: usize = 2;
-    /// 2-bit treble option activation, 5-bit treble level,
+    /// 2-bit treble option activation,
+    /// 5-bit treble level,
     /// 1-bit treble under adjustment flag.
     pub const TREBLE_OPT_ADJ: usize = 3;
     /// 2-bit speed-dependent volume control option activation (via diagnostic session),

@@ -1,7 +1,7 @@
 use core::{cmp::Ordering, fmt};
 
 use crate::{
-    config::{ConfigurableKeyAction2004, UserProfile},
+    config::{ConfigurableKeyAction2004, UserProfile, LightingDuration},
     Error, Result,
 };
 
@@ -183,9 +183,10 @@ impl<T: AsRef<[u8]>> Frame<T> {
 
     /// Return the follow-me-home lighting duration field.
     #[inline]
-    pub fn follow_me_home_lighting_duration(&self) -> u8 {
+    pub fn follow_me_home_lighting_duration(&self) -> LightingDuration {
         let data = self.buffer.as_ref();
-        data[field::OPT_2] & 0x0f
+        let raw = data[field::OPT_2] & 0x0f;
+        LightingDuration::from(raw)
     }
 
     /// Return the automatic headlamps enable flag.
@@ -416,10 +417,10 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
 
     /// Set the follow-me-home lighting duration field.
     #[inline]
-    pub fn set_follow_me_home_lighting_duration(&mut self, value: u8) {
+    pub fn set_follow_me_home_lighting_duration(&mut self, value: LightingDuration) {
         let data = self.buffer.as_mut();
         let raw = data[field::OPT_2] & !0x0f;
-        let raw = raw | (value & 0x0f);
+        let raw = raw | (u8::from(value) & 0x0f);
         data[field::OPT_2] = raw;
     }
 
@@ -627,7 +628,7 @@ pub struct Repr {
     pub boot_permanent_locking_enabled: bool,
     pub auto_door_locking_when_driving_enabled: bool,
     pub selective_unlocking_enabled: bool,
-    pub follow_me_home_lighting_duration: u8,
+    pub follow_me_home_lighting_duration: LightingDuration,
     pub automatic_headlamps_enabled: bool,
     pub follow_me_home_enabled: bool,
     pub motorway_lighting_enabled: bool,
@@ -851,11 +852,48 @@ impl fmt::Display for Repr {
     }
 }
 
+impl From<&crate::aee2010::infodiv::x15b::Repr> for Repr {
+    fn from(repr_2010: &crate::aee2010::infodiv::x15b::Repr) -> Self {
+        Repr {
+            profile_number: UserProfile::Profile1,
+            parameters_validity: repr_2010.parameters_validity,
+            auto_elec_parking_brake_application_enabled: repr_2010.automatic_elec_parking_brake_application_enabled,
+            welcome_function_enabled: repr_2010.welcome_function_enabled,
+            partial_window_opening_enabled: false, // No equivalent.
+            locking_mode_on_coe_enabled: false, // No equivalent.
+            auto_door_locking_when_leaving_enabled: repr_2010.key_selective_unlocking_enabled,
+            boot_permanent_locking_enabled: repr_2010.boot_selective_unlocking_enabled,
+            auto_door_locking_when_driving_enabled: true,
+            selective_unlocking_enabled: repr_2010.selective_unlocking_enabled,
+            follow_me_home_lighting_duration: repr_2010.follow_me_home_lighting_duration,
+            automatic_headlamps_enabled: repr_2010.automatic_headlamps_enabled,
+            follow_me_home_enabled: repr_2010.follow_me_home_enabled,
+            motorway_lighting_enabled: repr_2010.motorway_lighting_enabled,
+            adaptive_lamps_enabled: repr_2010.adaptive_lamps_enabled,
+            ceiling_light_out_delay: 0,
+            daytime_running_lamps_enabled: repr_2010.daytime_running_lamps_enabled,
+            mood_lighting_enabled: repr_2010.mood_lighting_enabled,
+            low_fuel_level_alert_enabled: false,
+            key_left_in_car_alert_enabled: false,
+            lighting_left_on_alert_enabled: false,
+            alt_gen_enabled: false,
+            esp_in_regulation_alert_enabled: false,
+            auto_mirrors_folding_enabled: false,
+            rear_wiper_in_reverse_gear_enabled: repr_2010.rear_wiper_in_reverse_gear_enabled,
+            mirrors_tilting_in_reverse_gear_enabled: repr_2010.mirrors_tilting_in_reverse_gear_enabled,
+            park_sensors_status: if repr_2010.park_sensors_enabled {3} else {0},
+            blind_spot_monitoring_status: if repr_2010.blind_spot_monitoring_enabled {3} else {0},
+            secu_enabled: false,
+            configurable_key_mode: repr_2010.configurable_key_mode.into(),
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::{Frame, Repr};
     use crate::{
-        config::{ConfigurableKeyAction2004, UserProfile},
+        config::{ConfigurableKeyAction2004, UserProfile, LightingDuration},
         Error,
     };
 
@@ -874,7 +912,7 @@ mod test {
             boot_permanent_locking_enabled: false,
             auto_door_locking_when_driving_enabled: false,
             selective_unlocking_enabled: false,
-            follow_me_home_lighting_duration: 2,
+            follow_me_home_lighting_duration: LightingDuration::SixtySeconds,
             automatic_headlamps_enabled: true,
             follow_me_home_enabled: true,
             motorway_lighting_enabled: false,
@@ -909,7 +947,7 @@ mod test {
             boot_permanent_locking_enabled: false,
             auto_door_locking_when_driving_enabled: false,
             selective_unlocking_enabled: false,
-            follow_me_home_lighting_duration: 2,
+            follow_me_home_lighting_duration: LightingDuration::SixtySeconds,
             automatic_headlamps_enabled: true,
             follow_me_home_enabled: false,
             motorway_lighting_enabled: false,
@@ -946,7 +984,7 @@ mod test {
         assert_eq!(frame.boot_permanent_locking_enable(), false);
         assert_eq!(frame.auto_door_locking_when_driving_enable(), false);
         assert_eq!(frame.selective_unlocking_enable(), false);
-        assert_eq!(frame.follow_me_home_lighting_duration(), 2);
+        assert_eq!(frame.follow_me_home_lighting_duration(), LightingDuration::SixtySeconds);
         assert_eq!(frame.automatic_headlamps_enable(), true);
         assert_eq!(frame.follow_me_home_enable(), true);
         assert_eq!(frame.motorway_lighting_enable(), false);
@@ -984,7 +1022,7 @@ mod test {
         assert_eq!(frame.boot_permanent_locking_enable(), false);
         assert_eq!(frame.auto_door_locking_when_driving_enable(), false);
         assert_eq!(frame.selective_unlocking_enable(), false);
-        assert_eq!(frame.follow_me_home_lighting_duration(), 2);
+        assert_eq!(frame.follow_me_home_lighting_duration(), LightingDuration::SixtySeconds);
         assert_eq!(frame.automatic_headlamps_enable(), true);
         assert_eq!(frame.follow_me_home_enable(), false);
         assert_eq!(frame.motorway_lighting_enable(), false);
@@ -1023,7 +1061,7 @@ mod test {
         frame.set_boot_permanent_locking_enable(false);
         frame.set_auto_door_locking_when_driving_enable(false);
         frame.set_selective_unlocking_enable(false);
-        frame.set_follow_me_home_lighting_duration(2);
+        frame.set_follow_me_home_lighting_duration(LightingDuration::SixtySeconds);
         frame.set_automatic_headlamps_enable(true);
         frame.set_follow_me_home_enable(true);
         frame.set_motorway_lighting_enable(false);
@@ -1061,7 +1099,7 @@ mod test {
         frame.set_boot_permanent_locking_enable(false);
         frame.set_auto_door_locking_when_driving_enable(false);
         frame.set_selective_unlocking_enable(false);
-        frame.set_follow_me_home_lighting_duration(2);
+        frame.set_follow_me_home_lighting_duration(LightingDuration::SixtySeconds);
         frame.set_automatic_headlamps_enable(true);
         frame.set_follow_me_home_enable(false);
         frame.set_motorway_lighting_enable(false);

@@ -11,32 +11,21 @@ pub struct Frame<T: AsRef<[u8]>> {
     buffer: T,
 }
 
-/*
-2A1 INFOS_TRAJET1_ODB_CONSO_MOY_GPL_T1_HS7_2A1
-2A1 INFOS_TRAJET1_ODB_CONSO_TRAJET1_HS7_2A1         // OK
-2A1 INFOS_TRAJET1_ODB_DISTANCE_TRAJET1_HS7_2A1      // OK
-2A1 INFOS_TRAJET1_ODB_VITESSE_MOYENNE_T1_HS7_2A1    // OK
-*/
-
 mod field {
     use crate::field::Field;
-    /// 8-bit trip average speed in kilometer unit.
-    pub const AVG_SPD: usize = 0;
-    /// 16-bit trip distance in kilometer unit.
-    pub const DISTANCE: Field = 1..3;
-    /// 16-bit trip average fuel consumption in 0.1 liter/100 km.
-    pub const AVG_CONSUMPTION: Field = 3..5;
-    /// 16-bit reserved.
-    pub const RES: Field = 5..7;
+    /// 14-bit AdBlue autonomy,
+    /// 1-bit empty,
+    /// 1-bit AdBlue autonomy display request.
+    pub const FLAGS_ADBLUE_AUTONOMY: Field = 0..2;
 }
 
-/// Raw x2a1 CAN frame identifier.
-pub const FRAME_ID: u16 = 0x2a1;
-/// Length of a x2a1 CAN frame.
-pub const FRAME_LEN: usize = field::RES.end;
+/// Raw x136 CAN frame identifier.
+pub const FRAME_ID: u16 = 0x136;
+/// Length of a x136 CAN frame.
+pub const FRAME_LEN: usize = field::FLAGS_ADBLUE_AUTONOMY.end;
 
-/// Periodicity of a x2a1 CAN frame.
-pub const PERIODICITY: Duration = Duration::from_millis(1000);
+/// Periodicity of a x136 CAN frame.
+pub const PERIODICITY: Duration = Duration::from_millis(500);
 
 impl<T: AsRef<[u8]>> Frame<T> {
     /// Create a raw octet buffer with a CAN frame structure.
@@ -84,48 +73,39 @@ impl<T: AsRef<[u8]>> Frame<T> {
         FRAME_LEN
     }
 
-    /// Return the trip average speed in kilometer unit.
+    /// Return the Adblue autonomy field.
     #[inline]
-    pub fn average_speed(&self) -> u8 {
+    pub fn adblue_autonomy(&self) -> u16 {
         let data = self.buffer.as_ref();
-        data[field::AVG_SPD]
+        NetworkEndian::read_u16(&data[field::FLAGS_ADBLUE_AUTONOMY]) & 0x3fff
     }
 
-    /// Return the trip distance in kilometer unit.
+    /// Return the AdBlue autonomy display request field.
     #[inline]
-    pub fn distance(&self) -> u16 {
+    pub fn adblue_autonomy_display_request(&self) -> bool {
         let data = self.buffer.as_ref();
-        NetworkEndian::read_u16(&data[field::DISTANCE])
-    }
-
-    /// Return the trip average fuel consumption in 0.1 liter/100 km.
-    #[inline]
-    pub fn average_consumption(&self) -> u16 {
-        let data = self.buffer.as_ref();
-        NetworkEndian::read_u16(&data[field::AVG_CONSUMPTION])
+        let raw = NetworkEndian::read_u16(&data[field::FLAGS_ADBLUE_AUTONOMY]);
+        raw & !0x7fff != 0
     }
 }
 
 impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
-    /// Set the trip average speed in kilometer unit.
+    /// Set the Adblue autonomy field.
     #[inline]
-    pub fn set_average_speed(&mut self, value: u8) {
+    pub fn set_adblue_autonomy(&mut self, value: u16) {
         let data = self.buffer.as_mut();
-        data[field::AVG_SPD] = value;
+        let raw = NetworkEndian::read_u16(&data[field::FLAGS_ADBLUE_AUTONOMY]);
+        let raw = raw | (value & 0x3fff);
+        NetworkEndian::write_u16(&mut data[field::FLAGS_ADBLUE_AUTONOMY], raw);
     }
 
-    /// Set the trip distance in kilometer unit.
+    /// Set the AdBlue autonomy display request field.
     #[inline]
-    pub fn set_distance(&mut self, value: u16) {
+    pub fn set_adblue_autonomy_display_request(&mut self, value: bool) {
         let data = self.buffer.as_mut();
-        NetworkEndian::write_u16(&mut data[field::DISTANCE], value);
-    }
-
-    /// Set the trip average fuel consumption in 0.1 liter/100 km.
-    #[inline]
-    pub fn set_average_consumption(&mut self, value: u16) {
-        let data = self.buffer.as_mut();
-        NetworkEndian::write_u16(&mut data[field::AVG_CONSUMPTION], value);
+        let raw = NetworkEndian::read_u16(&data[field::FLAGS_ADBLUE_AUTONOMY]);
+        let raw = if value { raw | 0x8000 } else { raw & !0x8000 };
+        NetworkEndian::write_u16(&mut data[field::FLAGS_ADBLUE_AUTONOMY], raw);
     }
 }
 
@@ -134,7 +114,7 @@ impl<'a, T: AsRef<[u8]> + ?Sized> fmt::Display for Frame<&'a T> {
         match Repr::parse(self) {
             Ok(repr) => write!(f, "{}", repr),
             Err(err) => {
-                write!(f, "x2a1 ({})", err)?;
+                write!(f, "x136 ({})", err)?;
                 Ok(())
             }
         }
@@ -147,16 +127,12 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
     }
 }
 
-/// A high-level representation of a x2a1 CAN frame.
-#[derive(Debug, PartialEq, Clone, Copy)]
+/// A high-level representation of a x136 CAN frame.
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Repr {
-    pub average_speed: u8,
-    pub distance: u16,
-    #[cfg(feature = "float")]
-    pub average_consumption: f32,
-    #[cfg(not(feature = "float"))]
-    pub average_consumption: u16,
+    pub adblue_autonomy: u16,
+    pub adblue_autonomy_display_request: bool,
 }
 
 impl Repr {
@@ -164,12 +140,8 @@ impl Repr {
         frame.check_len()?;
 
         Ok(Repr {
-            average_speed: frame.average_speed(),
-            distance: frame.distance(),
-            #[cfg(feature = "float")]
-            average_consumption: frame.average_consumption() as f32 / 10.0,
-            #[cfg(not(feature = "float"))]
-            average_consumption: frame.average_consumption(),
+            adblue_autonomy: frame.adblue_autonomy(),
+            adblue_autonomy_display_request: frame.adblue_autonomy_display_request(),
         })
     }
 
@@ -178,49 +150,35 @@ impl Repr {
         FRAME_LEN
     }
 
-    /// Emit a high-level representation into a x2a1 CAN frame.
+    /// Emit a high-level representation into a x136 CAN frame.
     pub fn emit<T: AsRef<[u8]> + AsMut<[u8]>>(&self, frame: &mut Frame<T>) {
-        frame.set_average_speed(self.average_speed);
-        frame.set_distance(self.distance);
-        #[cfg(feature = "float")]
-        frame.set_average_consumption((self.average_consumption * 10.0) as u16);
-        #[cfg(not(feature = "float"))]
-        frame.set_average_consumption(self.average_consumption);
+        frame.set_adblue_autonomy(self.adblue_autonomy);
+        frame.set_adblue_autonomy_display_request(self.adblue_autonomy_display_request);
     }
 }
 
 impl fmt::Display for Repr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        writeln!(f, "x2a1")?;
-        writeln!(f, " average_speed={}", self.average_speed)?;
-        writeln!(f, " distance={}", self.distance)?;
-        writeln!(f, " average_consumption={}", self.average_consumption)
-    }
-}
-
-impl From<&crate::aee2004::conf::x2a1::Repr> for Repr {
-    fn from(repr_2004: &crate::aee2004::conf::x2a1::Repr) -> Self {
-        Repr {
-            average_speed: repr_2004.average_speed,
-            distance: repr_2004.distance,
-            average_consumption: repr_2004.average_consumption,
-        }
+        writeln!(f, "x136 adblue_autonomy={}", self.adblue_autonomy)?;
+        writeln!(
+            f,
+            " adblue_autonomy_display_request={}",
+            self.adblue_autonomy_display_request
+        )
     }
 }
 
 #[cfg(test)]
 mod test {
     use super::{Frame, Repr};
-
     use crate::Error;
 
-    static REPR_FRAME_BYTES: [u8; 7] = [0x1d, 0x03, 0xe3, 0x00, 0x6b, 0x00, 0x00];
+    static REPR_FRAME_BYTES: [u8; 2] = [0x3f, 0xfe];
 
     fn frame_repr() -> Repr {
         Repr {
-            average_speed: 29,
-            distance: 995,
-            average_consumption: 10.7,
+            adblue_autonomy: 16382,
+            adblue_autonomy_display_request: false,
         }
     }
 
@@ -228,26 +186,24 @@ mod test {
     fn test_frame_deconstruction() {
         let frame = Frame::new_unchecked(&REPR_FRAME_BYTES);
         assert_eq!(frame.check_len(), Ok(()));
-        assert_eq!(frame.average_speed(), 29);
-        assert_eq!(frame.distance(), 995);
-        assert_eq!(frame.average_consumption(), 107);
+        assert_eq!(frame.adblue_autonomy(), 0x3ffe);
+        assert_eq!(frame.adblue_autonomy_display_request(), false);
     }
 
     #[test]
     fn test_frame_construction() {
-        let mut bytes = [0u8; 7];
+        let mut bytes = [0u8; 2];
         let mut frame = Frame::new_unchecked(&mut bytes);
 
-        frame.set_average_speed(29);
-        frame.set_distance(995);
-        frame.set_average_consumption(107);
+        frame.set_adblue_autonomy(0x3ffe);
+        frame.set_adblue_autonomy_display_request(false);
 
         assert_eq!(frame.into_inner(), &REPR_FRAME_BYTES);
     }
 
     #[test]
     fn test_overlong() {
-        let bytes: [u8; 8] = [0x1d, 0x03, 0xe3, 0x00, 0x6b, 0x00, 0x00, 0xff];
+        let bytes: [u8; 3] = [0x3f, 0xfe, 0xff];
         assert_eq!(
             Frame::new_unchecked(&bytes).check_len().unwrap_err(),
             Error::Overlong
@@ -256,7 +212,7 @@ mod test {
 
     #[test]
     fn test_underlong() {
-        let bytes: [u8; 6] = [0x1d, 0x03, 0xe3, 0x00, 0x6b, 0x00];
+        let bytes: [u8; 1] = [0x3f];
         assert_eq!(Frame::new_checked(&bytes).unwrap_err(), Error::Truncated);
     }
 
@@ -269,7 +225,7 @@ mod test {
 
     #[test]
     fn test_basic_repr_emit() {
-        let mut buf = [0u8; 7];
+        let mut buf = [0u8; 2];
         let mut frame = Frame::new_unchecked(&mut buf);
         let repr = frame_repr();
         repr.emit(&mut frame);
