@@ -682,13 +682,15 @@ impl From<&crate::aee2004::conf::x128::Repr> for Repr {
             esp_indicator: repr_2004.esp_indicator,
             esp_inhibited: repr_2004.esp_inhibited,
             automatic_main_beam_indicator: false, // No automatic main beam on AEE2004.
-            available_space_measurement_indicator_blinking: repr_2004.available_space_measurement_indicator_blinking,
+            available_space_measurement_indicator_blinking: repr_2004
+                .available_space_measurement_indicator_blinking,
             available_space_measurement_indicator: repr_2004.available_space_measurement_indicator,
             opened_door: repr_2004.opened_door_less_10kph || repr_2004.opened_door_more_10kph,
             diesel_pre_heating: repr_2004.diesel_pre_heating,
             rear_left_seat_belt_indicator: repr_2004.rear_left_seat_belt_indicator,
             adblue_indicator: AdBlueIndicatorState::Off, // No AdBlue indicator on AEE2004.
-            passenger_seat_belt_indicator_blinking: repr_2004.passenger_seat_belt_indicator_blinking,
+            passenger_seat_belt_indicator_blinking: repr_2004
+                .passenger_seat_belt_indicator_blinking,
             passenger_seat_belt_indicator: repr_2004.passenger_seat_belt_indicator,
             driver_seat_belt_indicator_blinking: repr_2004.driver_seat_belt_indicator_blinking,
             driver_seat_belt_indicator: repr_2004.driver_seat_belt_indicator,
@@ -696,11 +698,14 @@ impl From<&crate::aee2004::conf::x128::Repr> for Repr {
             passenger_protection: repr_2004.passenger_protection,
             hazard_warning_lights: repr_2004.hazard_warning_lights,
             instrument_cluster_on: repr_2004.instrument_cluster_on,
-            rear_right_seat_belt_indicator_blinking: repr_2004.rear_right_seat_belt_indicator_blinking,
+            rear_right_seat_belt_indicator_blinking: repr_2004
+                .rear_right_seat_belt_indicator_blinking,
             rear_right_seat_belt_indicator: repr_2004.rear_right_seat_belt_indicator,
-            rear_middle_seat_belt_indicator_blinking: repr_2004.rear_middle_seat_belt_indicator_blinking,
+            rear_middle_seat_belt_indicator_blinking: repr_2004
+                .rear_middle_seat_belt_indicator_blinking,
             rear_middle_seat_belt_indicator: repr_2004.rear_middle_seat_belt_indicator,
-            rear_left_seat_belt_indicator_blinking: repr_2004.rear_left_seat_belt_indicator_blinking,
+            rear_left_seat_belt_indicator_blinking: repr_2004
+                .rear_left_seat_belt_indicator_blinking,
             low_fuel_indicator_blinking: false, // No blinking fuel indicator on AEE2004.
         }
     }

@@ -578,7 +578,7 @@ impl fmt::Display for MoodLightingLevel {
 }
 
 enum_with_unknown! {
-    /// Lighting duration for welcome/follow-me-home lighting. AEE 2010 only.
+    /// Lighting duration for welcome/follow-me-home lighting.
     pub enum LightingDuration(u8) {
         /// 15 sec lighting duration.
         FifteenSeconds = 0,
@@ -671,7 +671,9 @@ impl From<ConfigurableKeyAction2004> for ConfigurableKeyAction2010 {
             ConfigurableKeyAction2004::CeilingLight => ConfigurableKeyAction2010::CeilingLight,
             ConfigurableKeyAction2004::FaultLog => ConfigurableKeyAction2010::FaultLog,
             ConfigurableKeyAction2004::FunctionState => ConfigurableKeyAction2010::Unknown(0),
-            ConfigurableKeyAction2004::ClusterCustomization => ConfigurableKeyAction2010::ClusterCustomization,
+            ConfigurableKeyAction2004::ClusterCustomization => {
+                ConfigurableKeyAction2010::ClusterCustomization
+            }
             ConfigurableKeyAction2004::ClusterColor => ConfigurableKeyAction2010::ClusterColor,
             ConfigurableKeyAction2004::Unknown(u) => ConfigurableKeyAction2010::Unknown(u),
         }
@@ -684,7 +686,9 @@ impl Into<ConfigurableKeyAction2004> for ConfigurableKeyAction2010 {
             ConfigurableKeyAction2010::CeilingLight => ConfigurableKeyAction2004::CeilingLight,
             ConfigurableKeyAction2010::BlackPanel => ConfigurableKeyAction2004::BlackPanel,
             ConfigurableKeyAction2010::FaultLog => ConfigurableKeyAction2004::FaultLog,
-            ConfigurableKeyAction2010::ClusterCustomization => ConfigurableKeyAction2004::ClusterCustomization,
+            ConfigurableKeyAction2010::ClusterCustomization => {
+                ConfigurableKeyAction2004::ClusterCustomization
+            }
             ConfigurableKeyAction2010::ClusterColor => ConfigurableKeyAction2004::ClusterColor,
             ConfigurableKeyAction2010::ManualFaultCheck => ConfigurableKeyAction2004::Unknown(0),
             ConfigurableKeyAction2010::Unknown(u) => ConfigurableKeyAction2004::Unknown(u),

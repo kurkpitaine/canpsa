@@ -2,7 +2,8 @@ use core::{cmp::Ordering, fmt, time::Duration};
 
 use crate::{
     vehicle::{
-        ACAirDistributionPosition, ACAirIntakeMode, ACAirTemperature, ACFanSpeed, ACModeRequest, ACFanMode2010
+        ACAirDistributionPosition, ACAirIntakeMode, ACAirTemperature, ACFanMode2010, ACFanSpeed,
+        ACModeRequest,
     },
     Error, Result,
 };
@@ -549,8 +550,8 @@ impl From<&crate::aee2004::conf::x1d0::Repr> for Repr {
             front_right_distribution_position: repr_2004.front_right_distribution_position,
             front_left_distribution_position: repr_2004.front_left_distribution_position,
             front_right_seat_ventilation: 0, // No seat ventilation on AEE2004.
-            front_left_seat_heating: 0, // No seat heating drive on screen on AEE2004.
-            front_right_seat_heating: 0, // No seat heating drive on screen on AEE2004.
+            front_left_seat_heating: 0,      // No seat heating drive on screen on AEE2004.
+            front_right_seat_heating: 0,     // No seat heating drive on screen on AEE2004.
             energy_saver_mode_enabled: false, // No energy saver mode on AEE2004.
         }
     }
@@ -561,7 +562,8 @@ mod test {
     use super::{Frame, Repr};
     use crate::{
         vehicle::{
-            ACAirDistributionPosition, ACAirIntakeMode, ACAirTemperature, ACFanMode2010, ACFanSpeed, ACModeRequest,
+            ACAirDistributionPosition, ACAirIntakeMode, ACAirTemperature, ACFanMode2010,
+            ACFanSpeed, ACModeRequest,
         },
         Error,
     };

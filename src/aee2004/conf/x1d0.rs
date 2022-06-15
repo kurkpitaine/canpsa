@@ -446,8 +446,8 @@ mod test {
     use super::{Frame, Repr};
     use crate::{
         vehicle::{
-            ACAirDistributionPosition, ACAirIntakeMode, ACAirTemperature, ACFanMode2004, ACFanSpeed,
-            ACModeRequest,
+            ACAirDistributionPosition, ACAirIntakeMode, ACAirTemperature, ACFanMode2004,
+            ACFanSpeed, ACModeRequest,
         },
         Error,
     };

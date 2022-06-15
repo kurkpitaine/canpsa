@@ -14,13 +14,22 @@ pub struct Frame<T: AsRef<[u8]>> {
 
 mod field {
     use crate::field::*;
-    /// 20-bit seconds, 12-bit days.
+    /// 20-bit seconds field,
+    /// 12-bit days field.
     pub const RUNNING_SEC_DAYS: Field = 0..4;
-    /// 8-bit years.
+    /// 8-bit years field.
     pub const RUNNING_YEARS: usize = 4;
-    /// Each field is 1-bit.
+    /// 1-bit distance unit flag,
+    /// 1-bit volume unit flag,
+    /// 1-bit consumption unit flag,
+    /// 1-bit pressure unit flag,
+    /// 1-bit display charset flag,
+    /// 1-bit temperature unit flag,
+    /// 1-bit display color mode flag,
+    /// 1-bit clock format flag.
     pub const DISPLAY_CONFIG_FLAGS: usize = 5;
-    /// 4-bit language code, 4-bit empty.
+    /// 4-bit language code,
+    /// 4-bit empty.
     pub const LANGUAGE: usize = 6;
 }
 

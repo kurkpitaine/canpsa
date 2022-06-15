@@ -947,7 +947,10 @@ mod test {
         assert_eq!(frame.boot_permanent_locking_enable(), false);
         assert_eq!(frame.auto_door_locking_when_driving_enable(), false);
         assert_eq!(frame.selective_unlocking_enable(), false);
-        assert_eq!(frame.follow_me_home_lighting_duration(), LightingDuration::SixtySeconds);
+        assert_eq!(
+            frame.follow_me_home_lighting_duration(),
+            LightingDuration::SixtySeconds
+        );
         assert_eq!(frame.automatic_headlamps_enable(), true);
         assert_eq!(frame.follow_me_home_enable(), true);
         assert_eq!(frame.motorway_lighting_enable(), false);
@@ -985,7 +988,10 @@ mod test {
         assert_eq!(frame.boot_permanent_locking_enable(), false);
         assert_eq!(frame.auto_door_locking_when_driving_enable(), false);
         assert_eq!(frame.selective_unlocking_enable(), false);
-        assert_eq!(frame.follow_me_home_lighting_duration(), LightingDuration::SixtySeconds);
+        assert_eq!(
+            frame.follow_me_home_lighting_duration(),
+            LightingDuration::SixtySeconds
+        );
         assert_eq!(frame.automatic_headlamps_enable(), true);
         assert_eq!(frame.follow_me_home_enable(), false);
         assert_eq!(frame.motorway_lighting_enable(), false);

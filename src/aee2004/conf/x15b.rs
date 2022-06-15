@@ -1,7 +1,7 @@
 use core::{cmp::Ordering, fmt};
 
 use crate::{
-    config::{ConfigurableKeyAction2004, UserProfile, LightingDuration},
+    config::{ConfigurableKeyAction2004, LightingDuration, UserProfile},
     Error, Result,
 };
 
@@ -857,10 +857,11 @@ impl From<&crate::aee2010::infodiv::x15b::Repr> for Repr {
         Repr {
             profile_number: UserProfile::Profile1,
             parameters_validity: repr_2010.parameters_validity,
-            auto_elec_parking_brake_application_enabled: repr_2010.automatic_elec_parking_brake_application_enabled,
+            auto_elec_parking_brake_application_enabled: repr_2010
+                .automatic_elec_parking_brake_application_enabled,
             welcome_function_enabled: repr_2010.welcome_function_enabled,
             partial_window_opening_enabled: false, // No equivalent.
-            locking_mode_on_coe_enabled: false, // No equivalent.
+            locking_mode_on_coe_enabled: false,    // No equivalent.
             auto_door_locking_when_leaving_enabled: repr_2010.key_selective_unlocking_enabled,
             boot_permanent_locking_enabled: repr_2010.boot_selective_unlocking_enabled,
             auto_door_locking_when_driving_enabled: true,
@@ -880,9 +881,14 @@ impl From<&crate::aee2010::infodiv::x15b::Repr> for Repr {
             esp_in_regulation_alert_enabled: false,
             auto_mirrors_folding_enabled: false,
             rear_wiper_in_reverse_gear_enabled: repr_2010.rear_wiper_in_reverse_gear_enabled,
-            mirrors_tilting_in_reverse_gear_enabled: repr_2010.mirrors_tilting_in_reverse_gear_enabled,
-            park_sensors_status: if repr_2010.park_sensors_enabled {3} else {0},
-            blind_spot_monitoring_status: if repr_2010.blind_spot_monitoring_enabled {3} else {0},
+            mirrors_tilting_in_reverse_gear_enabled: repr_2010
+                .mirrors_tilting_in_reverse_gear_enabled,
+            park_sensors_status: if repr_2010.park_sensors_enabled { 3 } else { 0 },
+            blind_spot_monitoring_status: if repr_2010.blind_spot_monitoring_enabled {
+                3
+            } else {
+                0
+            },
             secu_enabled: false,
             configurable_key_mode: repr_2010.configurable_key_mode.into(),
         }
@@ -893,7 +899,7 @@ impl From<&crate::aee2010::infodiv::x15b::Repr> for Repr {
 mod test {
     use super::{Frame, Repr};
     use crate::{
-        config::{ConfigurableKeyAction2004, UserProfile, LightingDuration},
+        config::{ConfigurableKeyAction2004, LightingDuration, UserProfile},
         Error,
     };
 
@@ -984,7 +990,10 @@ mod test {
         assert_eq!(frame.boot_permanent_locking_enable(), false);
         assert_eq!(frame.auto_door_locking_when_driving_enable(), false);
         assert_eq!(frame.selective_unlocking_enable(), false);
-        assert_eq!(frame.follow_me_home_lighting_duration(), LightingDuration::SixtySeconds);
+        assert_eq!(
+            frame.follow_me_home_lighting_duration(),
+            LightingDuration::SixtySeconds
+        );
         assert_eq!(frame.automatic_headlamps_enable(), true);
         assert_eq!(frame.follow_me_home_enable(), true);
         assert_eq!(frame.motorway_lighting_enable(), false);
@@ -1022,7 +1031,10 @@ mod test {
         assert_eq!(frame.boot_permanent_locking_enable(), false);
         assert_eq!(frame.auto_door_locking_when_driving_enable(), false);
         assert_eq!(frame.selective_unlocking_enable(), false);
-        assert_eq!(frame.follow_me_home_lighting_duration(), LightingDuration::SixtySeconds);
+        assert_eq!(
+            frame.follow_me_home_lighting_duration(),
+            LightingDuration::SixtySeconds
+        );
         assert_eq!(frame.automatic_headlamps_enable(), true);
         assert_eq!(frame.follow_me_home_enable(), false);
         assert_eq!(frame.motorway_lighting_enable(), false);

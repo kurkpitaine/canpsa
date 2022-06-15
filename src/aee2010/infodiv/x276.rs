@@ -247,7 +247,7 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
     #[inline]
     pub fn set_adblue_autonomy(&mut self, value: u16) {
         let data = self.buffer.as_mut();
-        let raw = NetworkEndian::read_u16(&data[field::FLAGS_ADBLUE_AUTONOMY]);
+        let raw = NetworkEndian::read_u16(&data[field::FLAGS_ADBLUE_AUTONOMY]) & !0x3fff;
         let raw = raw | (value & 0x3fff);
         NetworkEndian::write_u16(&mut data[field::FLAGS_ADBLUE_AUTONOMY], raw);
     }

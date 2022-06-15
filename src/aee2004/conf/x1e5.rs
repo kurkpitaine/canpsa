@@ -548,12 +548,17 @@ impl From<&crate::aee2010::infodiv::x1e5::Repr> for Repr {
             middle_under_adj: false,
             treble_level: repr_2010.treble_level + 49,
             treble_under_adj: repr_2010.treble_under_adj,
-            speed_dependent_volume: if repr_2010.speed_dependent_volume_enabled { SpeedDependentVolumeLaw::On } else { SpeedDependentVolumeLaw::Off },
+            speed_dependent_volume: if repr_2010.speed_dependent_volume_enabled {
+                SpeedDependentVolumeLaw::On
+            } else {
+                SpeedDependentVolumeLaw::Off
+            },
             speed_dependent_volume_under_adj: repr_2010.speed_dependent_volume_under_adj,
             loudness_enabled: repr_2010.loudness_enabled,
             loudness_under_adj: repr_2010.loudness_under_adj,
             loudness_enabled_diag: false,
-            fader_enabled_diag: repr_2010.fader_opt == crate::config::ConfigOption::SelectableOption,
+            fader_enabled_diag: repr_2010.fader_opt
+                == crate::config::ConfigOption::SelectableOption,
             musical_ambiance: repr_2010.musical_ambiance,
             musical_ambiance_under_adj: repr_2010.musical_ambiance_under_adj,
             impossible_setting: repr_2010.impossible_setting,

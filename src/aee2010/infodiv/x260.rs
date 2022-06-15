@@ -1241,14 +1241,14 @@ impl From<&crate::aee2004::conf::x260::Repr> for Repr {
     fn from(repr_2004: &crate::aee2004::conf::x260::Repr) -> Self {
         Repr {
             consumption_unit: ConsumptionUnit::VolumePerDistance, // No equivalent on AEE2004.
-            distance_unit: DistanceUnit::Kilometer, // No equivalent on AEE2004.
-            language: Language::English, // No equivalent on AEE2004.
-            units_language_parameters_validity: true, // No equivalent on AEE2004.
-            sound_harmony: SoundHarmony::Harmony1, // No equivalent on AEE2004.
+            distance_unit: DistanceUnit::Kilometer,               // No equivalent on AEE2004.
+            language: Language::English,                          // No equivalent on AEE2004.
+            units_language_parameters_validity: true,             // No equivalent on AEE2004.
+            sound_harmony: SoundHarmony::Harmony1,                // No equivalent on AEE2004.
             parameters_validity: repr_2004.parameters_validity,
             mood_lighting_level: MoodLightingLevel::Level3, // No equivalent on AEE2004.
-            temperature_unit: TemperatureUnit::Celsius, // No equivalent on AEE2004.
-            volume_unit: VolumeUnit::Liter, // No equivalent on AEE2004.
+            temperature_unit: TemperatureUnit::Celsius,     // No equivalent on AEE2004.
+            volume_unit: VolumeUnit::Liter,                 // No equivalent on AEE2004.
             mood_lighting_enabled: repr_2004.mood_lighting_enabled,
             daytime_running_lamps_enabled: repr_2004.daytime_running_lamps_enabled,
             adaptive_lamps_enabled: repr_2004.adaptive_lamps_enabled,
@@ -1256,7 +1256,8 @@ impl From<&crate::aee2004::conf::x260::Repr> for Repr {
             boot_selective_unlocking_enabled: repr_2004.boot_permanent_locking_enabled, // No such thing on AEE2010.
             selective_unlocking_enabled: repr_2004.selective_unlocking_enabled,
             key_selective_unlocking_enabled: repr_2004.auto_door_locking_when_leaving_enabled,
-            automatic_elec_parking_brake_application_enabled: repr_2004.auto_elec_parking_brake_application_enabled,
+            automatic_elec_parking_brake_application_enabled: repr_2004
+                .auto_elec_parking_brake_application_enabled,
             automatic_headlamps_enabled: repr_2004.automatic_headlamps_enabled,
             welcome_lighting_duration: LightingDuration::FifteenSeconds, // No equivalent on AEE2004.
             welcome_lighting_enabled: false,
@@ -1268,7 +1269,8 @@ impl From<&crate::aee2004::conf::x260::Repr> for Repr {
             rear_wiper_in_reverse_gear_enabled: repr_2004.rear_wiper_in_reverse_gear_enabled,
             blind_spot_monitoring_enabled: false, // No equivalent on AEE2004.
             park_sensors_enabled: repr_2004.park_sensors_status > 0,
-            mirrors_tilting_in_reverse_gear_enabled: repr_2004.mirrors_tilting_in_reverse_gear_enabled,
+            mirrors_tilting_in_reverse_gear_enabled: repr_2004
+                .mirrors_tilting_in_reverse_gear_enabled,
             indirect_under_inflation_reset_status: false, // No equivalent on AEE2004.
             automatic_emergency_braking_enabled: true, // FARC is equivalent on AEE2004, but not possible to disable.
             collision_alert_sensibility_level: CollisionAlertSensibilityLevel::Normal, // No equivalent on AEE2004.
