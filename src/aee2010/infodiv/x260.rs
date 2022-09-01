@@ -3,7 +3,8 @@ use core::{cmp::Ordering, fmt, time::Duration};
 use crate::{
     config::{
         CollisionAlertSensibilityLevel, ConfigurableKeyAction2010, ConsumptionUnit, DistanceUnit,
-        Language, LightingDuration, MoodLightingLevel, SoundHarmony, TemperatureUnit, VolumeUnit,
+        Language, LightingDuration2010, MoodLightingLevel, SoundHarmony, TemperatureUnit,
+        VolumeUnit,
     },
     Error, Result,
 };
@@ -311,10 +312,10 @@ impl<T: AsRef<[u8]>> Frame<T> {
 
     /// Return the welcome lighting duration field.
     #[inline]
-    pub fn welcome_lighting_duration(&self) -> LightingDuration {
+    pub fn welcome_lighting_duration(&self) -> LightingDuration2010 {
         let data = self.buffer.as_ref();
         let raw = (data[field::OPT_3] & 0x06) >> 1;
-        LightingDuration::from(raw)
+        LightingDuration2010::from(raw)
     }
 
     /// Return the welcome lighting enable flag.
@@ -333,10 +334,10 @@ impl<T: AsRef<[u8]>> Frame<T> {
 
     /// Return the follow-me-home lighting duration field.
     #[inline]
-    pub fn follow_me_home_lighting_duration(&self) -> LightingDuration {
+    pub fn follow_me_home_lighting_duration(&self) -> LightingDuration2010 {
         let data = self.buffer.as_ref();
         let raw = (data[field::OPT_3] & 0x60) >> 5;
-        LightingDuration::from(raw)
+        LightingDuration2010::from(raw)
     }
 
     /// Return the follow-me-home enable flag.
@@ -647,7 +648,7 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
 
     /// Set the welcome lighting duration field.
     #[inline]
-    pub fn set_welcome_lighting_duration(&mut self, value: LightingDuration) {
+    pub fn set_welcome_lighting_duration(&mut self, value: LightingDuration2010) {
         let data = self.buffer.as_mut();
         let raw = data[field::OPT_3] & !0x06;
         let raw = raw | ((u8::from(value) << 1) & 0x06);
@@ -674,7 +675,7 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
 
     /// Set the follow-me-home lighting duration field.
     #[inline]
-    pub fn set_follow_me_home_lighting_duration(&mut self, value: LightingDuration) {
+    pub fn set_follow_me_home_lighting_duration(&mut self, value: LightingDuration2010) {
         let data = self.buffer.as_mut();
         let raw = data[field::OPT_3] & !0x60;
         let raw = raw | ((u8::from(value) << 5) & 0x60);
@@ -938,10 +939,10 @@ pub struct Repr {
     pub key_selective_unlocking_enabled: bool,
     pub automatic_elec_parking_brake_application_enabled: bool,
     pub automatic_headlamps_enabled: bool,
-    pub welcome_lighting_duration: LightingDuration,
+    pub welcome_lighting_duration: LightingDuration2010,
     pub welcome_lighting_enabled: bool,
     pub motorway_lighting_enabled: bool,
-    pub follow_me_home_lighting_duration: LightingDuration,
+    pub follow_me_home_lighting_duration: LightingDuration2010,
     pub follow_me_home_enabled: bool,
     pub configurable_key_mode: ConfigurableKeyAction2010,
     pub motorized_tailgate_enabled: bool,
@@ -1259,10 +1260,10 @@ impl From<&crate::aee2004::conf::x260::Repr> for Repr {
             automatic_elec_parking_brake_application_enabled: repr_2004
                 .auto_elec_parking_brake_application_enabled,
             automatic_headlamps_enabled: repr_2004.automatic_headlamps_enabled,
-            welcome_lighting_duration: LightingDuration::FifteenSeconds, // No equivalent on AEE2004.
+            welcome_lighting_duration: LightingDuration2010::FifteenSeconds, // No equivalent on AEE2004.
             welcome_lighting_enabled: false,
             motorway_lighting_enabled: repr_2004.motorway_lighting_enabled,
-            follow_me_home_lighting_duration: repr_2004.follow_me_home_lighting_duration,
+            follow_me_home_lighting_duration: repr_2004.follow_me_home_lighting_duration.into(),
             follow_me_home_enabled: repr_2004.follow_me_home_enabled,
             configurable_key_mode: repr_2004.configurable_key_mode.into(),
             motorized_tailgate_enabled: false, // No equivalent on AEE2004.
@@ -1294,7 +1295,7 @@ mod test {
     use crate::{
         config::{
             CollisionAlertSensibilityLevel, ConfigurableKeyAction2010, ConsumptionUnit,
-            DistanceUnit, Language, LightingDuration, MoodLightingLevel, SoundHarmony,
+            DistanceUnit, Language, LightingDuration2010, MoodLightingLevel, SoundHarmony,
             TemperatureUnit, VolumeUnit,
         },
         Error,
@@ -1323,10 +1324,10 @@ mod test {
             key_selective_unlocking_enabled: false,
             automatic_elec_parking_brake_application_enabled: true,
             automatic_headlamps_enabled: false,
-            welcome_lighting_duration: LightingDuration::ThirtySeconds,
+            welcome_lighting_duration: LightingDuration2010::ThirtySeconds,
             welcome_lighting_enabled: true,
             motorway_lighting_enabled: false,
-            follow_me_home_lighting_duration: LightingDuration::ThirtySeconds,
+            follow_me_home_lighting_duration: LightingDuration2010::ThirtySeconds,
             follow_me_home_enabled: true,
             configurable_key_mode: ConfigurableKeyAction2010::ClusterCustomization,
             motorized_tailgate_enabled: false,
@@ -1370,10 +1371,10 @@ mod test {
             key_selective_unlocking_enabled: true,
             automatic_elec_parking_brake_application_enabled: false,
             automatic_headlamps_enabled: true,
-            welcome_lighting_duration: LightingDuration::SixtySeconds,
+            welcome_lighting_duration: LightingDuration2010::SixtySeconds,
             welcome_lighting_enabled: false,
             motorway_lighting_enabled: true,
-            follow_me_home_lighting_duration: LightingDuration::SixtySeconds,
+            follow_me_home_lighting_duration: LightingDuration2010::SixtySeconds,
             follow_me_home_enabled: false,
             configurable_key_mode: ConfigurableKeyAction2010::CeilingLight,
             motorized_tailgate_enabled: true,
@@ -1421,13 +1422,13 @@ mod test {
         assert_eq!(frame.automatic_headlamps_enable(), false);
         assert_eq!(
             frame.welcome_lighting_duration(),
-            LightingDuration::ThirtySeconds
+            LightingDuration2010::ThirtySeconds
         );
         assert_eq!(frame.welcome_lighting_enable(), true);
         assert_eq!(frame.motorway_lighting_enable(), false);
         assert_eq!(
             frame.follow_me_home_lighting_duration(),
-            LightingDuration::ThirtySeconds
+            LightingDuration2010::ThirtySeconds
         );
         assert_eq!(frame.follow_me_home_enable(), true);
         assert_eq!(
@@ -1481,13 +1482,13 @@ mod test {
         assert_eq!(frame.automatic_headlamps_enable(), true);
         assert_eq!(
             frame.welcome_lighting_duration(),
-            LightingDuration::SixtySeconds
+            LightingDuration2010::SixtySeconds
         );
         assert_eq!(frame.welcome_lighting_enable(), false);
         assert_eq!(frame.motorway_lighting_enable(), true);
         assert_eq!(
             frame.follow_me_home_lighting_duration(),
-            LightingDuration::SixtySeconds
+            LightingDuration2010::SixtySeconds
         );
         assert_eq!(frame.follow_me_home_enable(), false);
         assert_eq!(
@@ -1540,10 +1541,10 @@ mod test {
         frame.set_key_selective_unlocking_enable(false);
         frame.set_auto_elec_parking_brake_application_enable(true);
         frame.set_automatic_headlamps_enable(false);
-        frame.set_welcome_lighting_duration(LightingDuration::ThirtySeconds);
+        frame.set_welcome_lighting_duration(LightingDuration2010::ThirtySeconds);
         frame.set_welcome_lighting_enable(true);
         frame.set_motorway_lighting_enable(false);
-        frame.set_follow_me_home_lighting_duration(LightingDuration::ThirtySeconds);
+        frame.set_follow_me_home_lighting_duration(LightingDuration2010::ThirtySeconds);
         frame.set_follow_me_home_enable(true);
         frame.set_configurable_key_mode(ConfigurableKeyAction2010::ClusterCustomization);
         frame.set_motorized_tailgate_enable(false);
@@ -1591,10 +1592,10 @@ mod test {
         frame.set_key_selective_unlocking_enable(true);
         frame.set_auto_elec_parking_brake_application_enable(false);
         frame.set_automatic_headlamps_enable(true);
-        frame.set_welcome_lighting_duration(LightingDuration::SixtySeconds);
+        frame.set_welcome_lighting_duration(LightingDuration2010::SixtySeconds);
         frame.set_welcome_lighting_enable(false);
         frame.set_motorway_lighting_enable(true);
-        frame.set_follow_me_home_lighting_duration(LightingDuration::SixtySeconds);
+        frame.set_follow_me_home_lighting_duration(LightingDuration2010::SixtySeconds);
         frame.set_follow_me_home_enable(false);
         frame.set_configurable_key_mode(ConfigurableKeyAction2010::CeilingLight);
         frame.set_motorized_tailgate_enable(true);

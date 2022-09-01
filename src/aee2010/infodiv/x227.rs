@@ -534,6 +534,29 @@ impl fmt::Display for Repr {
     }
 }
 
+impl From<&crate::aee2004::conf::x227::Repr> for Repr {
+    fn from(repr_2004: &crate::aee2004::conf::x227::Repr) -> Self {
+        Repr {
+            sport_suspension_led_state: repr_2004.sport_suspension_led_state,
+            child_lock_led_state: repr_2004.child_lock_led_state,
+            esp_led_state: repr_2004.esp_led_state,
+            parking_sensors_led_state: repr_2004.parking_sensors_led_state,
+            ac_on_led_state: repr_2004.ac_on_led_state,
+            rear_windshield_demist_led_state: repr_2004.rear_windshield_demist_led_state,
+            lane_centering_led_state: repr_2004.lane_centering_led_state,
+            electrical_parking_brake_led_state: repr_2004.electrical_parking_brake_led_state,
+            blind_spot_monitoring_led_state: repr_2004.blind_spot_monitoring_led_state,
+            ac_recirculation_state: repr_2004.ac_recirculation_state,
+            fuel_type: repr_2004.fuel_type,
+            stop_start_1: repr_2004.stop_start_1,
+            stop_start_2: repr_2004.stop_start_2,
+            automatic_main_beam_enabled: false, // No equivalent on AEE2004.
+            adaptive_cruise_control_led_state: repr_2004.adaptive_cruise_control_led_state,
+            lane_keep_assist_led_state: PushButtonLedState::Off, // No equivalent on AEE2004.
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::{Frame, Repr};

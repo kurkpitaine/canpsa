@@ -444,7 +444,11 @@ impl Repr {
             black_panel_enabled: frame.black_panel_enabled(),
             indirect_under_inflation_reset_request: frame.indirect_under_inflation_reset_request(),
             pre_conditioning_request: frame.pre_conditioning_request(),
-            total_trip_distance: frame.total_trip_distance() * 2,
+            total_trip_distance: if frame.total_trip_distance() > 0x7fff {
+                0xffff
+            } else {
+                frame.total_trip_distance() * 2
+            },
             interactive_message: frame.interactive_message(),
             stop_and_start_button_state: frame.stop_and_start_button_state(),
             lane_centering_button_state: frame.lane_centering_button_state(),
@@ -478,7 +482,11 @@ impl Repr {
             self.indirect_under_inflation_reset_request,
         );
         frame.set_pre_conditioning_request(self.pre_conditioning_request);
-        frame.set_total_trip_distance(self.total_trip_distance / 2);
+        frame.set_total_trip_distance(if self.total_trip_distance > 0x7fff {
+            0xffff
+        } else {
+            self.total_trip_distance / 2
+        });
         frame.set_interactive_message(self.interactive_message);
         frame.set_stop_and_start_button_state(self.stop_and_start_button_state);
         frame.set_lane_centering_button_state(self.lane_centering_button_state);

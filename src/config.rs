@@ -578,8 +578,42 @@ impl fmt::Display for MoodLightingLevel {
 }
 
 enum_with_unknown! {
-    /// Lighting duration for welcome/follow-me-home lighting.
-    pub enum LightingDuration(u8) {
+    /// Lighting duration for welcome/follow-me-home lighting. AEE2004 only.
+    pub enum LightingDuration2004(u8) {
+        /// 15 sec lighting duration.
+        FifteenSeconds = 1,
+        /// 30 sec lighting duration.
+        ThirtySeconds = 2,
+        /// 60 sec lighting duration.
+        SixtySeconds = 4,
+    }
+}
+
+impl fmt::Display for LightingDuration2004 {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            LightingDuration2004::FifteenSeconds => write!(f, "15 seconds"),
+            LightingDuration2004::ThirtySeconds => write!(f, "30 seconds"),
+            LightingDuration2004::SixtySeconds => write!(f, "60 seconds"),
+            LightingDuration2004::Unknown(duration) => write!(f, "0x{:02x}", duration),
+        }
+    }
+}
+
+impl From<LightingDuration2010> for LightingDuration2004 {
+    fn from(duration_2010: LightingDuration2010) -> Self {
+        match duration_2010 {
+            LightingDuration2010::FifteenSeconds => LightingDuration2004::FifteenSeconds,
+            LightingDuration2010::ThirtySeconds => LightingDuration2004::ThirtySeconds,
+            LightingDuration2010::SixtySeconds => LightingDuration2004::SixtySeconds,
+            LightingDuration2010::Unknown(u) => LightingDuration2004::Unknown(u),
+        }
+    }
+}
+
+enum_with_unknown! {
+    /// Lighting duration for welcome/follow-me-home lighting. AEE2010 only.
+    pub enum LightingDuration2010(u8) {
         /// 15 sec lighting duration.
         FifteenSeconds = 0,
         /// 30 sec lighting duration.
@@ -589,13 +623,24 @@ enum_with_unknown! {
     }
 }
 
-impl fmt::Display for LightingDuration {
+impl fmt::Display for LightingDuration2010 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            LightingDuration::FifteenSeconds => write!(f, "15 seconds"),
-            LightingDuration::ThirtySeconds => write!(f, "30 seconds"),
-            LightingDuration::SixtySeconds => write!(f, "60 seconds"),
-            LightingDuration::Unknown(duration) => write!(f, "0x{:02x}", duration),
+            LightingDuration2010::FifteenSeconds => write!(f, "15 seconds"),
+            LightingDuration2010::ThirtySeconds => write!(f, "30 seconds"),
+            LightingDuration2010::SixtySeconds => write!(f, "60 seconds"),
+            LightingDuration2010::Unknown(duration) => write!(f, "0x{:02x}", duration),
+        }
+    }
+}
+
+impl From<LightingDuration2004> for LightingDuration2010 {
+    fn from(duration_2004: LightingDuration2004) -> Self {
+        match duration_2004 {
+            LightingDuration2004::FifteenSeconds => LightingDuration2010::FifteenSeconds,
+            LightingDuration2004::ThirtySeconds => LightingDuration2010::ThirtySeconds,
+            LightingDuration2004::SixtySeconds => LightingDuration2010::SixtySeconds,
+            LightingDuration2004::Unknown(u) => LightingDuration2010::Unknown(u),
         }
     }
 }

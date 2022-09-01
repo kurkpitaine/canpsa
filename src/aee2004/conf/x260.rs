@@ -1,7 +1,7 @@
 use core::{cmp::Ordering, fmt};
 
 use crate::{
-    config::{ConfigurableKeyAction2004, LightingDuration, UserProfile},
+    config::{ConfigurableKeyAction2004, LightingDuration2004, UserProfile},
     Error, Result,
 };
 
@@ -183,10 +183,10 @@ impl<T: AsRef<[u8]>> Frame<T> {
 
     /// Return the follow-me-home lighting duration field.
     #[inline]
-    pub fn follow_me_home_lighting_duration(&self) -> LightingDuration {
+    pub fn follow_me_home_lighting_duration(&self) -> LightingDuration2004 {
         let data = self.buffer.as_ref();
         let raw = data[field::OPT_2] & 0x0f;
-        LightingDuration::from(raw)
+        LightingDuration2004::from(raw)
     }
 
     /// Return the automatic headlamps enable flag.
@@ -417,7 +417,7 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
 
     /// Set the follow-me-home lighting duration field.
     #[inline]
-    pub fn set_follow_me_home_lighting_duration(&mut self, value: LightingDuration) {
+    pub fn set_follow_me_home_lighting_duration(&mut self, value: LightingDuration2004) {
         let data = self.buffer.as_mut();
         let raw = data[field::OPT_2] & !0x0f;
         let raw = raw | (u8::from(value) & 0x0f);
@@ -628,7 +628,7 @@ pub struct Repr {
     pub boot_permanent_locking_enabled: bool,
     pub auto_door_locking_when_driving_enabled: bool,
     pub selective_unlocking_enabled: bool,
-    pub follow_me_home_lighting_duration: LightingDuration,
+    pub follow_me_home_lighting_duration: LightingDuration2004,
     pub automatic_headlamps_enabled: bool,
     pub follow_me_home_enabled: bool,
     pub motorway_lighting_enabled: bool,
@@ -852,16 +852,57 @@ impl fmt::Display for Repr {
     }
 }
 
+impl From<&crate::aee2004::conf::x15b::Repr> for Repr {
+    fn from(repr_x15b: &crate::aee2004::conf::x15b::Repr) -> Self {
+        Repr {
+            profile_number: repr_x15b.profile_number,
+            parameters_validity: repr_x15b.parameters_validity,
+            auto_elec_parking_brake_application_enabled: repr_x15b
+                .auto_elec_parking_brake_application_enabled,
+            welcome_function_enabled: repr_x15b.welcome_function_enabled,
+            partial_window_opening_enabled: repr_x15b.partial_window_opening_enabled,
+            locking_mode_on_coe_enabled: repr_x15b.locking_mode_on_coe_enabled,
+            auto_door_locking_when_leaving_enabled: repr_x15b
+                .auto_door_locking_when_leaving_enabled,
+            boot_permanent_locking_enabled: repr_x15b.boot_permanent_locking_enabled,
+            auto_door_locking_when_driving_enabled: repr_x15b
+                .auto_door_locking_when_driving_enabled,
+            selective_unlocking_enabled: repr_x15b.selective_unlocking_enabled,
+            follow_me_home_lighting_duration: repr_x15b.follow_me_home_lighting_duration,
+            automatic_headlamps_enabled: repr_x15b.automatic_headlamps_enabled,
+            follow_me_home_enabled: repr_x15b.follow_me_home_enabled,
+            motorway_lighting_enabled: repr_x15b.motorway_lighting_enabled,
+            adaptive_lamps_enabled: repr_x15b.adaptive_lamps_enabled,
+            ceiling_light_out_delay: repr_x15b.ceiling_light_out_delay,
+            daytime_running_lamps_enabled: repr_x15b.daytime_running_lamps_enabled,
+            mood_lighting_enabled: repr_x15b.mood_lighting_enabled,
+            low_fuel_level_alert_enabled: repr_x15b.low_fuel_level_alert_enabled,
+            key_left_in_car_alert_enabled: repr_x15b.key_left_in_car_alert_enabled,
+            lighting_left_on_alert_enabled: repr_x15b.lighting_left_on_alert_enabled,
+            alt_gen_enabled: repr_x15b.alt_gen_enabled,
+            esp_in_regulation_alert_enabled: repr_x15b.esp_in_regulation_alert_enabled,
+            auto_mirrors_folding_enabled: repr_x15b.auto_mirrors_folding_enabled,
+            rear_wiper_in_reverse_gear_enabled: repr_x15b.rear_wiper_in_reverse_gear_enabled,
+            mirrors_tilting_in_reverse_gear_enabled: repr_x15b
+                .mirrors_tilting_in_reverse_gear_enabled,
+            park_sensors_status: repr_x15b.park_sensors_status,
+            blind_spot_monitoring_status: repr_x15b.blind_spot_monitoring_status,
+            secu_enabled: repr_x15b.secu_enabled,
+            configurable_key_mode: repr_x15b.configurable_key_mode,
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::{Frame, Repr};
     use crate::{
-        config::{ConfigurableKeyAction2004, LightingDuration, UserProfile},
+        config::{ConfigurableKeyAction2004, LightingDuration2004, UserProfile},
         Error,
     };
 
-    static REPR_FRAME_BYTES_1: [u8; 8] = [0x01, 0x03, 0xb2, 0x00, 0x00, 0xd0, 0x00, 0x20];
-    static REPR_FRAME_BYTES_2: [u8; 8] = [0x02, 0x03, 0x92, 0x40, 0x00, 0xd0, 0x00, 0x10];
+    static REPR_FRAME_BYTES_1: [u8; 8] = [0x01, 0x03, 0xb4, 0x00, 0x00, 0xd0, 0x00, 0x20];
+    static REPR_FRAME_BYTES_2: [u8; 8] = [0x02, 0x03, 0x94, 0x40, 0x00, 0xd0, 0x00, 0x10];
 
     fn frame_1_repr() -> Repr {
         Repr {
@@ -875,7 +916,7 @@ mod test {
             boot_permanent_locking_enabled: false,
             auto_door_locking_when_driving_enabled: false,
             selective_unlocking_enabled: false,
-            follow_me_home_lighting_duration: LightingDuration::SixtySeconds,
+            follow_me_home_lighting_duration: LightingDuration2004::SixtySeconds,
             automatic_headlamps_enabled: true,
             follow_me_home_enabled: true,
             motorway_lighting_enabled: false,
@@ -910,7 +951,7 @@ mod test {
             boot_permanent_locking_enabled: false,
             auto_door_locking_when_driving_enabled: false,
             selective_unlocking_enabled: false,
-            follow_me_home_lighting_duration: LightingDuration::SixtySeconds,
+            follow_me_home_lighting_duration: LightingDuration2004::SixtySeconds,
             automatic_headlamps_enabled: true,
             follow_me_home_enabled: false,
             motorway_lighting_enabled: false,
@@ -949,7 +990,7 @@ mod test {
         assert_eq!(frame.selective_unlocking_enable(), false);
         assert_eq!(
             frame.follow_me_home_lighting_duration(),
-            LightingDuration::SixtySeconds
+            LightingDuration2004::SixtySeconds
         );
         assert_eq!(frame.automatic_headlamps_enable(), true);
         assert_eq!(frame.follow_me_home_enable(), true);
@@ -990,7 +1031,7 @@ mod test {
         assert_eq!(frame.selective_unlocking_enable(), false);
         assert_eq!(
             frame.follow_me_home_lighting_duration(),
-            LightingDuration::SixtySeconds
+            LightingDuration2004::SixtySeconds
         );
         assert_eq!(frame.automatic_headlamps_enable(), true);
         assert_eq!(frame.follow_me_home_enable(), false);
@@ -1030,7 +1071,7 @@ mod test {
         frame.set_boot_permanent_locking_enable(false);
         frame.set_auto_door_locking_when_driving_enable(false);
         frame.set_selective_unlocking_enable(false);
-        frame.set_follow_me_home_lighting_duration(LightingDuration::SixtySeconds);
+        frame.set_follow_me_home_lighting_duration(LightingDuration2004::SixtySeconds);
         frame.set_automatic_headlamps_enable(true);
         frame.set_follow_me_home_enable(true);
         frame.set_motorway_lighting_enable(false);
@@ -1068,7 +1109,7 @@ mod test {
         frame.set_boot_permanent_locking_enable(false);
         frame.set_auto_door_locking_when_driving_enable(false);
         frame.set_selective_unlocking_enable(false);
-        frame.set_follow_me_home_lighting_duration(LightingDuration::SixtySeconds);
+        frame.set_follow_me_home_lighting_duration(LightingDuration2004::SixtySeconds);
         frame.set_automatic_headlamps_enable(true);
         frame.set_follow_me_home_enable(false);
         frame.set_motorway_lighting_enable(false);
@@ -1093,7 +1134,7 @@ mod test {
 
     #[test]
     fn test_overlong() {
-        let bytes: [u8; 9] = [0x01, 0x03, 0xb2, 0x00, 0x00, 0xd0, 0x00, 0x20, 0xff];
+        let bytes: [u8; 9] = [0x01, 0x03, 0xb4, 0x00, 0x00, 0xd0, 0x00, 0x20, 0xff];
         assert_eq!(
             Frame::new_unchecked(&bytes).check_len().unwrap_err(),
             Error::Overlong
@@ -1102,7 +1143,7 @@ mod test {
 
     #[test]
     fn test_underlong() {
-        let bytes: [u8; 7] = [0x01, 0x03, 0xb2, 0x00, 0x00, 0xd0, 0x00];
+        let bytes: [u8; 7] = [0x01, 0x03, 0xb4, 0x00, 0x00, 0xd0, 0x00];
         assert_eq!(Frame::new_checked(&bytes).unwrap_err(), Error::Truncated);
     }
 

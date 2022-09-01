@@ -38,7 +38,7 @@ pub enum Error {
     Truncated,
     /// An incoming frame could not be parsed because its size is too long.
     Overlong,
-    /// An incoming frame was recognized but contains invalid values.
+    /// An incoming frame was recognized but contains invalid values or checksum.
     /// E.g. a datetime frame with impossible values.
     Invalid,
     /// An incoming frame was recognized but contradicted internal state.

@@ -3,10 +3,7 @@ use core::{cmp::Ordering, fmt, time::Duration};
 use byteorder::{ByteOrder, NetworkEndian};
 use time::{Date, Month, OffsetDateTime, PrimitiveDateTime, Time};
 
-use crate::{
-    config::DisplayMode,
-    Error, Result, YEAR_OFFSET,
-};
+use crate::{config::DisplayMode, Error, Result, YEAR_OFFSET};
 
 /// A read/write wrapper around an CAN frame buffer.
 #[derive(Debug, PartialEq, Clone)]
@@ -267,10 +264,7 @@ impl fmt::Display for Repr {
 #[cfg(test)]
 mod test {
     use super::{Frame, Repr};
-    use crate::{
-        config::DisplayMode,
-        Error,
-    };
+    use crate::{config::DisplayMode, Error};
 
     use time::macros::datetime;
 

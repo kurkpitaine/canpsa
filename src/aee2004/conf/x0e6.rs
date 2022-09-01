@@ -31,12 +31,12 @@ mod field {
     /// 15-bit rear right wheel counter field,
     /// 1-bit rear right wheel counter failure flag.
     pub const CNT_REAR_RIGHT: Field = 3..5;
-    /// 8-bit battery voltage in 0.1 volt unit field.
+    /// 8-bit battery voltage * 20 - 144 volt unit field.
     pub const BAT_VOLTAGE: usize = 5;
     /// 2-bit unknown,
     /// 2-bit slope type field,
     /// 2-bit Stop & Start braking request field,
-    /// 1-bit 'GEE' failure flag,
+    /// 1-bit Electrical power management failure flag,
     /// 1-bit Emergency Braking Warning managed by brake control unit flag.
     pub const FLAGS_2: usize = 6;
 }
@@ -204,9 +204,9 @@ impl<T: AsRef<[u8]>> Frame<T> {
         StopAndStartBrakeRequirement::from(raw)
     }
 
-    /// Return the 'GEE' failure flag.
+    /// Return the Electrical power management failure flag.
     #[inline]
-    pub fn gee_failure(&self) -> bool {
+    pub fn elec_pwr_mgmt_failure(&self) -> bool {
         let data = self.buffer.as_ref();
         data[field::FLAGS_2] & 0x40 != 0
     }
@@ -353,9 +353,9 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
         data[field::FLAGS_2] = raw;
     }
 
-    /// Set the 'GEE' failure flag.
+    /// Set the Electrical power management failure flag.
     #[inline]
-    pub fn set_gee_failure(&mut self, value: bool) {
+    pub fn set_elec_pwr_mgmt_failure(&mut self, value: bool) {
         let data = self.buffer.as_mut();
         let raw = data[field::FLAGS_2] & !0x40;
         let raw = if value { raw | 0x40 } else { raw & !0x40 };
@@ -412,7 +412,7 @@ pub struct Repr {
     pub battery_voltage: u8,
     pub slope_type: SlopeType,
     pub stop_start_brake_req: StopAndStartBrakeRequirement,
-    pub gee_failure: bool,
+    pub elec_power_management_failure: bool,
     pub ebw_managed_by_bcu: bool,
 }
 
@@ -434,12 +434,12 @@ impl Repr {
             rear_right_wheel_counter: frame.rear_right_wheel_counter(),
             rear_right_wheel_counter_failure: frame.rear_right_wheel_counter_failure(),
             #[cfg(feature = "float")]
-            battery_voltage: (frame.battery_voltage() as f32) / 10.0,
+            battery_voltage: ((frame.battery_voltage() as f32) + 144.0) / 20.0,
             #[cfg(not(feature = "float"))]
             battery_voltage: frame.battery_voltage(),
             slope_type: frame.slope_type(),
             stop_start_brake_req: frame.stop_start_brake_req(),
-            gee_failure: frame.gee_failure(),
+            elec_power_management_failure: frame.elec_pwr_mgmt_failure(),
             ebw_managed_by_bcu: frame.ebw_managed_by_bcu(),
         })
     }
@@ -464,12 +464,12 @@ impl Repr {
         frame.set_rear_right_wheel_counter(self.rear_right_wheel_counter);
         frame.set_rear_right_wheel_counter_failure(self.rear_right_wheel_counter_failure);
         #[cfg(feature = "float")]
-        frame.set_battery_voltage((self.battery_voltage * 10.0) as u8);
+        frame.set_battery_voltage(((self.battery_voltage * 20.0) - 144.0) as u8);
         #[cfg(not(feature = "float"))]
         frame.set_battery_voltage(self.battery_voltage);
         frame.set_slope_type(self.slope_type);
         frame.set_stop_start_brake_req(self.stop_start_brake_req);
-        frame.set_gee_failure(self.gee_failure);
+        frame.set_elec_pwr_mgmt_failure(self.elec_power_management_failure);
         frame.set_ebw_managed_by_bcu(self.ebw_managed_by_bcu);
     }
 }
@@ -520,7 +520,11 @@ impl fmt::Display for Repr {
         writeln!(f, " battery_voltage={}", self.battery_voltage)?;
         writeln!(f, " slope_type={}", self.slope_type)?;
         writeln!(f, " stop_start_brake_req={}", self.stop_start_brake_req)?;
-        writeln!(f, " gee_failure={}", self.gee_failure)?;
+        writeln!(
+            f,
+            " elec_power_management_failure={}",
+            self.elec_power_management_failure
+        )?;
         writeln!(f, " ebw_managed_by_bcu={}", self.ebw_managed_by_bcu)
     }
 }
@@ -533,8 +537,8 @@ mod test {
         Error,
     };
 
-    static REPR_FRAME_BYTES_1: [u8; 7] = [0x55, 0x2c, 0x15, 0x82, 0x26, 0x86, 0x80];
-    static REPR_FRAME_BYTES_2: [u8; 7] = [0xaa, 0x82, 0x0e, 0x21, 0x71, 0x8d, 0x64];
+    static REPR_FRAME_BYTES_1: [u8; 7] = [0x55, 0x2c, 0x15, 0x82, 0x26, 0x7c, 0x80];
+    static REPR_FRAME_BYTES_2: [u8; 7] = [0xaa, 0x82, 0x0e, 0x21, 0x71, 0x8a, 0x64];
 
     fn frame_1_repr() -> Repr {
         Repr {
@@ -553,7 +557,7 @@ mod test {
             battery_voltage: 13.4,
             slope_type: SlopeType::Light,
             stop_start_brake_req: StopAndStartBrakeRequirement::Nothing,
-            gee_failure: false,
+            elec_power_management_failure: false,
             ebw_managed_by_bcu: true,
         }
     }
@@ -575,7 +579,7 @@ mod test {
             battery_voltage: 14.1,
             slope_type: SlopeType::SteepUpward,
             stop_start_brake_req: StopAndStartBrakeRequirement::Restart,
-            gee_failure: true,
+            elec_power_management_failure: true,
             ebw_managed_by_bcu: false,
         }
     }
@@ -596,13 +600,13 @@ mod test {
         assert_eq!(frame.rear_left_wheel_counter_failure(), false);
         assert_eq!(frame.rear_right_wheel_counter(), 550);
         assert_eq!(frame.rear_right_wheel_counter_failure(), true);
-        assert_eq!(frame.battery_voltage(), 134);
+        assert_eq!(frame.battery_voltage(), 124);
         assert_eq!(frame.slope_type(), SlopeType::Light);
         assert_eq!(
             frame.stop_start_brake_req(),
             StopAndStartBrakeRequirement::Nothing
         );
-        assert_eq!(frame.gee_failure(), false);
+        assert_eq!(frame.elec_pwr_mgmt_failure(), false);
         assert_eq!(frame.ebw_managed_by_bcu(), true);
     }
 
@@ -622,13 +626,13 @@ mod test {
         assert_eq!(frame.rear_left_wheel_counter_failure(), true);
         assert_eq!(frame.rear_right_wheel_counter(), 8561);
         assert_eq!(frame.rear_right_wheel_counter_failure(), false);
-        assert_eq!(frame.battery_voltage(), 141);
+        assert_eq!(frame.battery_voltage(), 138);
         assert_eq!(frame.slope_type(), SlopeType::SteepUpward);
         assert_eq!(
             frame.stop_start_brake_req(),
             StopAndStartBrakeRequirement::Restart
         );
-        assert_eq!(frame.gee_failure(), true);
+        assert_eq!(frame.elec_pwr_mgmt_failure(), true);
         assert_eq!(frame.ebw_managed_by_bcu(), false);
     }
 
@@ -649,10 +653,10 @@ mod test {
         frame.set_rear_left_wheel_counter_failure(false);
         frame.set_rear_right_wheel_counter(550);
         frame.set_rear_right_wheel_counter_failure(true);
-        frame.set_battery_voltage(134);
+        frame.set_battery_voltage(124);
         frame.set_slope_type(SlopeType::Light);
         frame.set_stop_start_brake_req(StopAndStartBrakeRequirement::Nothing);
-        frame.set_gee_failure(false);
+        frame.set_elec_pwr_mgmt_failure(false);
         frame.set_ebw_managed_by_bcu(true);
 
         assert_eq!(frame.into_inner(), &REPR_FRAME_BYTES_1);
@@ -675,10 +679,10 @@ mod test {
         frame.set_rear_left_wheel_counter_failure(true);
         frame.set_rear_right_wheel_counter(8561);
         frame.set_rear_right_wheel_counter_failure(false);
-        frame.set_battery_voltage(141);
+        frame.set_battery_voltage(138);
         frame.set_slope_type(SlopeType::SteepUpward);
         frame.set_stop_start_brake_req(StopAndStartBrakeRequirement::Restart);
-        frame.set_gee_failure(true);
+        frame.set_elec_pwr_mgmt_failure(true);
         frame.set_ebw_managed_by_bcu(false);
 
         assert_eq!(frame.into_inner(), &REPR_FRAME_BYTES_2);
@@ -686,7 +690,7 @@ mod test {
 
     #[test]
     fn test_overlong() {
-        let bytes: [u8; 8] = [0x55, 0x2c, 0x15, 0x82, 0x26, 0x86, 0x80, 0xff];
+        let bytes: [u8; 8] = [0x55, 0x2c, 0x15, 0x82, 0x26, 0x7c, 0x80, 0xff];
         assert_eq!(
             Frame::new_unchecked(&bytes).check_len().unwrap_err(),
             Error::Overlong
@@ -695,7 +699,7 @@ mod test {
 
     #[test]
     fn test_underlong() {
-        let bytes: [u8; 6] = [0x55, 0x2c, 0x15, 0x82, 0x26, 0x86];
+        let bytes: [u8; 6] = [0x55, 0x2c, 0x15, 0x82, 0x26, 0x7c];
         assert_eq!(Frame::new_checked(&bytes).unwrap_err(), Error::Truncated);
     }
 
