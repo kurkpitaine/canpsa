@@ -405,7 +405,7 @@ impl<T: AsRef<[u8]>> AsRef<[u8]> for Frame<T> {
 }
 
 /// A high-level representation of a x227 CAN frame.
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Repr {
     pub sport_suspension_led_state: PushButtonLedState,

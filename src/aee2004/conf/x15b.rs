@@ -864,7 +864,7 @@ impl From<&crate::aee2010::infodiv::x15b::Repr> for Repr {
             locking_mode_on_coe_enabled: false,    // No equivalent.
             auto_door_locking_when_leaving_enabled: repr_2010.key_selective_unlocking_enabled,
             boot_permanent_locking_enabled: repr_2010.boot_selective_unlocking_enabled,
-            auto_door_locking_when_driving_enabled: true,
+            auto_door_locking_when_driving_enabled: false, // Always off for some unknown reason.
             selective_unlocking_enabled: repr_2010.selective_unlocking_enabled,
             follow_me_home_lighting_duration: repr_2010.follow_me_home_lighting_duration.into(),
             automatic_headlamps_enabled: repr_2010.automatic_headlamps_enabled,

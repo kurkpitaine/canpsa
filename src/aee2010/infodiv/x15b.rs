@@ -688,42 +688,6 @@ impl<T: AsRef<[u8]> + AsMut<[u8]>> Frame<T> {
         data[field::OPT_3] = raw;
     }
 
-    /// Set the locking mode on 'COE' enable flag.
-    #[inline]
-    pub fn set_locking_mode_on_coe_enable(&mut self, value: bool) {
-        let data = self.buffer.as_mut();
-        let raw = data[field::OPT_1] & !0x08;
-        let raw = if value { raw | 0x08 } else { raw & !0x08 };
-        data[field::OPT_1] = raw;
-    }
-
-    /// Set the automatic door locking when leaving enable flag.
-    #[inline]
-    pub fn set_auto_door_locking_when_leaving_enable(&mut self, value: bool) {
-        let data = self.buffer.as_mut();
-        let raw = data[field::OPT_1] & !0x10;
-        let raw = if value { raw | 0x10 } else { raw & !0x10 };
-        data[field::OPT_1] = raw;
-    }
-
-    /// Set the boot permanent locking enable flag.
-    #[inline]
-    pub fn set_boot_permanent_locking_enable(&mut self, value: bool) {
-        let data = self.buffer.as_mut();
-        let raw = data[field::OPT_1] & !0x20;
-        let raw = if value { raw | 0x20 } else { raw & !0x20 };
-        data[field::OPT_1] = raw;
-    }
-
-    /// Set the automatic door locking when driving enable flag.
-    #[inline]
-    pub fn set_auto_door_locking_when_driving_enable(&mut self, value: bool) {
-        let data = self.buffer.as_mut();
-        let raw = data[field::OPT_1] & !0x40;
-        let raw = if value { raw | 0x40 } else { raw & !0x40 };
-        data[field::OPT_1] = raw;
-    }
-
     /// Set the configurable button/key enable flag.
     #[inline]
     pub fn set_configurable_key_mode(&mut self, value: ConfigurableKeyAction2010) {
